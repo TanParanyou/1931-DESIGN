@@ -5,11 +5,11 @@ import { news } from '@/lib/data';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { useLanguage } from '@/lib/LanguageContext';
+// import { useLanguage } from '@/lib/LanguageContext';
 
 export default function NewsDetailPage() {
     const params = useParams();
-    const { t } = useLanguage();
+    // const { t } = useLanguage();
     const id = Number(params.id);
     const item = news.find(n => n.id === id);
 
@@ -22,22 +22,22 @@ export default function NewsDetailPage() {
             <div className="max-w-4xl mx-auto">
                 <Link
                     href="/news"
-                    className="inline-flex items-center gap-2 text-sm tracking-widest text-gray-500 hover:text-black dark:hover:text-white transition-colors mb-8"
+                    className="inline-flex items-center gap-2 text-sm tracking-widest text-white/50 hover:text-white transition-colors mb-8"
                 >
                     <ArrowLeft size={16} />
                     BACK TO NEWS
                 </Link>
 
                 <div className="mb-8">
-                    <span className="text-xs font-bold tracking-widest text-gray-400 mb-4 block">
+                    <span className="text-xs font-bold tracking-widest text-purple-300 mb-4 block">
                         {item.category} | {item.date}
                     </span>
-                    <h1 className="text-3xl md:text-5xl font-light tracking-wide leading-tight dark:text-white">
+                    <h1 className="text-3xl md:text-5xl font-light tracking-wide leading-tight text-white">
                         {item.title}
                     </h1>
                 </div>
 
-                <div className="relative aspect-video w-full mb-12 bg-gray-100">
+                <div className="relative aspect-video w-full mb-12 rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                     <Image
                         src={item.image}
                         alt={item.title}
@@ -47,10 +47,12 @@ export default function NewsDetailPage() {
                     />
                 </div>
 
-                <div className="prose prose-lg max-w-none dark:prose-invert">
-                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-lg">
-                        {item.content}
-                    </p>
+                <div className="glass p-8 md:p-12 rounded-2xl border-white/10 bg-black/20">
+                    <div className="prose prose-lg max-w-none prose-invert">
+                        <p className="text-white/80 leading-relaxed text-lg font-light">
+                            {item.content}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

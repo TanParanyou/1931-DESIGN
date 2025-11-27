@@ -20,17 +20,19 @@ export default function ProjectsPage() {
 
     return (
         <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen">
-            <h1 className="text-4xl md:text-6xl font-light tracking-wide mb-12">{t.projects.TITLE}</h1>
+            <h1 className="text-4xl md:text-6xl font-light tracking-wide mb-12 text-white">{t.projects.TITLE}</h1>
 
             {/* Filter */}
-            <div className="flex flex-wrap gap-8 mb-16 border-b border-gray-100 pb-4">
+            <div className="flex flex-wrap gap-4 mb-16 border-b border-white/10 pb-8">
                 {categories.map((cat) => (
                     <button
                         key={cat}
                         onClick={() => setActiveCategory(cat)}
                         className={cn(
-                            "text-sm tracking-widest transition-colors hover:text-black",
-                            activeCategory === cat ? "text-black font-medium" : "text-gray-400"
+                            "px-6 py-2 rounded-full text-sm tracking-widest transition-all duration-300 border",
+                            activeCategory === cat
+                                ? "bg-white text-black border-white font-medium"
+                                : "bg-transparent text-white/60 border-white/20 hover:border-white/50 hover:text-white"
                         )}
                     >
                         {cat === "ALL" ? t.projects.ALL : cat}
@@ -44,23 +46,33 @@ export default function ProjectsPage() {
                     <motion.div
                         key={project.id}
                         layout
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
                         className="group"
                     >
                         <Link href={`/projects/${project.id}`}>
-                            <div className="relative aspect-[4/3] overflow-hidden mb-4 bg-gray-100">
+                            <div className="relative aspect-[4/3] overflow-hidden rounded-xl mb-6 border border-white/10 shadow-lg">
                                 <Image
                                     src={project.image}
                                     alt={project.title}
                                     fill
-                                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                                 />
+                                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500" />
+
+                                {/* Hover Overlay */}
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div className="glass px-6 py-3 rounded-full">
+                                        <span className="text-xs tracking-widest text-white">VIEW DETAILS</span>
+                                    </div>
+                                </div>
                             </div>
-                            <h3 className="text-lg font-medium tracking-wide">{project.title}</h3>
-                            <p className="text-xs text-gray-500 tracking-widest mt-1">{project.location}</p>
-                            <p className="text-xs text-gray-400 tracking-widest mt-1">{project.category}</p>
+                            <h3 className="text-xl font-light tracking-wide text-white group-hover:text-purple-300 transition-colors">{project.title}</h3>
+                            <div className="flex justify-between items-center mt-2 border-t border-white/10 pt-2">
+                                <p className="text-xs text-white/50 tracking-widest">{project.location}</p>
+                                <p className="text-xs text-purple-300/70 tracking-widest">{project.category}</p>
+                            </div>
                         </Link>
                     </motion.div>
                 ))}

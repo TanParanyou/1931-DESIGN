@@ -26,6 +26,11 @@ const slides = [
     }
 ];
 
+const swipeConfidenceThreshold = 10000;
+const swipePower = (offset: number, velocity: number) => {
+    return Math.abs(offset) * velocity;
+};
+
 export const HeroSlider = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -49,11 +54,23 @@ export const HeroSlider = () => {
             <AnimatePresence mode="wait">
                 <motion.div
                     key={currentSlide}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 1 }}
-                    className="absolute inset-0"
+                    initial={{ opacity: 0, scale: 1.1 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 0 }}
+                    transition={{ duration: 1.5 }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={1}
+                    onDragEnd={(e, { offset, velocity }) => {
+                        const swipe = swipePower(offset.x, velocity.x);
+
+                        if (swipe < -swipeConfidenceThreshold) {
+                            nextSlide();
+                        } else if (swipe > swipeConfidenceThreshold) {
+                            prevSlide();
+                        }
+                    }}
+                    className="absolute inset-0 cursor-grab active:cursor-grabbing"
                 >
                     <Image
                         src={slides[currentSlide].image}
@@ -62,31 +79,28 @@ export const HeroSlider = () => {
                         className="object-cover"
                         priority
                     />
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-black/20" />
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
+                    <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" />
                 </motion.div>
             </AnimatePresence>
 
             {/* Content */}
             <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-4">
-                <motion.h2
-                    key={`sub-${currentSlide}`}
-                    initial={{ y: 20, opacity: 0 }}
+                <motion.div
+                    key={`content-${currentSlide}`}
+                    initial={{ y: 30, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.5, duration: 0.8 }}
-                    className="text-sm md:text-base tracking-[0.3em] uppercase mb-4"
+                    className="glass px-8 py-12 md:px-16 md:py-20 rounded-2xl border-white/10 bg-black/20"
                 >
-                    {slides[currentSlide].subtitle}
-                </motion.h2>
-                <motion.h1
-                    key={`title-${currentSlide}`}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.7, duration: 0.8 }}
-                    className="text-4xl md:text-6xl lg:text-7xl font-light tracking-wider"
-                >
-                    {slides[currentSlide].title}
-                </motion.h1>
+                    <h2 className="text-sm md:text-base tracking-[0.4em] uppercase mb-6 text-purple-200">
+                        {slides[currentSlide].subtitle}
+                    </h2>
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-wider mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-100 to-white/80">
+                        {slides[currentSlide].title}
+                    </h1>
+                </motion.div>
             </div>
 
             {/* Navigation Dots */}
@@ -95,24 +109,24 @@ export const HeroSlider = () => {
                     <button
                         key={index}
                         onClick={() => setCurrentSlide(index)}
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${currentSlide === index ? 'bg-white w-8' : 'bg-white/50 hover:bg-white/80'
+                        className={`h-1 rounded-full transition-all duration-500 ${currentSlide === index ? 'bg-white w-12' : 'bg-white/30 w-4 hover:bg-white/60'
                             }`}
                     />
                 ))}
             </div>
 
-            {/* Arrows (Optional, keeping minimal for now but adding for usability) */}
+            {/* Arrows */}
             <button
                 onClick={prevSlide}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors z-20 hidden md:block"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-4 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all z-20 hidden md:block group"
             >
-                <ChevronLeft size={48} strokeWidth={1} />
+                <ChevronLeft size={48} strokeWidth={1} className="group-hover:-translate-x-1 transition-transform" />
             </button>
             <button
                 onClick={nextSlide}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors z-20 hidden md:block"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-4 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all z-20 hidden md:block group"
             >
-                <ChevronRight size={48} strokeWidth={1} />
+                <ChevronRight size={48} strokeWidth={1} className="group-hover:translate-x-1 transition-transform" />
             </button>
         </div>
     );
