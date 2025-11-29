@@ -19,9 +19,9 @@ export default function ContactPage() {
                         <div className="flex gap-4 items-start text-white/80 mb-4">
                             <MapPin size={20} className="mt-1 shrink-0 text-purple-400" />
                             <p className="leading-relaxed font-light">
-                                123 Sukhumvit Road,<br />
-                                Khlong Toei Nuea, Watthana,<br />
-                                Bangkok 10110, Thailand
+                                160/78 หมู่ที่ 5 ถนนบางกรวย-ไทรน้อย<br />
+                                ตำบลบางกรวย อำเภอบางกรวย<br />
+                                จ.นนทบุรี 11130
                             </p>
                         </div>
                         <div className="flex gap-4 items-center text-white/80 mb-4">
@@ -42,6 +42,19 @@ export default function ContactPage() {
                         <a href="mailto:careers@1931.com" className="text-white border-b border-white/30 pb-1 hover:text-purple-300 hover:border-purple-300 transition-all">
                             careers@1931.com
                         </a>
+                    </div>
+
+                    <div className="w-full h-64 rounded-lg overflow-hidden border border-white/10">
+                        <iframe
+                            width="100%"
+                            height="100%"
+                            style={{ border: 0 }}
+                            loading="lazy"
+                            allowFullScreen
+                            referrerPolicy="no-referrer-when-downgrade"
+                            src="https://maps.google.com/maps?q=160%2F78+หมู่ที่+5+ถนนบางกรวย-ไทรน้อย+ตำบลบางกรวย+อำเภอบางกรวย+จ.นนทบุรี+11130&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                            title="Google Map"
+                        ></iframe>
                     </div>
                 </div>
 

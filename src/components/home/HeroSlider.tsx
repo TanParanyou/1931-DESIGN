@@ -5,24 +5,49 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+// Architecture 
+// Interior
+// Built-in
+// Renovate
+// Landscape
+// Construction
+
 const slides = [
     {
         id: 1,
         image: '/images/slide1.png',
-        title: 'KNOWLEDGE IS EVERYWHERE',
-        subtitle: 'EDUCATIONAL PROJECT'
+        title: 'ARCHITECTURE',
+        subtitle: 'ARCHITECTURE PROJECT'
     },
     {
         id: 2,
         image: '/images/slide2.png',
-        title: 'DESIGN FOR LIFE',
-        subtitle: 'RESIDENTIAL PROJECT'
+        title: 'INTERIOR',
+        subtitle: 'INTERIOR PROJECT'
     },
     {
         id: 3,
         image: '/images/slide3.png',
-        title: 'URBAN HARMONY',
-        subtitle: 'COMMERCIAL PROJECT'
+        title: 'BUILT-IN',
+        subtitle: 'BUILT-IN PROJECT'
+    },
+    {
+        id: 4,
+        image: '/images/slide3.png',
+        title: 'RENOVATE',
+        subtitle: 'RENOVATE PROJECT'
+    },
+    {
+        id: 5,
+        image: '/images/slide3.png',
+        title: 'LANDSCAPE',
+        subtitle: 'LANDSCAPE PROJECT'
+    },
+    {
+        id: 6,
+        image: '/images/slide3.png',
+        title: 'CONSTRUCTION',
+        subtitle: 'CONSTRUCTION PROJECT'
     }
 ];
 
@@ -86,7 +111,7 @@ export const HeroSlider = () => {
             </AnimatePresence>
 
             {/* Content */}
-            <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-4">
+            <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-4 pointer-events-none">
                 <motion.div
                     key={`content-${currentSlide}`}
                     initial={{ y: 30, opacity: 0 }}
@@ -118,15 +143,15 @@ export const HeroSlider = () => {
             {/* Arrows */}
             <button
                 onClick={prevSlide}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-4 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all z-20 hidden md:block group"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 md:p-4 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all z-20 group"
             >
-                <ChevronLeft size={48} strokeWidth={1} className="group-hover:-translate-x-1 transition-transform" />
+                <ChevronLeft strokeWidth={1} className="w-8 h-8 md:w-12 md:h-12 group-hover:-translate-x-1 transition-transform" />
             </button>
             <button
                 onClick={nextSlide}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-4 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all z-20 hidden md:block group"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 md:p-4 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-all z-20 group"
             >
-                <ChevronRight size={48} strokeWidth={1} className="group-hover:translate-x-1 transition-transform" />
+                <ChevronRight strokeWidth={1} className="w-8 h-8 md:w-12 md:h-12 group-hover:translate-x-1 transition-transform" />
             </button>
         </div>
     );
