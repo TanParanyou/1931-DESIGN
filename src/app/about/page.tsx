@@ -23,7 +23,7 @@ export default function AboutPage() {
                 </div>
 
                 <div className="space-y-8 glass p-10 rounded-2xl border-white/10 bg-black/20">
-                    <h2 className="text-2xl font-light tracking-wide text-purple-200">1931 Co., Ltd.</h2>
+                    <h2 className="text-2xl font-light tracking-wide text-green-200">1931 Co., Ltd.</h2>
                     <p className="text-white/80 leading-relaxed font-light text-lg">
                         The diversity of our team enables us to create a
                         broad range of architectural and Decoration styles. From

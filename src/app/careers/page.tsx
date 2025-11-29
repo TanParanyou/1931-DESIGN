@@ -21,12 +21,12 @@ export default function CareersPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
                 <div className="lg:col-span-1 glass p-8 rounded-2xl border-white/10 bg-black/20 h-fit">
-                    <h2 className="text-xl font-medium tracking-wide mb-4 text-purple-200">JOIN OUR TEAM</h2>
+                    <h2 className="text-xl font-medium tracking-wide mb-4 text-green-200">JOIN OUR TEAM</h2>
                     <p className="text-white/70 leading-relaxed mb-8">
                         We are always looking for passionate and talented individuals to join our growing team.
                         If you share our vision for creating exceptional spaces, we&apos;d love to hear from you.
                     </p>
-                    <a href="mailto:careers@1931.com" className="text-sm tracking-widest border-b border-white/30 pb-1 hover:text-purple-300 hover:border-purple-300 transition-all text-white" onClick={() => router.push('/careers')}>
+                    <a href="mailto:careers@1931.com" className="text-sm tracking-widest border-b border-white/30 pb-1 hover:text-green-300 hover:border-green-300 transition-all text-white" onClick={() => router.push('/careers')}>
                         SEND YOUR PORTFOLIO
                     </a>
                 </div>
@@ -41,11 +41,11 @@ export default function CareersPage() {
                                         <span>|</span>
                                         <span>{job.location}</span>
                                     </div>
-                                    <h3 className="text-xl md:text-2xl font-light tracking-wide text-white group-hover:text-purple-300 transition-colors">
+                                    <h3 className="text-xl md:text-2xl font-light tracking-wide text-white group-hover:text-green-300 transition-colors">
                                         {job.title}
                                     </h3>
                                 </div>
-                                <div className="text-sm tracking-widest border-b border-transparent group-hover:border-purple-300 text-white/70 group-hover:text-purple-300 transition-all">
+                                <div className="text-sm tracking-widest border-b border-transparent group-hover:border-green-300 text-white/70 group-hover:text-green-300 transition-all">
                                     VIEW DETAILS
                                 </div>
                             </div>

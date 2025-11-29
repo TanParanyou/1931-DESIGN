@@ -29,7 +29,7 @@ export default function NewsDetailPage() {
                 </Link>
 
                 <div className="mb-8">
-                    <span className="text-xs font-bold tracking-widest text-purple-300 mb-4 block">
+                    <span className="text-xs font-bold tracking-widest text-green-300 mb-4 block">
                         {item.category} | {item.date}
                     </span>
                     <h1 className="text-3xl md:text-5xl font-light tracking-wide leading-tight text-white">

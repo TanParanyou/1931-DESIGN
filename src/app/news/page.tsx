@@ -45,7 +45,7 @@ export default function NewsPage() {
                             <span className="text-xs font-bold tracking-widest text-white/50">
                                 {item.category} | {item.date}
                             </span>
-                            <h2 className="text-xl md:text-2xl font-light tracking-wide text-white group-hover:text-purple-300 transition-colors">
+                            <h2 className="text-xl md:text-2xl font-light tracking-wide text-white group-hover:text-green-300 transition-colors">
                                 {item.title}
                             </h2>
                         </div>

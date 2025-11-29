@@ -68,10 +68,10 @@ export default function ProjectsPage() {
                                     </div>
                                 </div>
                             </div>
-                            <h3 className="text-xl font-light tracking-wide text-white group-hover:text-purple-300 transition-colors">{project.title}</h3>
+                            <h3 className="text-xl font-light tracking-wide text-white group-hover:text-green-300 transition-colors">{project.title}</h3>
                             <div className="flex justify-between items-center mt-2 border-t border-white/10 pt-2">
                                 <p className="text-xs text-white/50 tracking-widest">{project.location}</p>
-                                <p className="text-xs text-purple-300/70 tracking-widest">{project.category}</p>
+                                <p className="text-xs text-green-300/70 tracking-widest">{project.category}</p>
                             </div>
                         </Link>
                     </motion.div>

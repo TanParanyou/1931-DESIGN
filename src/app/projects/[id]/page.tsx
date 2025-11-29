@@ -68,22 +68,22 @@ export default function ProjectDetailPage() {
             {/* Description */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 mb-24">
                 <div className="lg:col-span-2 glass p-8 md:p-12 rounded-2xl border-white/10 bg-black/20">
-                    <h2 className="text-xl font-medium tracking-wide mb-6 text-purple-200">PROJECT DESCRIPTION</h2>
+                    <h2 className="text-xl font-medium tracking-wide mb-6 text-green-200">PROJECT DESCRIPTION</h2>
                     <p className="text-white/80 leading-relaxed text-lg font-light">
                         {project.description}
                     </p>
                 </div>
                 <div className="space-y-6">
                     <div className="glass p-6 rounded-xl border-white/10 bg-black/20">
-                        <h3 className="text-xs font-bold tracking-widest mb-2 text-purple-300">CLIENT</h3>
+                        <h3 className="text-xs font-bold tracking-widest mb-2 text-green-300">CLIENT</h3>
                         <p className="text-white/90">Confidential</p>
                     </div>
                     <div className="glass p-6 rounded-xl border-white/10 bg-black/20">
-                        <h3 className="text-xs font-bold tracking-widest mb-2 text-purple-300">AREA</h3>
+                        <h3 className="text-xs font-bold tracking-widest mb-2 text-green-300">AREA</h3>
                         <p className="text-white/90">12,000 sq.m.</p>
                     </div>
                     <div className="glass p-6 rounded-xl border-white/10 bg-black/20">
-                        <h3 className="text-xs font-bold tracking-widest mb-2 text-purple-300">STATUS</h3>
+                        <h3 className="text-xs font-bold tracking-widest mb-2 text-green-300">STATUS</h3>
                         <p className="text-white/90">Completed</p>
                     </div>
                 </div>
@@ -128,7 +128,7 @@ export default function ProjectDetailPage() {
                                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
                                 </div>
-                                <h3 className="text-lg font-medium tracking-wide text-white group-hover:text-purple-300 transition-colors">{related.title}</h3>
+                                <h3 className="text-lg font-medium tracking-wide text-white group-hover:text-green-300 transition-colors">{related.title}</h3>
                                 <p className="text-xs text-white/50 tracking-widest mt-1">{related.location}</p>
                             </Link>
                         ))}

@@ -16,11 +16,11 @@ export const Footer = () => {
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-xs font-medium tracking-[0.2em] order-1 md:order-2">
-                    <Link href="/about" className="hover:text-purple-300 transition-colors">{t.menu.ABOUT}</Link>
-                    <Link href="/projects" className="hover:text-purple-300 transition-colors">{t.menu.PROJECTS}</Link>
-                    {/* <Link href="/news" className="hover:text-purple-300 transition-colors">{t.menu.NEWS}</Link> */}
-                    {/* <Link href="/careers" className="hover:text-purple-300 transition-colors">{t.menu.CAREERS}</Link> */}
-                    <Link href="/contact" className="hover:text-purple-300 transition-colors">{t.menu.CONTACT}</Link>
+                    <Link href="/about" className="hover:text-green-300 transition-colors">{t.menu.ABOUT}</Link>
+                    <Link href="/projects" className="hover:text-green-300 transition-colors">{t.menu.PROJECTS}</Link>
+                    {/* <Link href="/news" className="hover:text-green-300 transition-colors">{t.menu.NEWS}</Link> */}
+                    {/* <Link href="/careers" className="hover:text-green-300 transition-colors">{t.menu.CAREERS}</Link> */}
+                    <Link href="/contact" className="hover:text-green-300 transition-colors">{t.menu.CONTACT}</Link>
                 </div>
 
                 <div className="flex gap-4 order-2 md:order-3">

@@ -58,10 +58,10 @@ export const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose }) => 
                                 <Link
                                     href={item.href}
                                     onClick={onClose}
-                                    className="text-4xl md:text-6xl font-light tracking-widest text-white hover:text-purple-300 transition-colors relative group"
+                                    className="text-4xl md:text-6xl font-light tracking-widest text-white hover:text-green-300 transition-colors relative group"
                                 >
                                     {item.label}
-                                    <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-purple-400 transition-all duration-300 group-hover:w-full" />
+                                    <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-green-400 transition-all duration-300 group-hover:w-full" />
                                 </Link>
                             </motion.div>
                         ))}
