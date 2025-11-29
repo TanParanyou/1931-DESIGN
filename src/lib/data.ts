@@ -159,7 +159,7 @@ export const news = [
     {
         id: 1,
         date: "NOV 20, 2025",
-        title: "1938 WINS BEST DESIGN AWARD 2025",
+        title: "1931 WINS BEST DESIGN AWARD 2025",
         category: "AWARDS",
         image: "/images/slide1.png",
         content: "We are honored to receive the Best Design Award 2025 for our work on the Skyline Tower project. This recognition reflects our commitment to excellence and innovation in architectural design. The jury praised the project's integration of sustainable technologies and its positive impact on the urban fabric."
@@ -178,7 +178,7 @@ export const news = [
         title: "NEW SUSTAINABLE DESIGN INITIATIVE",
         category: "NEWS",
         image: "/images/slide3.png",
-        content: "1938 Co., Ltd. is proud to announce a new initiative focused on sustainable design practices. We are committing to reducing the carbon footprint of all our future projects by 30% over the next five years through the use of eco-friendly materials and energy-efficient systems."
+        content: "1931 Co., Ltd. is proud to announce a new initiative focused on sustainable design practices. We are committing to reducing the carbon footprint of all our future projects by 30% over the next five years through the use of eco-friendly materials and energy-efficient systems."
     },
     {
         id: 4,

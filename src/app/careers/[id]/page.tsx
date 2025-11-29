@@ -38,7 +38,7 @@ export default function CareerDetailPage() {
                             </div>
                         </div>
                         <a
-                            href={`mailto:careers@1938.com?subject=Application for ${job.title}`}
+                            href={`mailto:careers@1931.com?subject=Application for ${job.title}`}
                             className="inline-block bg-white text-black px-8 py-3 text-sm tracking-widest hover:bg-purple-300 transition-colors text-center rounded-full font-medium"
                         >
                             APPLY NOW

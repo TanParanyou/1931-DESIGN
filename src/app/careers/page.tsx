@@ -19,7 +19,7 @@ export default function CareersPage() {
                         We are always looking for passionate and talented individuals to join our growing team.
                         If you share our vision for creating exceptional spaces, we&apos;d love to hear from you.
                     </p>
-                    <a href="mailto:careers@1938.com" className="text-sm tracking-widest border-b border-white/30 pb-1 hover:text-purple-300 hover:border-purple-300 transition-all text-white">
+                    <a href="mailto:careers@1931.com" className="text-sm tracking-widest border-b border-white/30 pb-1 hover:text-purple-300 hover:border-purple-300 transition-all text-white">
                         SEND YOUR PORTFOLIO
                     </a>
                 </div>

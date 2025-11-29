@@ -30,7 +30,7 @@ export default function ContactPage() {
                         </div>
                         <div className="flex gap-4 items-center text-white/80">
                             <Mail size={20} className="shrink-0 text-purple-400" />
-                            <p className="font-light">info@1938.com</p>
+                            <p className="font-light">info@1931.com</p>
                         </div>
                     </div>
 
@@ -39,8 +39,8 @@ export default function ContactPage() {
                         <p className="text-white/80 mb-4 font-light">
                             We are always looking for talented individuals to join our team.
                         </p>
-                        <a href="mailto:careers@1938.com" className="text-white border-b border-white/30 pb-1 hover:text-purple-300 hover:border-purple-300 transition-all">
-                            careers@1938.com
+                        <a href="mailto:careers@1931.com" className="text-white border-b border-white/30 pb-1 hover:text-purple-300 hover:border-purple-300 transition-all">
+                            careers@1931.com
                         </a>
                     </div>
                 </div>

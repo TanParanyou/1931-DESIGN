@@ -15,7 +15,7 @@ export default function AboutPage() {
                 <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                     <Image
                         src="/images/slide1.png"
-                        alt="About 1938"
+                        alt="About 1931"
                         fill
                         className="object-cover"
                     />
@@ -23,9 +23,9 @@ export default function AboutPage() {
                 </div>
 
                 <div className="space-y-8 glass p-10 rounded-2xl border-white/10 bg-black/20">
-                    <h2 className="text-2xl font-light tracking-wide text-purple-200">DESIGNING THE FUTURE SINCE 1938</h2>
+                    <h2 className="text-2xl font-light tracking-wide text-purple-200">DESIGNING THE FUTURE SINCE 1931</h2>
                     <p className="text-white/80 leading-relaxed font-light text-lg">
-                        1938 Co., Ltd. is a multidisciplinary design firm based in Bangkok, Thailand.
+                        1931 Co., Ltd. is a multidisciplinary design firm based in Bangkok, Thailand.
                         We believe in the power of architecture to shape lives and communities.
                         Our approach combines modern aesthetics with functional design, creating spaces that inspire and endure.
                     </p>

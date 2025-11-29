@@ -69,7 +69,7 @@ export const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose }) => 
 
                     {/* Footer Info in Menu */}
                     <div className="p-12 text-center text-white/40 text-sm tracking-[0.3em]">
-                        1938 CO., LTD.
+                        1931 CO., LTD.
                     </div>
                 </motion.div>
             )}

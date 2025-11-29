@@ -11,7 +11,7 @@ export const Footer = () => {
         <footer className="relative z-10 border-t border-white/10 bg-black/20 backdrop-blur-md py-12 text-white">
             <div className="max-w-[1920px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-6">
                 <div className="text-xs tracking-[0.2em] text-white/50 order-3 md:order-1">
-                    © 2025 1938 CO., LTD. {t.footer.RIGHTS}
+                    © 2025 1931 CO., LTD. {t.footer.RIGHTS}
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-xs font-medium tracking-[0.2em] order-1 md:order-2">
