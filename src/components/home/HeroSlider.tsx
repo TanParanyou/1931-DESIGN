@@ -55,16 +55,56 @@ const slides = [
 
 export const HeroSlider = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [touchStart, setTouchStart] = useState(0);
+    const [touchEnd, setTouchEnd] = useState(0);
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % slides.length);
+            nextSlide();
         }, 8000);
         return () => clearInterval(timer);
-    }, []);
+    }, [currentSlide]);
+
+    const nextSlide = () => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+    };
+
+    const prevSlide = () => {
+        setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    };
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > 50;
+        const isRightSwipe = distance < -50;
+
+        if (isLeftSwipe) {
+            nextSlide();
+        }
+        if (isRightSwipe) {
+            prevSlide();
+        }
+
+        setTouchEnd(0);
+        setTouchStart(0);
+    };
 
     return (
-        <div className="relative h-screen w-full overflow-hidden bg-black">
+        <div
+            className="relative h-screen w-full overflow-hidden bg-black"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+        >
             <AnimatePresence mode="popLayout">
                 <motion.div
                     key={currentSlide}
@@ -90,10 +130,6 @@ export const HeroSlider = () => {
             {/* Content */}
             <div className="absolute inset-0 flex flex-col justify-center items-end text-end text-white z-10 px-4 pointer-events-none">
                 <div className="px-0 py-12 md:px-16 md:py-20 rounded-2xl border-white/10  overflow-hidden relative">
-                    {/* Decorative Elements */}
-                    {/* <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-white/20 rounded-tl-2xl" /> */}
-                    {/* <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-white/20 rounded-br-2xl" /> */}
-
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={currentSlide}
@@ -133,19 +169,24 @@ export const HeroSlider = () => {
                 </div>
             </div>
 
+            {/* Navigation Arrows */}
+            <button
+                onClick={prevSlide}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all hidden md:block"
+                aria-label="Previous slide"
+            >
+                <ChevronLeft className="w-8 h-8" />
+            </button>
+            <button
+                onClick={nextSlide}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all hidden md:block"
+                aria-label="Next slide"
+            >
+                <ChevronRight className="w-8 h-8" />
+            </button>
+
             {/* Progress Bar & Navigation */}
             <div className="absolute bottom-12 left-0 right-0 z-20 flex flex-col items-center gap-6">
-                {/* Progress Bar */}
-                {/* <div className="w-64 h-1 bg-white/20 rounded-full overflow-hidden">
-                    <motion.div
-                        key={currentSlide}
-                        initial={{ width: "0%" }}
-                        animate={{ width: "100%" }}
-                        transition={{ duration: 5, ease: "linear" }}
-                        className="h-full bg-white/80"
-                    />
-                </div> */}
-
                 {/* Dots */}
                 <div className="flex justify-center gap-4">
                     {slides.map((_, index) => (
@@ -154,6 +195,7 @@ export const HeroSlider = () => {
                             onClick={() => setCurrentSlide(index)}
                             className={`h-1.5 rounded-full transition-all duration-500 ${currentSlide === index ? 'bg-white w-8' : 'bg-white/30 w-2 hover:bg-white/60'
                                 }`}
+                            aria-label={`Go to slide ${index + 1}`}
                         />
                     ))}
                 </div>
