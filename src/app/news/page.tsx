@@ -7,15 +7,16 @@ import Image from 'next/image';
 
 import { useLanguage } from '@/lib/LanguageContext';
 import { news } from '@/lib/data';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function NewsPage() {
     const { t } = useLanguage();
 
     const router = useRouter();
+
     useEffect(() => {
         router.push('/');
-    }, []);
+    }, [router]);
 
     return (
         <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen">
