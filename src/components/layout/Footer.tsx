@@ -1,6 +1,7 @@
 "use client";
+
 import React from 'react';
-import { Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Facebook, Instagram } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/LanguageContext';
 
