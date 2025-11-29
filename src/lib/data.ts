@@ -29,6 +29,10 @@ export const translations = {
             SUBJECT: 'SUBJECT',
             MESSAGE: 'MESSAGE',
             SEND: 'SEND MESSAGE',
+            SUCCESS: 'Message sent successfully!',
+            ERROR: 'Failed to send message. Please try again.',
+            SENDING: 'Sending...',
+            REQUIRED: 'Required',
         },
         footer: {
             RIGHTS: 'ALL RIGHTS RESERVED.',
@@ -62,6 +66,10 @@ export const translations = {
             SUBJECT: 'หัวข้อ',
             MESSAGE: 'ข้อความ',
             SEND: 'ส่งข้อความ',
+            SUCCESS: 'ส่งข้อความเรียบร้อยแล้ว!',
+            ERROR: 'ส่งข้อความไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
+            SENDING: 'กำลังส่ง...',
+            REQUIRED: 'จำเป็น',
         },
         footer: {
             RIGHTS: 'สงวนลิขสิทธิ์',

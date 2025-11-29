@@ -89,7 +89,7 @@ export const HeroSlider = () => {
 
             {/* Content */}
             <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-4 pointer-events-none">
-                <div className="glass px-8 py-12 md:px-16 md:py-20 rounded-2xl border-white/10 bg-black/30 backdrop-blur-md overflow-hidden relative">
+                <div className="px-8 py-12 md:px-16 md:py-20 rounded-2xl border-white/10  backdrop-blur-xs overflow-hidden relative">
                     {/* Decorative Elements */}
                     <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-white/20 rounded-tl-2xl" />
                     <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-white/20 rounded-br-2xl" />
