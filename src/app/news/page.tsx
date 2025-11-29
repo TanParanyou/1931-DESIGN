@@ -1,15 +1,22 @@
 
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 import { useLanguage } from '@/lib/LanguageContext';
 import { news } from '@/lib/data';
+import { useRouter } from 'next/router';
 
 export default function NewsPage() {
     const { t } = useLanguage();
+
+    const router = useRouter();
+    useEffect(() => {
+        router.push('/');
+    }, []);
+
     return (
         <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen">
             <h1 className="text-4xl md:text-6xl font-light tracking-wide mb-16 text-white">{t.menu.NEWS}</h1>

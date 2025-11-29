@@ -268,3 +268,82 @@ export const careers = [
         ]
     },
 ];
+
+export const careersMock = [
+    {
+        id: 1,
+        title: "SENIOR ARCHITECT",
+        type: "FULL TIME",
+        location: "BANGKOK",
+        description: "We are looking for an experienced Senior Architect to lead design projects from concept to completion.",
+        responsibilities: [
+            "Lead architectural design projects and teams.",
+            "Coordinate with clients, consultants, and contractors.",
+            "Ensure design quality and compliance with regulations.",
+            "Mentor junior staff."
+        ],
+        requirements: [
+            "Bachelor's or Master's degree in Architecture.",
+            "Minimum 8 years of experience.",
+            "Proficiency in Revit, AutoCAD, and SketchUp.",
+            "Strong leadership and communication skills."
+        ]
+    },
+    {
+        id: 2,
+        title: "INTERIOR DESIGNER",
+        type: "FULL TIME",
+        location: "BANGKOK",
+        description: "Creative Interior Designer needed to craft inspiring interior spaces for high-end residential and commercial projects.",
+        responsibilities: [
+            "Develop interior design concepts and mood boards.",
+            "Select materials, furniture, and lighting.",
+            "Produce detailed drawings and specifications.",
+            "Collaborate with architects and contractors."
+        ],
+        requirements: [
+            "Degree in Interior Design or related field.",
+            "Minimum 3 years of experience.",
+            "Strong portfolio demonstrating creative ability.",
+            "Knowledge of materials and construction details."
+        ]
+    },
+    {
+        id: 3,
+        title: "JUNIOR ARCHITECT",
+        type: "FULL TIME",
+        location: "PHUKET",
+        description: "Opportunity for a motivated Junior Architect to join our Phuket office and work on exciting hospitality projects.",
+        responsibilities: [
+            "Assist in design development and documentation.",
+            "Create 3D models and renderings.",
+            "Prepare presentation materials.",
+            "Support senior architects in project coordination."
+        ],
+        requirements: [
+            "Degree in Architecture.",
+            "1-3 years of experience.",
+            "Proficiency in 3D modeling software.",
+            "Eager to learn and grow."
+        ]
+    },
+    {
+        id: 4,
+        title: "DRAFTSMAN",
+        type: "CONTRACT",
+        location: "BANGKOK",
+        description: "Skilled Draftsman required to assist in the production of technical drawings and construction documents.",
+        responsibilities: [
+            "Produce accurate technical drawings.",
+            "Update drawings based on feedback.",
+            "Ensure adherence to drafting standards.",
+            "Assist in site measurements."
+        ],
+        requirements: [
+            "Diploma or Certificate in Drafting or Architecture.",
+            "Proficiency in AutoCAD.",
+            "Attention to detail and accuracy.",
+            "Ability to meet deadlines."
+        ]
+    },
+];

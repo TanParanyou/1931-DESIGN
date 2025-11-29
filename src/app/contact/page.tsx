@@ -26,11 +26,15 @@ export default function ContactPage() {
                         </div>
                         <div className="flex gap-4 items-center text-white/80 mb-4">
                             <Phone size={20} className="shrink-0 text-purple-400" />
-                            <p className="font-light">+66 2 123 4567</p>
+                            <p className="font-light">+66 92 518 9280</p>
+                        </div>
+                        <div className="flex gap-4 items-center text-white/80 mb-4">
+                            <Phone size={20} className="shrink-0 text-purple-400" />
+                            <p className="font-light">+66 85 046 0291</p>
                         </div>
                         <div className="flex gap-4 items-center text-white/80">
                             <Mail size={20} className="shrink-0 text-purple-400" />
-                            <p className="font-light">info@1931.com</p>
+                            <p className="font-light">ccontact.1931@gmail.com</p>
                         </div>
                     </div>
 
@@ -39,8 +43,8 @@ export default function ContactPage() {
                         <p className="text-white/80 mb-4 font-light">
                             We are always looking for talented individuals to join our team.
                         </p>
-                        <a href="mailto:careers@1931.com" className="text-white border-b border-white/30 pb-1 hover:text-purple-300 hover:border-purple-300 transition-all">
-                            careers@1931.com
+                        <a href="mailto:ccontact.1931@gmail.com" className="text-white border-b border-white/30 pb-1 hover:text-purple-300 hover:border-purple-300 transition-all">
+                            ccontact.1931@gmail.com
                         </a>
                     </div>
 

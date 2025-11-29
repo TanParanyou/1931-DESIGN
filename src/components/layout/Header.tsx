@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { MenuOverlay } from './MenuOverlay';
 import { useLanguage } from '@/lib/LanguageContext';
-import { useTheme } from '@/lib/ThemeContext';
 
 export const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -15,7 +14,6 @@ export const Header = () => {
     // const pathname = usePathname();
     // const isHome = pathname === '/';
     const { language, setLanguage } = useLanguage();
-    const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -55,16 +53,9 @@ export const Header = () => {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <button className="p-2 hover:bg-white/10 rounded-full transition-all duration-300 text-white">
+                        {/* <button className="p-2 hover:bg-white/10 rounded-full transition-all duration-300 text-white">
                             <Search size={20} strokeWidth={1.5} />
-                        </button>
-
-                        <button
-                            onClick={toggleTheme}
-                            className="p-2 hover:bg-white/10 rounded-full transition-all duration-300 text-white"
-                        >
-                            {theme === 'light' ? <Moon size={20} strokeWidth={1.5} /> : <Sun size={20} strokeWidth={1.5} />}
-                        </button>
+                        </button> */}
 
                         <button
                             onClick={toggleLanguage}

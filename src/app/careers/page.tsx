@@ -1,13 +1,20 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { useLanguage } from '@/lib/LanguageContext';
 import { careers } from '@/lib/data';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function CareersPage() {
     const { t } = useLanguage();
+    const router = useRouter();
+
+    useEffect(() => {
+        router.push('/');
+    }, [router]);
+
     return (
         <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen">
             <h1 className="text-4xl md:text-6xl font-light tracking-wide mb-16 text-white">{t.menu.CAREERS}</h1>
@@ -19,7 +26,7 @@ export default function CareersPage() {
                         We are always looking for passionate and talented individuals to join our growing team.
                         If you share our vision for creating exceptional spaces, we&apos;d love to hear from you.
                     </p>
-                    <a href="mailto:careers@1931.com" className="text-sm tracking-widest border-b border-white/30 pb-1 hover:text-purple-300 hover:border-purple-300 transition-all text-white">
+                    <a href="mailto:careers@1931.com" className="text-sm tracking-widest border-b border-white/30 pb-1 hover:text-purple-300 hover:border-purple-300 transition-all text-white" onClick={() => router.push('/careers')}>
                         SEND YOUR PORTFOLIO
                     </a>
                 </div>

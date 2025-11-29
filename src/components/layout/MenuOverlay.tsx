@@ -20,8 +20,8 @@ export const MenuOverlay: React.FC<MenuOverlayProps> = ({ isOpen, onClose }) => 
         { label: t.menu.HOME, href: '/' },
         { label: t.menu.PROJECTS, href: '/projects' },
         { label: t.menu.ABOUT, href: '/about' },
-        { label: t.menu.NEWS, href: '/news' },
-        { label: t.menu.CAREERS, href: '/careers' },
+        // { label: t.menu.NEWS, href: '/news' },
+        // { label: t.menu.CAREERS, href: '/careers' },
         { label: t.menu.CONTACT, href: '/contact' },
     ];
 
