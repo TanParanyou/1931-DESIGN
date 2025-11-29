@@ -115,7 +115,7 @@ export const HeroSlider = () => {
                                     hidden: { opacity: 0, y: 20 },
                                     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
                                 }}
-                                className="text-sm md:text-lg tracking-[0.4em] uppercase mb-6 text-white font-medium"
+                                className="text-sm md:text-lg tracking-[0.4em] uppercase mb-3 text-white font-medium"
                             >
                                 {slides[currentSlide].subtitle}
                             </motion.h2>
@@ -124,7 +124,7 @@ export const HeroSlider = () => {
                                     hidden: { opacity: 0, scale: 0.95 },
                                     visible: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: "easeOut" } }
                                 }}
-                                className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-wider mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-white"
+                                className="text-4xl md:text-7xl lg:text-8xl font-bold tracking-wider mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-white whitespace-normal break-words"
                             >
                                 {slides[currentSlide].title}
                             </motion.h1>
