@@ -23,6 +23,10 @@ func main() {
 	// CORS Middleware
 	app.Use(middleware.CORS())
 
+	// Security Middleware
+	app.Use(middleware.Security())
+	app.Use(middleware.RateLimiter())
+
 	// Setup routes
 	routes.SetupRoutes(app)
 
