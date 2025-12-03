@@ -1,7 +1,8 @@
 "use client";
 
 import { useParams, notFound } from 'next/navigation';
-import { careers } from '@/lib/data';
+import { api, Career } from '@/lib/api';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 // import { useLanguage } from '@/lib/LanguageContext';
@@ -10,8 +11,21 @@ export default function CareerDetailPage() {
     const params = useParams();
     // const { t } = useLanguage();
     const id = Number(params.id);
-    const job = careers.find(c => c.id === id);
+    const [job, setJob] = useState<Career | null>(null);
+    const [loading, setLoading] = useState(true);
 
+    useEffect(() => {
+        const fetchJob = async () => {
+            const data = await api.getCareerById(id);
+            if (data) {
+                setJob(data);
+            }
+            setLoading(false);
+        };
+        fetchJob();
+    }, [id]);
+
+    if (loading) return <div className="pt-32 text-center text-white">Loading...</div>;
     if (!job) {
         notFound();
     }
@@ -54,7 +68,7 @@ export default function CareerDetailPage() {
                         </p>
                     </div>
 
-                    {job.responsibilities && (
+                    {job.responsibilities && job.responsibilities.length > 0 && (
                         <div>
                             <h2 className="text-lg font-bold tracking-widest mb-4 text-green-300">RESPONSIBILITIES</h2>
                             <ul className="list-disc list-inside space-y-2 text-white/80 leading-relaxed font-light">
@@ -65,7 +79,7 @@ export default function CareerDetailPage() {
                         </div>
                     )}
 
-                    {job.requirements && (
+                    {job.requirements && job.requirements.length > 0 && (
                         <div>
                             <h2 className="text-lg font-bold tracking-widest mb-4 text-green-300">REQUIREMENTS</h2>
                             <ul className="list-disc list-inside space-y-2 text-white/80 leading-relaxed font-light">

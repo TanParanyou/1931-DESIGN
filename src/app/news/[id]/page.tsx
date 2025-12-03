@@ -1,7 +1,8 @@
 "use client";
 
 import { useParams, notFound } from 'next/navigation';
-import { news } from '@/lib/data';
+import { api, News } from '@/lib/api';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -11,8 +12,21 @@ export default function NewsDetailPage() {
     const params = useParams();
     // const { t } = useLanguage();
     const id = Number(params.id);
-    const item = news.find(n => n.id === id);
+    const [item, setItem] = useState<News | null>(null);
+    const [loading, setLoading] = useState(true);
 
+    useEffect(() => {
+        const fetchItem = async () => {
+            const data = await api.getNewsById(id);
+            if (data) {
+                setItem(data);
+            }
+            setLoading(false);
+        };
+        fetchItem();
+    }, [id]);
+
+    if (loading) return <div className="pt-32 text-center text-white">Loading...</div>;
     if (!item) {
         notFound();
     }
@@ -39,7 +53,7 @@ export default function NewsDetailPage() {
 
                 <div className="relative aspect-video w-full mb-12 rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                     <Image
-                        src={item.image}
+                        src={item.image || '/images/placeholder.png'}
                         alt={item.title}
                         fill
                         className="object-cover"

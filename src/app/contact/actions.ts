@@ -1,5 +1,7 @@
 'use server'
 
+import { api } from '@/lib/api';
+
 export type ContactFormState = {
     success: boolean;
     message: string;
@@ -18,9 +20,6 @@ export type ContactFormState = {
 }
 
 export async function sendContactEmail(prevState: ContactFormState, formData: FormData): Promise<ContactFormState> {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
     const subject = formData.get('subject') as string;
@@ -43,15 +42,19 @@ export async function sendContactEmail(prevState: ContactFormState, formData: Fo
         };
     }
 
-    // TODO: Integrate with an email service (e.g., Resend, Nodemailer, SendGrid)
-    // Example with Resend:
-    // await resend.emails.send({ ... })
-
-    console.log('Sending email:', { name, email, subject, message });
-
-    return {
-        success: true,
-        message: 'Message sent successfully!',
-        inputs: { name: '', email: '', subject: '', message: '' } // Clear inputs on success
-    };
+    try {
+        await api.submitContact({ name, email, subject, message });
+        return {
+            success: true,
+            message: 'Message sent successfully!',
+            inputs: { name: '', email: '', subject: '', message: '' }
+        };
+    } catch (error: any) {
+        console.error("Failed to submit contact:", error);
+        return {
+            success: false,
+            message: error.message || 'Failed to send message. Please try again.',
+            inputs: { name, email, subject, message }
+        };
+    }
 }

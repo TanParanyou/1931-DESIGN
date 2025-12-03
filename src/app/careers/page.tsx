@@ -1,19 +1,26 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useLanguage } from '@/lib/LanguageContext';
-import { careers } from '@/lib/data';
+import { api, Career } from '@/lib/api';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function CareersPage() {
     const { t } = useLanguage();
     const router = useRouter();
+    const [careersList, setCareersList] = useState<Career[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        router.push('/');
-    }, [router]);
+        const fetchCareers = async () => {
+            const data = await api.getCareers();
+            setCareersList(data);
+            setLoading(false);
+        };
+        fetchCareers();
+    }, []);
 
     return (
         <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen">
@@ -32,25 +39,29 @@ export default function CareersPage() {
                 </div>
 
                 <div className="lg:col-span-2 space-y-6">
-                    {careers.map((job) => (
-                        <Link key={job.id} href={`/careers/${job.id}`} className="block glass p-8 rounded-2xl border-white/10 bg-black/20 hover:bg-white/5 transition-all group cursor-pointer">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <div className="space-y-2">
-                                    <div className="flex gap-4 text-xs tracking-widest text-white/50">
-                                        <span>{job.type}</span>
-                                        <span>|</span>
-                                        <span>{job.location}</span>
+                    {loading ? (
+                        <div className="text-white">Loading...</div>
+                    ) : (
+                        careersList.map((job) => (
+                            <Link key={job.id} href={`/careers/${job.id}`} className="block glass p-8 rounded-2xl border-white/10 bg-black/20 hover:bg-white/5 transition-all group cursor-pointer">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div className="space-y-2">
+                                        <div className="flex gap-4 text-xs tracking-widest text-white/50">
+                                            <span>{job.type}</span>
+                                            <span>|</span>
+                                            <span>{job.location}</span>
+                                        </div>
+                                        <h3 className="text-xl md:text-2xl font-light tracking-wide text-white group-hover:text-green-300 transition-colors">
+                                            {job.title}
+                                        </h3>
                                     </div>
-                                    <h3 className="text-xl md:text-2xl font-light tracking-wide text-white group-hover:text-green-300 transition-colors">
-                                        {job.title}
-                                    </h3>
+                                    <div className="text-sm tracking-widest border-b border-transparent group-hover:border-green-300 text-white/70 group-hover:text-green-300 transition-all">
+                                        VIEW DETAILS
+                                    </div>
                                 </div>
-                                <div className="text-sm tracking-widest border-b border-transparent group-hover:border-green-300 text-white/70 group-hover:text-green-300 transition-all">
-                                    VIEW DETAILS
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
+                            </Link>
+                        ))
+                    )}
                 </div>
             </div>
         </div>

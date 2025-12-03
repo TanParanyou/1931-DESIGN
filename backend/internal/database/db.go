@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"backend/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -23,4 +24,11 @@ func ConnectDB() {
 	}
 
 	log.Println("Connected to Supabase PostgreSQL database successfully")
+
+	// Auto Migrate
+	err = DB.AutoMigrate(&models.News{}, &models.Career{}, &models.Contact{})
+	if err != nil {
+		log.Fatal("Failed to migrate database: ", err)
+	}
+	log.Println("Database migration completed")
 }
