@@ -193,7 +193,7 @@ export const HeroSlider = () => {
                         <button
                             key={index}
                             onClick={() => setCurrentSlide(index)}
-                            className={`h-1.5 rounded-full transition-all duration-500 ${currentSlide === index ? 'bg-white w-8' : 'bg-white/30 w-2 hover:bg-white/60'
+                            className={`h-1.5 rounded-full transition-all duration-500 ${currentSlide === index ? 'bg-white w-8' : 'bg-white/30 w-4 hover:bg-white/60 cursor-pointer'
                                 }`}
                             aria-label={`Go to slide ${index + 1}`}
                         />
