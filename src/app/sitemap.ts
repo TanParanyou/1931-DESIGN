@@ -1,7 +1,7 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://1931-design.vercel.app'
+    const baseUrl = 'https://1931-design.vercel.app';
 
     return [
         {
@@ -40,5 +40,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: 'yearly',
             priority: 0.5,
         },
-    ]
+    ];
 }

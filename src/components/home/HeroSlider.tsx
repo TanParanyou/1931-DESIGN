@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-// Architecture 
+// Architecture
 // Interior
 // Built-in
 // Renovate
@@ -17,61 +17,59 @@ const slides = [
         id: 1,
         image: '/images/slide1.png',
         title: 'ARCHITECTURE',
-        subtitle: 'ARCHITECTURE PROJECT'
+        subtitle: 'ARCHITECTURE PROJECT',
     },
     {
         id: 2,
         image: '/images/slide2.png',
         title: 'INTERIOR',
-        subtitle: 'INTERIOR PROJECT'
+        subtitle: 'INTERIOR PROJECT',
     },
     {
         id: 3,
         image: '/images/slide3.png',
         title: 'BUILT-IN',
-        subtitle: 'BUILT-IN PROJECT'
+        subtitle: 'BUILT-IN PROJECT',
     },
     {
         id: 4,
         image: '/images/slide3.png',
         title: 'RENOVATE',
-        subtitle: 'RENOVATE PROJECT'
+        subtitle: 'RENOVATE PROJECT',
     },
     {
         id: 5,
         image: '/images/slide3.png',
         title: 'LANDSCAPE',
-        subtitle: 'LANDSCAPE PROJECT'
+        subtitle: 'LANDSCAPE PROJECT',
     },
     {
         id: 6,
         image: '/images/slide3.png',
         title: 'CONSTRUCTION',
-        subtitle: 'CONSTRUCTION PROJECT'
-    }
+        subtitle: 'CONSTRUCTION PROJECT',
+    },
 ];
-
-
 
 export const HeroSlider = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [touchStart, setTouchStart] = useState(0);
     const [touchEnd, setTouchEnd] = useState(0);
 
+    const nextSlide = React.useCallback(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, []);
+
+    const prevSlide = React.useCallback(() => {
+        setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    }, []);
+
     useEffect(() => {
         const timer = setInterval(() => {
             nextSlide();
         }, 8000);
         return () => clearInterval(timer);
-    }, [currentSlide]);
-
-    const nextSlide = () => {
-        setCurrentSlide((prev) => (prev + 1) % slides.length);
-    };
-
-    const prevSlide = () => {
-        setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-    };
+    }, [currentSlide, nextSlide]);
 
     const handleTouchStart = (e: React.TouchEvent) => {
         setTouchStart(e.targetTouches[0].clientX);
@@ -111,7 +109,7 @@ export const HeroSlider = () => {
                     initial={{ opacity: 0, scale: 1.2 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 2, ease: "easeOut" }}
+                    transition={{ duration: 2, ease: 'easeOut' }}
                     className="absolute inset-0"
                 >
                     <Image
@@ -141,15 +139,19 @@ export const HeroSlider = () => {
                                 visible: {
                                     opacity: 1,
                                     y: 0,
-                                    transition: { staggerChildren: 0.2 }
+                                    transition: { staggerChildren: 0.2 },
                                 },
-                                exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
+                                exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
                             }}
                         >
                             <motion.h2
                                 variants={{
                                     hidden: { opacity: 0, y: 20 },
-                                    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+                                    visible: {
+                                        opacity: 1,
+                                        y: 0,
+                                        transition: { duration: 0.8, ease: 'easeOut' },
+                                    },
                                 }}
                                 className="text-sm md:text-lg tracking-[0.4em] uppercase mb-3 text-white font-medium"
                             >
@@ -158,7 +160,11 @@ export const HeroSlider = () => {
                             <motion.h1
                                 variants={{
                                     hidden: { opacity: 0, scale: 0.95 },
-                                    visible: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: "easeOut" } }
+                                    visible: {
+                                        opacity: 1,
+                                        scale: 1,
+                                        transition: { duration: 0.8, ease: 'easeOut' },
+                                    },
                                 }}
                                 className="text-4xl md:text-7xl lg:text-8xl font-bold tracking-wider mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-white whitespace-normal break-words"
                             >
@@ -193,8 +199,11 @@ export const HeroSlider = () => {
                         <button
                             key={index}
                             onClick={() => setCurrentSlide(index)}
-                            className={`h-1.5 rounded-full transition-all duration-500 ${currentSlide === index ? 'bg-white w-8' : 'bg-white/30 w-4 hover:bg-white/60 cursor-pointer'
-                                }`}
+                            className={`h-1.5 rounded-full transition-all duration-500 ${
+                                currentSlide === index
+                                    ? 'bg-white w-8'
+                                    : 'bg-white/30 w-4 hover:bg-white/60 cursor-pointer'
+                            }`}
                             aria-label={`Go to slide ${index + 1}`}
                         />
                     ))}

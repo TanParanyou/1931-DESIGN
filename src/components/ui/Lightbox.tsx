@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useEffect } from 'react';
 import Image from 'next/image';
@@ -20,15 +20,21 @@ const swipePower = (offset: number, velocity: number) => {
 export const Lightbox: React.FC<LightboxProps> = ({ images, initialIndex, isOpen, onClose }) => {
     const [currentIndex, setCurrentIndex] = React.useState(initialIndex);
 
-    const nextImage = React.useCallback((e?: React.MouseEvent) => {
-        e?.stopPropagation();
-        setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, [images.length]);
+    const nextImage = React.useCallback(
+        (e?: React.MouseEvent) => {
+            e?.stopPropagation();
+            setCurrentIndex((prev) => (prev + 1) % images.length);
+        },
+        [images.length]
+    );
 
-    const prevImage = React.useCallback((e?: React.MouseEvent) => {
-        e?.stopPropagation();
-        setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-    }, [images.length]);
+    const prevImage = React.useCallback(
+        (e?: React.MouseEvent) => {
+            e?.stopPropagation();
+            setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+        },
+        [images.length]
+    );
 
     useEffect(() => {
         setCurrentIndex(initialIndex);
@@ -56,9 +62,9 @@ export const Lightbox: React.FC<LightboxProps> = ({ images, initialIndex, isOpen
         <AnimatePresence>
             {isOpen && (
                 <motion.div
-                    initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-                    animate={{ opacity: 1, backdropFilter: "blur(20px)" }}
-                    exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                    initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+                    animate={{ opacity: 1, backdropFilter: 'blur(20px)' }}
+                    exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
                     className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
                     onClick={onClose}
                 >

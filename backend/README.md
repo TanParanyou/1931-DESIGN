@@ -10,6 +10,7 @@ This is the backend for the 1931-DESIGN project, built with Go, Gin, and GORM, c
 ## Setup
 
 1.  **Initialize Module** (if not already done):
+
     ```bash
     # Since the agent could not run this, you might need to run:
     go mod tidy
@@ -17,9 +18,11 @@ This is the backend for the 1931-DESIGN project, built with Go, Gin, and GORM, c
 
 2.  **Environment Variables**:
     Copy `env.example` to `.env` and fill in your Supabase connection details.
+
     ```bash
     cp env.example .env
     ```
+
     Update `DB_URL` in `.env` with your actual connection string.
 
     **How to find your Supabase Connection String:**
@@ -28,7 +31,6 @@ This is the backend for the 1931-DESIGN project, built with Go, Gin, and GORM, c
     3.  Under **Connection string**, select **URI**.
     4.  It will look like: `postgresql://postgres:[YOUR-PASSWORD]@db.project-ref.supabase.co:5432/postgres`
     5.  Replace `[YOUR-PASSWORD]` with your actual database password.
-
 
 3.  **Run the Server**:
     ```bash

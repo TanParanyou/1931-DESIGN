@@ -1,4 +1,4 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
     return {
@@ -8,5 +8,5 @@ export default function robots(): MetadataRoute.Robots {
             disallow: '/private/',
         },
         sitemap: 'https://1931-design.vercel.app/sitemap.xml',
-    }
+    };
 }
