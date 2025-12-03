@@ -51,6 +51,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    google: "google-site-verification=2cidZvx_bHt0PsimwO2S5KN7GxTkDFNqG8kUdELcVu4",
+  },
 };
 
 import { Providers } from "./providers";
