@@ -3,9 +3,12 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import { API_BASE_URL } from '@/constants';
 import { ApiResponse } from '@/types';
 
+// api
+const prefix = '/api';
+
 // Create Axios instance
 const axiosInstance: AxiosInstance = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: API_BASE_URL + prefix,
     timeout: 10000, // 10 seconds
     headers: {
         'Content-Type': 'application/json',
