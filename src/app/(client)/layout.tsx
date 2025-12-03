@@ -1,5 +1,5 @@
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/shared/Header';
+import { Footer } from '@/components/shared/Footer';
 import { LineStickyButton } from '@/components/ui/LineStickyButton';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {

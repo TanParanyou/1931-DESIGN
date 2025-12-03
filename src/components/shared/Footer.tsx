@@ -2,7 +2,7 @@
 
 import { Facebook, Instagram } from 'lucide-react';
 import Link from 'next/link';
-import { useLanguage } from '@/lib/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export const Footer = () => {
     const { t } = useLanguage();

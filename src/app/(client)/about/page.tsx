@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 
-import { useLanguage } from '@/lib/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function AboutPage() {
     const { t } = useLanguage();

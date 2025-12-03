@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { projects } from '@/lib/data';
-import { useLanguage } from '@/lib/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 const categories = ['ALL', 'RESIDENTIAL', 'COMMERCIAL', 'HOSPITALITY', 'EDUCATION'];
 

@@ -6,7 +6,7 @@ import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 // import { cn } from '@/lib/utils';
 
-import { useLanguage } from '@/lib/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface MenuOverlayProps {
     isOpen: boolean;

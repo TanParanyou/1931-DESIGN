@@ -6,7 +6,7 @@ import { Menu, Search, Moon, Sun } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { MenuOverlay } from './MenuOverlay';
-import { useLanguage } from '@/lib/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, notFound } from 'next/navigation';
 import { projects } from '@/lib/data';
-import { useLanguage } from '@/lib/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 import { Lightbox } from '@/components/ui/Lightbox';
 import { useState } from 'react';
