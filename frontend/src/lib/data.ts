@@ -77,77 +77,108 @@ export const translations = {
     },
 };
 
-export const projects = [
+export const categories = [
     {
         id: 1,
-        title: 'SKYLINE TOWER',
-        location: 'BANGKOK',
-        category: 'COMMERCIAL',
-        image: '/images/slide1.png',
-        description:
-            'A landmark mixed-use development in the heart of Bangkok, featuring sustainable design and cutting-edge technology.',
-        year: '2024',
-        gallery: [
-            '/images/slide1.png',
-            '/images/slide2.png',
-            '/images/slide3.png',
-            '/images/slide1.png',
-        ],
+        name: 'Architecture',
     },
     {
         id: 2,
-        title: 'THE PAVILION',
-        location: 'PHUKET',
-        category: 'HOSPITALITY',
-        image: '/images/slide2.png',
-        description:
-            'Luxury resort pavilion integrating seamless indoor-outdoor living with the natural tropical landscape.',
-        year: '2023',
-        gallery: ['/images/slide2.png', '/images/slide3.png', '/images/slide1.png'],
+        name: 'Interior',
     },
     {
         id: 3,
-        title: 'URBAN OASIS',
-        location: 'CHIANG MAI',
-        category: 'RESIDENTIAL',
-        image: '/images/slide3.png',
-        description:
-            'Modern residential complex focusing on green spaces and community living in the urban context.',
-        year: '2024',
-        gallery: ['/images/slide3.png', '/images/slide1.png', '/images/slide2.png'],
+        name: 'Built-in',
     },
     {
         id: 4,
-        title: 'RIVERSIDE RESIDENCE',
-        location: 'BANGKOK',
-        category: 'RESIDENTIAL',
-        image: '/images/slide2.png',
-        description:
-            'Exclusive waterfront residences offering panoramic views of the Chao Phraya River.',
-        year: '2022',
-        gallery: ['/images/slide2.png', '/images/slide1.png'],
+        name: 'Renovate',
     },
     {
         id: 5,
-        title: 'KNOWLEDGE CENTER',
-        location: 'KHON KAEN',
-        category: 'EDUCATION',
-        image: '/images/slide1.png',
-        description:
-            'A modern educational facility designed to foster collaboration and innovation.',
-        year: '2023',
-        gallery: ['/images/slide1.png', '/images/slide3.png'],
+        name: 'Landscape',
     },
     {
         id: 6,
-        title: 'CITY HUB',
-        location: 'BANGKOK',
-        category: 'COMMERCIAL',
-        image: '/images/slide3.png',
-        description: 'Mixed-use commercial hub connecting transit, retail, and office spaces.',
-        year: '2025',
-        gallery: ['/images/slide3.png', '/images/slide2.png', '/images/slide1.png'],
+        name: 'Construction',
     },
+];
+
+export const projects = [
+    {
+        id: 1,
+        title: 'บ้านพักตากอากาศ, ท่าเทียบเรือ',
+        location: 'บ้านโพธิ์ จ.ฉะเชิงเทรา',
+        categoryId: '1',
+        category: 'Architecture',
+        image: '/images/projects/1/S__5087275.jpg',
+        description:
+            'บ้านพักตากอากาศ, ท่าเทียบเรือ',
+        year: '2024',
+        gallery: [
+            '/images/projects/1/S__5087275.jpg',
+            '/images/projects/1/S__5087276.jpg',
+            '/images/projects/1/S__5087277.jpg',
+            '/images/projects/1/S__5087278.jpg',
+        ],
+        owner: 'คุณพรทิวา นิพาริน',
+    },
+    {
+        id: 2,
+        title: 'โรงภาพยนตร์',
+        location: 'กรุงเทพมหานคร',
+        categoryId: '2',
+        category: 'Interior',
+        image: '/images/projects/2/S__5087309.jpg',
+        description:
+            'โรงภาพยนตร์',
+        year: '2023',
+        gallery: ['/images/projects/2/S__5087309.jpg', '/images/projects/2/S__5087310.jpg'],
+        owner: 'คุณพรทิวา นิพาริน',
+    },
+    // {
+    //     id: 3,
+    //     title: 'URBAN OASIS',
+    //     location: 'CHIANG MAI',
+    //     category: 'RESIDENTIAL',
+    //     image: '/images/slide3.png',
+    //     description:
+    //         'Modern residential complex focusing on green spaces and community living in the urban context.',
+    //     year: '2024',
+    //     gallery: ['/images/slide3.png', '/images/slide1.png', '/images/slide2.png'],
+    // },
+    // {
+    //     id: 4,
+    //     title: 'RIVERSIDE RESIDENCE',
+    //     location: 'BANGKOK',
+    //     category: 'RESIDENTIAL',
+    //     image: '/images/slide2.png',
+    //     description:
+    //         'Exclusive waterfront residences offering panoramic views of the Chao Phraya River.',
+    //     year: '2022',
+    //     gallery: ['/images/slide2.png', '/images/slide1.png'],
+    // },
+    // {
+    //     id: 5,
+    //     title: 'KNOWLEDGE CENTER',
+    //     location: 'KHON KAEN',
+    //     category: 'EDUCATION',
+    //     image: '/images/slide1.png',
+    //     description:
+    //         'A modern educational facility designed to foster collaboration and innovation.',
+    //     year: '2023',
+    //     gallery: ['/images/slide1.png', '/images/slide3.png'],
+    // },
+    // {
+    //     id: 6,
+    //     title: 'CITY HUB',
+    //     location: 'BANGKOK',
+    //     category: 'COMMERCIAL',
+    //     image: '/images/slide3.png',
+    //     description: 'Mixed-use commercial hub connecting transit, retail, and office spaces.',
+    //     year: '2025',
+    //     gallery: ['/images/slide3.png', '/images/slide2.png', '/images/slide1.png'],
+    // },
 ];
 
 export const news = [

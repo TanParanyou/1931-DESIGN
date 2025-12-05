@@ -5,51 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-// Architecture
-// Interior
-// Built-in
-// Renovate
-// Landscape
-// Construction
-
-const slides = [
-    {
-        id: 1,
-        image: '/images/slide1.png',
-        title: 'ARCHITECTURE',
-        subtitle: 'ARCHITECTURE PROJECT',
-    },
-    {
-        id: 2,
-        image: '/images/slide2.png',
-        title: 'INTERIOR',
-        subtitle: 'INTERIOR PROJECT',
-    },
-    {
-        id: 3,
-        image: '/images/slide3.png',
-        title: 'BUILT-IN',
-        subtitle: 'BUILT-IN PROJECT',
-    },
-    {
-        id: 4,
-        image: '/images/slide3.png',
-        title: 'RENOVATE',
-        subtitle: 'RENOVATE PROJECT',
-    },
-    {
-        id: 5,
-        image: '/images/slide3.png',
-        title: 'LANDSCAPE',
-        subtitle: 'LANDSCAPE PROJECT',
-    },
-    {
-        id: 6,
-        image: '/images/slide3.png',
-        title: 'CONSTRUCTION',
-        subtitle: 'CONSTRUCTION PROJECT',
-    },
-];
+import { projects } from '@/lib/data';
 
 export const HeroSlider = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -57,11 +13,11 @@ export const HeroSlider = () => {
     const [touchEnd, setTouchEnd] = useState(0);
 
     const nextSlide = React.useCallback(() => {
-        setCurrentSlide((prev) => (prev + 1) % slides.length);
+        setCurrentSlide((prev) => (prev + 1) % projects.length);
     }, []);
 
     const prevSlide = React.useCallback(() => {
-        setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+        setCurrentSlide((prev) => (prev - 1 + projects.length) % projects.length);
     }, []);
 
     useEffect(() => {
@@ -113,14 +69,14 @@ export const HeroSlider = () => {
                     className="absolute inset-0"
                 >
                     <Image
-                        src={slides[currentSlide].image}
-                        alt={slides[currentSlide].title}
+                        src={projects[currentSlide].image}
+                        alt={projects[currentSlide].title}
                         fill
                         className="object-cover"
                         priority
                     />
                     {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+                    <div className="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-black/80" />
                     <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
                 </motion.div>
             </AnimatePresence>
@@ -155,7 +111,7 @@ export const HeroSlider = () => {
                                 }}
                                 className="text-sm md:text-lg tracking-[0.4em] uppercase mb-3 text-white font-medium"
                             >
-                                {slides[currentSlide].subtitle}
+                                {projects[currentSlide].category}
                             </motion.h2>
                             <motion.h1
                                 variants={{
@@ -166,9 +122,9 @@ export const HeroSlider = () => {
                                         transition: { duration: 0.8, ease: 'easeOut' },
                                     },
                                 }}
-                                className="text-4xl md:text-7xl lg:text-8xl font-bold tracking-wider mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-white whitespace-normal break-words"
+                                className="text-4xl md:text-7xl lg:text-8xl font-bold tracking-wider mb-2 text-white whitespace-normal wrap-break-word leading-tight pb-2"
                             >
-                                {slides[currentSlide].title}
+                                {projects[currentSlide].title}
                             </motion.h1>
                         </motion.div>
                     </AnimatePresence>
@@ -195,15 +151,14 @@ export const HeroSlider = () => {
             <div className="absolute bottom-12 left-0 right-0 z-20 flex flex-col items-center gap-6">
                 {/* Dots */}
                 <div className="flex justify-center gap-4">
-                    {slides.map((_, index) => (
+                    {projects.map((_, index) => (
                         <button
                             key={index}
                             onClick={() => setCurrentSlide(index)}
-                            className={`h-1.5 rounded-full transition-all duration-500 ${
-                                currentSlide === index
-                                    ? 'bg-white w-8'
-                                    : 'bg-white/30 w-4 hover:bg-white/60 cursor-pointer'
-                            }`}
+                            className={`h-1.5 rounded-full transition-all duration-500 ${currentSlide === index
+                                ? 'bg-white w-8'
+                                : 'bg-white/30 w-4 hover:bg-white/60 cursor-pointer'
+                                }`}
                             aria-label={`Go to slide ${index + 1}`}
                         />
                     ))}

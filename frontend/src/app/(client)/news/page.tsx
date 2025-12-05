@@ -7,11 +7,9 @@ import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { NewsService } from '@/services/news.service';
 import { News } from '@/types';
-import { useRouter } from 'next/navigation';
 
 export default function NewsPage() {
     const { t } = useLanguage();
-    const router = useRouter();
     const [newsList, setNewsList] = useState<News[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -54,7 +52,7 @@ export default function NewsPage() {
                             href={`/news/${item.id}`}
                             className="group cursor-pointer block"
                         >
-                            <div className="relative aspect-[3/2] rounded-xl mb-6 overflow-hidden border border-white/10 shadow-lg">
+                            <div className="relative aspect-3/2 rounded-xl mb-6 overflow-hidden border border-white/10 shadow-lg">
                                 <Image
                                     src={item.image || '/images/placeholder.png'} // Fallback image
                                     alt={item.title}

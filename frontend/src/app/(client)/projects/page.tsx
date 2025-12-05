@@ -5,10 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { projects } from '@/lib/data';
+import { categories, projects } from '@/lib/data';
 import { useLanguage } from '@/context/LanguageContext';
-
-const categories = ['ALL', 'RESIDENTIAL', 'COMMERCIAL', 'HOSPITALITY', 'EDUCATION'];
 
 export default function ProjectsPage() {
     const [activeCategory, setActiveCategory] = useState('ALL');
@@ -25,18 +23,29 @@ export default function ProjectsPage() {
 
             {/* Filter */}
             <div className="flex flex-wrap gap-4 mb-16 border-b border-white/10 pb-8">
+                <button
+                    onClick={() => setActiveCategory('ALL')}
+                    className={cn(
+                        'px-6 py-2 rounded-full text-sm tracking-widest transition-all duration-300 border',
+                        activeCategory === 'ALL'
+                            ? 'bg-white text-black border-white font-medium'
+                            : 'bg-transparent text-white/60 border-white/20 hover:border-white/50 hover:text-white'
+                    )}
+                >
+                    {t.projects.ALL}
+                </button>
                 {categories.map((cat) => (
                     <button
-                        key={cat}
-                        onClick={() => setActiveCategory(cat)}
+                        key={cat.id}
+                        onClick={() => setActiveCategory(cat.name)}
                         className={cn(
                             'px-6 py-2 rounded-full text-sm tracking-widest transition-all duration-300 border',
-                            activeCategory === cat
+                            activeCategory === cat.name
                                 ? 'bg-white text-black border-white font-medium'
                                 : 'bg-transparent text-white/60 border-white/20 hover:border-white/50 hover:text-white'
                         )}
                     >
-                        {cat === 'ALL' ? t.projects.ALL : cat}
+                        {cat.name}
                     </button>
                 ))}
             </div>
@@ -53,7 +62,7 @@ export default function ProjectsPage() {
                         className="group"
                     >
                         <Link href={`/projects/${project.id}`}>
-                            <div className="relative aspect-[4/3] overflow-hidden rounded-xl mb-6 border border-white/10 shadow-lg">
+                            <div className="relative aspect-4/3 overflow-hidden rounded-xl mb-6 border border-white/10 shadow-lg">
                                 <Image
                                     src={project.image}
                                     alt={project.title}

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Logo } from '@/components/ui/Logo';
-import { Menu, Search, Moon, Sun } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { MenuOverlay } from './MenuOverlay';
@@ -33,7 +33,7 @@ export const Header = () => {
             <MenuOverlay isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
             <header
                 className={cn(
-                    'fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-out px-6 py-4',
+                    'fixed top-0 left-0 right-0 z-100 transition-all duration-500 ease-out px-6 py-4',
                     isScrolled ? 'glass py-3' : 'bg-transparent py-6'
                 )}
             >

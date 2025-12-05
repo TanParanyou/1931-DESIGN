@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/internal/handlers"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -25,4 +26,12 @@ func SetupRoutes(app *fiber.App) {
 
 	// Contact routes
 	api.Post("/contact", handlers.SubmitContact)
+
+	// Project routes
+	projects := api.Group("/projects")
+	projects.Get("/", handlers.GetProjects)
+	projects.Get("/:id", handlers.GetProject)
+	projects.Post("/", handlers.CreateProject)
+	projects.Put("/:id", handlers.UpdateProject)
+	projects.Delete("/:id", handlers.DeleteProject)
 }

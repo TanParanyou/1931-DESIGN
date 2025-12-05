@@ -2,14 +2,9 @@ import { HeroSlider } from '@/components/home/HeroSlider';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { projects } from '@/lib/data';
 
 export default function Home() {
-    const projects = [
-        { id: 1, title: 'SKYLINE TOWER', location: 'BANGKOK', image: '/images/slide1.png' },
-        { id: 2, title: 'THE PAVILION', location: 'PHUKET', image: '/images/slide2.png' },
-        { id: 3, title: 'URBAN OASIS', location: 'CHIANG MAI', image: '/images/slide3.png' },
-        { id: 4, title: 'RIVERSIDE RESIDENCE', location: 'BANGKOK', image: '/images/slide2.png' },
-    ];
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -28,7 +23,7 @@ export default function Home() {
                             <h2 className="text-4xl md:text-5xl font-light tracking-wide text-white mb-2">
                                 SELECTED PROJECTS
                             </h2>
-                            <div className="h-1 w-24 bg-gradient-to-r from-emerald-500 to-emerald-500 rounded-full" />
+                            <div className="h-1 w-24 bg-linear-to-r from-emerald-500 to-emerald-500 rounded-full" />
                         </div>
                         <Link
                             href="/projects"
@@ -49,7 +44,7 @@ export default function Home() {
                                 key={project.id}
                                 className="group cursor-pointer"
                             >
-                                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-6 border border-white/10 shadow-2xl">
+                                <div className="relative aspect-4/3 overflow-hidden rounded-2xl mb-6 border border-white/10 shadow-2xl">
                                     <Image
                                         src={project.image}
                                         alt={project.title}
