@@ -37,9 +37,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     const navItems = [
         { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-        { name: 'News', href: '/admin/news', icon: Newspaper },
-        { name: 'Careers', href: '/admin/careers', icon: Briefcase },
-        { name: 'Projects', href: '/admin/projects', icon: FolderKanban },
+        { name: 'Users', href: '/admin/users', icon: User },
+        // { name: 'News', href: '/admin/news', icon: Newspaper },
+        // { name: 'Careers', href: '/admin/careers', icon: Briefcase },
+        // { name: 'Projects', href: '/admin/projects', icon: FolderKanban },
+        { name: 'My Profile', href: '/admin/profile', icon: User },
     ];
 
     const SidebarContent = () => (
@@ -65,8 +67,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             href={item.href}
                             onClick={() => setIsSidebarOpen(false)}
                             className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 relative overflow-hidden ${isActive
-                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                                : 'text-gray-400 hover:text-white hover:bg-white/5'
                                 }`}
                         >
                             {isActive && (

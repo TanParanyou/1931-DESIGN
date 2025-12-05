@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -79,4 +80,22 @@ func ParseToken(tokenStr string) (*Claims, error) {
 	}
 
 	return nil, errors.New("invalid token")
+}
+
+func GetUserIDFromContext(c *fiber.Ctx) (uint, error) {
+	userID := c.Locals("user_id")
+	if userID == nil {
+		return 0, errors.New("user id not found in context")
+	}
+	// Fiber Locals can store various types, safe assertion
+	switch v := userID.(type) {
+	case uint:
+		return v, nil
+	case float64: // JSON numbers are often float64
+		return uint(v), nil
+	case int:
+		return uint(v), nil
+	default:
+		return 0, errors.New("invalid user id format")
+	}
 }

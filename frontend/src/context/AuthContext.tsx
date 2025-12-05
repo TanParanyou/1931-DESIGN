@@ -12,6 +12,10 @@ interface User {
     last_name: string;
     role: string;
     active: boolean;
+    phone?: string;
+    address?: string;
+    line_id?: string;
+    info?: string;
 }
 
 interface AuthContextType {

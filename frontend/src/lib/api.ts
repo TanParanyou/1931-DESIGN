@@ -11,7 +11,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -33,7 +33,7 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            const refreshToken = localStorage.getItem('refresh_token');
+            const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
             if (refreshToken) {
                 try {
                     // Call refresh token endpoint
@@ -45,10 +45,16 @@ api.interceptors.response.use(
 
                     if (response.data.success) {
                         const { token, refresh_token } = response.data.data;
+                        const isLocal = !!localStorage.getItem('token'); // Determine which storage to use based on existing
 
                         // Update local storage
-                        localStorage.setItem('token', token);
-                        localStorage.setItem('refresh_token', refresh_token);
+                        if (isLocal) {
+                            localStorage.setItem('token', token);
+                            localStorage.setItem('refresh_token', refresh_token);
+                        } else {
+                            sessionStorage.setItem('token', token);
+                            sessionStorage.setItem('refresh_token', refresh_token);
+                        }
 
                         // Update header for future requests
                         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -63,6 +69,9 @@ api.interceptors.response.use(
                     localStorage.removeItem('token');
                     localStorage.removeItem('refresh_token');
                     localStorage.removeItem('user');
+                    sessionStorage.removeItem('token');
+                    sessionStorage.removeItem('refresh_token');
+                    sessionStorage.removeItem('user');
                     window.location.href = '/login';
                     return Promise.reject(refreshError);
                 }
@@ -70,6 +79,8 @@ api.interceptors.response.use(
                 // No refresh token available
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
+                sessionStorage.removeItem('token');
+                sessionStorage.removeItem('user');
                 window.location.href = '/login';
             }
         }

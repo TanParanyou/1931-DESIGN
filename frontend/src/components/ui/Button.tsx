@@ -10,6 +10,7 @@ interface ButtonProps extends HTMLMotionProps<'button'> {
     fullWidth?: boolean;
     leftIcon?: React.ReactNode;
     rightIcon?: React.ReactNode;
+    icon?: React.ReactNode;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -21,6 +22,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         fullWidth = false,
         leftIcon,
         rightIcon,
+        icon,
         disabled,
         ...props
     }, ref) => {
@@ -57,7 +59,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                     </>
                 ) : (
                     <>
-                        {leftIcon && <span className="mr-2">{leftIcon}</span>}
+                        {(leftIcon || icon) && <span className="mr-2">{leftIcon || icon}</span>}
                         {children}
                         {rightIcon && <span className="ml-2 group-hover:translate-x-1 transition-transform">{rightIcon}</span>}
                     </>

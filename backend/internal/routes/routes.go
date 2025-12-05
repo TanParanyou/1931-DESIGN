@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/internal/handlers"
+	"backend/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -32,6 +33,20 @@ func SetupRoutes(app *fiber.App) {
 	auth.Post("/login", handlers.Login)
 	auth.Post("/register", handlers.Register)
 	auth.Post("/refresh", handlers.RefreshToken)
+
+	// Protected routes
+	auth.Get("/profile", middleware.Protected(), handlers.GetProfile)
+	auth.Put("/profile", middleware.Protected(), handlers.UpdateProfile)
+	auth.Put("/change-password", middleware.Protected(), handlers.ChangePassword)
+
+	// Admin User Management
+	users := api.Group("/users", middleware.Protected(), middleware.Admin())
+	users.Post("", handlers.CreateUser)
+	users.Get("", handlers.GetAllUsers)
+	users.Get("/:id", handlers.GetUserByID)
+	users.Put("/:id", handlers.UpdateUserAdmin)
+	users.Put("/:id/reset-password", handlers.AdminResetPassword)
+	users.Delete("/:id", handlers.DeleteUser)
 
 	// Project routes
 	projects := api.Group("/projects")

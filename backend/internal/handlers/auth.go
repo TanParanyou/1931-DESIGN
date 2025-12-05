@@ -21,6 +21,10 @@ type RegisterInput struct {
 	Email     string `json:"email" validate:"required,email"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
+	Phone     string `json:"phone"`
+	Address   string `json:"address"`
+	LineID    string `json:"line_id"`
+	Info      string `json:"info"`
 }
 
 func Login(c *fiber.Ctx) error {
@@ -57,6 +61,10 @@ func Login(c *fiber.Ctx) error {
 			"first_name": user.FirstName,
 			"last_name":  user.LastName,
 			"role":       user.Role,
+			"phone":      user.Phone,
+			"address":    user.Address,
+			"line_id":    user.LineID,
+			"info":       user.Info,
 		},
 	}, "Login successful")
 }
@@ -86,6 +94,10 @@ func Register(c *fiber.Ctx) error {
 		LastName:  input.LastName,
 		Role:      "user", // Default role
 		Active:    true,   // Default active
+		Phone:     input.Phone,
+		Address:   input.Address,
+		LineID:    input.LineID,
+		Info:      input.Info,
 	}
 
 	if err := database.DB.Create(&user).Error; err != nil {
@@ -101,6 +113,10 @@ func Register(c *fiber.Ctx) error {
 			"first_name": user.FirstName,
 			"last_name":  user.LastName,
 			"role":       user.Role,
+			"phone":      user.Phone,
+			"address":    user.Address,
+			"line_id":    user.LineID,
+			"info":       user.Info,
 		},
 	}, "User created successfully")
 }
@@ -140,4 +156,46 @@ func RefreshToken(c *fiber.Ctx) error {
 		"token":         accessToken,
 		"refresh_token": newRefreshToken,
 	}, "Token refreshed successfully")
+}
+
+func ChangePassword(c *fiber.Ctx) error {
+	userID, err := utils.GetUserIDFromContext(c)
+	if err != nil {
+		return utils.SendError(c, fiber.StatusUnauthorized, err)
+	}
+	var input struct {
+		OldPassword string `json:"old_password"`
+		NewPassword string `json:"new_password"`
+	}
+
+	if err := c.BodyParser(&input); err != nil {
+		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid input"))
+	}
+
+	var user models.User
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		return utils.SendError(c, fiber.StatusNotFound, errors.New("user not found"))
+	}
+
+	// Verify old password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.OldPassword)); err != nil {
+		return utils.SendError(c, fiber.StatusUnauthorized, errors.New("incorrect old password"))
+	}
+
+	if len(input.NewPassword) < 6 {
+		return utils.SendError(c, fiber.StatusBadRequest, errors.New("new password must be at least 6 characters"))
+	}
+
+	// Hash new password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("failed to hash password"))
+	}
+
+	user.Password = string(hashedPassword)
+	if err := database.DB.Save(&user).Error; err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("failed to update password"))
+	}
+
+	return utils.SendSuccess(c, nil, "Password changed successfully")
 }

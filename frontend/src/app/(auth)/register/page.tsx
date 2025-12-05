@@ -16,6 +16,10 @@ export default function RegisterPage() {
         password: '',
         first_name: '',
         last_name: '',
+        phone: '',
+        address: '',
+        line_id: '',
+        info: '',
     });
     const [error, setError] = useState('');
     const { login } = useAuth();
@@ -138,6 +142,39 @@ export default function RegisterPage() {
                                     onChange={handleChange}
                                 />
                             </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <Input
+                                    id="phone"
+                                    type="tel"
+                                    placeholder="Phone Number"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                />
+                                <Input
+                                    id="line_id"
+                                    type="text"
+                                    placeholder="Line ID"
+                                    value={formData.line_id}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            <Input
+                                id="address"
+                                type="text"
+                                placeholder="Address"
+                                value={formData.address}
+                                onChange={handleChange}
+                            />
+
+                            <Input
+                                id="info"
+                                type="text"
+                                placeholder="Additional Info"
+                                value={formData.info}
+                                onChange={handleChange}
+                            />
 
                             <Input
                                 id="password"

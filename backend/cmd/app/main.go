@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 func main() {
@@ -24,6 +25,7 @@ func main() {
 	app.Use(middleware.CORS())
 
 	// Security Middleware
+	app.Use(recover.New()) // Add Recover to prevent crashes
 	app.Use(middleware.Security())
 	app.Use(middleware.RateLimiter())
 

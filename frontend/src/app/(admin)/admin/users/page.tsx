@@ -1,0 +1,207 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import api from '@/lib/api';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Edit2, Trash2, Plus, User as UserIcon, Search, Download, MoreVertical } from 'lucide-react';
+import { DataTable, Column } from '@/components/ui/DataTable';
+import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
+import { useDataTable } from '@/hooks/useDataTable';
+import { useCsvExport } from '@/hooks/useCsvExport';
+
+interface User {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+    active: boolean;
+    first_name: string;
+    last_name: string;
+}
+
+export default function UsersPage() {
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const fetchUsers = async () => {
+        try {
+            // Note: api.get automatically adds Authorization header if token exists in localStorage
+            const response = await api.get('/users');
+            if (response.data.success) {
+                setUsers(response.data.data.users);
+            } else {
+                setError(response.data.message || 'Failed to fetch users');
+            }
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'An error occurred fetching users');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const { downloadCsv } = useCsvExport();
+
+    const handleDelete = async (id: number) => {
+        if (!window.confirm('Are you sure you want to delete this user?')) return;
+
+        try {
+            const response = await api.delete(`/users/${id}`);
+            if (response.data.success) {
+                setUsers(users.filter(user => user.id !== id));
+            } else {
+                alert(response.data.message || 'Failed to delete user');
+            }
+        } catch (err: any) {
+            alert(err.response?.data?.message || 'An error occurred deleting user');
+        }
+    };
+
+    const handleExport = () => {
+        downloadCsv({
+            filename: 'users_export.csv',
+            headers: ['ID', 'Username', 'Email', 'Role', 'Status', 'First Name', 'Last Name'],
+            data: users.map(user => [
+                user.id,
+                user.username,
+                user.email,
+                user.role,
+                user.active ? 'Active' : 'Inactive',
+                user.first_name,
+                user.last_name
+            ])
+        });
+    };
+
+    const { data: paginatedData, pagination, sort, onPageChange, onSort, onSearch } = useDataTable({
+        data: users,
+        initialPagination: { limit: 10 },
+    });
+
+    const columns: Column<User>[] = [
+        {
+            header: 'User',
+            accessorKey: 'username', // valid key
+            sortable: true,
+            cell: (_: any, user: User) => (
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                        <UserIcon size={18} />
+                    </div>
+                    <div>
+                        <div className="font-medium text-white">
+                            {user.first_name} {user.last_name || user.username}
+                        </div>
+                        <div className="text-sm text-gray-500">{user.email}</div>
+                    </div>
+                </div>
+            )
+        },
+        {
+            header: 'Role',
+            accessorKey: 'role',
+            sortable: true,
+            cell: (role: any) => (
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${role === 'admin'
+                    ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                    : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                    }`}>
+                    {role}
+                </span>
+            )
+        },
+        {
+            header: 'Status',
+            accessorKey: 'active',
+            sortable: true,
+            cell: (active: any) => (
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${active
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                    : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                    }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-emerald-400' : 'bg-red-400'}`} />
+                    {active ? 'Active' : 'Inactive'}
+                </span>
+            )
+        },
+        {
+            header: 'Actions',
+            className: 'text-right',
+            cell: (_: any, user: User) => (
+                <Dropdown align="right">
+                    <Link href={`/admin/users/${user.id}`}>
+                        <DropdownItem icon={Edit2}>Edit</DropdownItem>
+                    </Link>
+                    <DropdownItem
+                        icon={Trash2}
+                        variant="danger"
+                        onClick={() => handleDelete(user.id)}
+                    >
+                        Delete
+                    </DropdownItem>
+                </Dropdown>
+            )
+        }
+    ];
+
+    if (loading) return <div className="p-8 text-white">Loading users...</div>;
+
+    return (
+        <div className="p-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-gray-400">
+                        User Management
+                    </h1>
+                    <p className="text-gray-400 mt-2">Manage system users and their roles</p>
+                </div>
+
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="relative flex-1 md:flex-initial">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Search users..."
+                            onChange={(e) => onSearch(e.target.value)}
+                            className="w-full md:w-64 pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                        />
+                    </div>
+                    <Link
+                        href="/admin/users/create"
+                        className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors"
+                    >
+                        <Plus size={18} />
+                        <span className="hidden sm:inline">Create User</span>
+                    </Link>
+                    <button
+                        onClick={handleExport}
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors"
+                    >
+                        <Download size={18} />
+                        <span className="hidden sm:inline">Export</span>
+                    </button>
+                </div>
+            </div>
+
+            {error && (
+                <div className="mb-6 p-4 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+                    {error}
+                </div>
+            )}
+
+            <DataTable
+                columns={columns}
+                data={paginatedData}
+                pagination={pagination}
+                sorting={sort}
+                onPageChange={onPageChange}
+                onSort={onSort}
+            />
+        </div>
+    );
+}
