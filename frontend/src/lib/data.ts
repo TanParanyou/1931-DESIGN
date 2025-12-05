@@ -122,6 +122,7 @@ export const projects = [
             '/images/projects/1/S__5087278.jpg',
         ],
         owner: 'คุณพรทิวา นิพาริน',
+        status: 'Completed',
     },
     {
         id: 2,
@@ -135,6 +136,7 @@ export const projects = [
         year: '2023',
         gallery: ['/images/projects/2/S__5087309.jpg', '/images/projects/2/S__5087310.jpg'],
         owner: 'คุณพรทิวา นิพาริน',
+        status: 'Completed',
     },
     // {
     //     id: 3,

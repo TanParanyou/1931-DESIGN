@@ -84,21 +84,21 @@ export default function ProjectDetailPage() {
                 <div className="space-y-6">
                     <div className="glass p-6 rounded-xl border-white/10 bg-black/20">
                         <h3 className="text-xs font-bold tracking-widest mb-2 text-green-300">
-                            CLIENT
+                            OWNER
                         </h3>
-                        <p className="text-white/90">Confidential</p>
+                        <p className="text-white/90">{project.owner}</p>
                     </div>
                     <div className="glass p-6 rounded-xl border-white/10 bg-black/20">
                         <h3 className="text-xs font-bold tracking-widest mb-2 text-green-300">
-                            AREA
+                            LOCATION
                         </h3>
-                        <p className="text-white/90">12,000 sq.m.</p>
+                        <p className="text-white/90">{project.location}</p>
                     </div>
                     <div className="glass p-6 rounded-xl border-white/10 bg-black/20">
                         <h3 className="text-xs font-bold tracking-widest mb-2 text-green-300">
                             STATUS
                         </h3>
-                        <p className="text-white/90">Completed</p>
+                        <p className="text-white/90">{project.status}</p>
                     </div>
                 </div>
             </div>
