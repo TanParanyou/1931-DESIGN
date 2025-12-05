@@ -27,6 +27,11 @@ export const metadata: Metadata = {
     authors: [{ name: '1931 Co., Ltd.' }],
     creator: '1931 Co., Ltd.',
     publisher: '1931 Co., Ltd.',
+    applicationName: '1931 Co., Ltd.',
+    appleWebApp: {
+        title: '1931 Co., Ltd.',
+        statusBarStyle: 'default',
+    },
     openGraph: {
         title: '1931 Co., Ltd. | Architectural Design Studio',
         description:
@@ -35,20 +40,11 @@ export const metadata: Metadata = {
         siteName: '1931 Co., Ltd.',
         locale: 'en_US',
         type: 'website',
-        images: [
-            {
-                url: '/images/og-image.jpg',
-                width: 1200,
-                height: 630,
-                alt: '1931 Co., Ltd. Portfolio',
-            },
-        ],
     },
     twitter: {
         card: 'summary_large_image',
         title: '1931 Co., Ltd. | Architectural Design Studio',
         description: 'Premier architectural design studio based in Thailand.',
-        images: ['/images/og-image.jpg'],
     },
     robots: {
         index: true,
