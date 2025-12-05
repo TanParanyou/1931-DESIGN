@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+import CookieConsent from '@/components/ui/CookieConsent';
+import GlobalAnnouncement from '@/components/ui/GlobalAnnouncement';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -98,6 +100,8 @@ export default function RootLayout({
                         }}
                     />
                 </Providers>
+                <CookieConsent />
+                <GlobalAnnouncement />
             </body>
         </html>
     );

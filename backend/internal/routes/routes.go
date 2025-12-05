@@ -27,6 +27,11 @@ func SetupRoutes(app *fiber.App) {
 	// Contact routes
 	api.Post("/contact", handlers.SubmitContact)
 
+	// Auth routes
+	auth := api.Group("/auth")
+	auth.Post("/login", handlers.Login)
+	auth.Post("/register", handlers.Register)
+
 	// Project routes
 	projects := api.Group("/projects")
 	projects.Get("/", handlers.GetProjects)

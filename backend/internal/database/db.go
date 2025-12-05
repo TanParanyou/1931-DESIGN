@@ -38,7 +38,7 @@ func ConnectDB() {
 	log.Println("Connected to Supabase PostgreSQL database successfully")
 
 	// Auto Migrate
-	err = DB.AutoMigrate(&models.News{}, &models.Career{}, &models.Contact{}, &models.Project{})
+	err = DB.AutoMigrate(&models.News{}, &models.Career{}, &models.Contact{}, &models.Project{}, &models.User{})
 	if err != nil {
 		log.Fatal("Failed to migrate database: ", err)
 	}
