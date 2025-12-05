@@ -14,7 +14,7 @@ func Security() fiber.Handler {
 
 func RateLimiter() fiber.Handler {
 	return limiter.New(limiter.Config{
-		Max:        20,
+		Max:        100,
 		Expiration: 1 * time.Minute,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return c.IP()

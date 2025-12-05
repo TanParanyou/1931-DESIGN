@@ -1,14 +1,19 @@
 package routes
 
 import (
+	_ "backend/docs" // Import generated docs
 	"backend/internal/handlers"
 	"backend/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 )
 
 func SetupRoutes(app *fiber.App) {
 	api := app.Group("/api")
+
+	// Swagger Route
+	api.Get("/swagger/*", swagger.HandlerDefault)
 
 	api.Get("/health", func(c *fiber.Ctx) error {
 		return c.Status(200).JSON(fiber.Map{

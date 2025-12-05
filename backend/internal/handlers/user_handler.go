@@ -19,6 +19,16 @@ type UpdateProfileInput struct {
 	Info      string `json:"info"`
 }
 
+// GetProfile godoc
+// @Summary Get user profile
+// @Description Get current user profile
+// @Tags User
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /auth/profile [get]
 func GetProfile(c *fiber.Ctx) error {
 	userID, err := utils.GetUserIDFromContext(c)
 	if err != nil {
@@ -46,6 +56,19 @@ func GetProfile(c *fiber.Ctx) error {
 	}, "Profile retrieved successfully")
 }
 
+// UpdateProfile godoc
+// @Summary Update user profile
+// @Description Update current user profile
+// @Tags User
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param input body UpdateProfileInput true "Profile info"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /auth/profile [put]
 func UpdateProfile(c *fiber.Ctx) error {
 	userID, err := utils.GetUserIDFromContext(c)
 	if err != nil {
@@ -90,6 +113,16 @@ func UpdateProfile(c *fiber.Ctx) error {
 	}, "Profile updated successfully")
 }
 
+// GetAllUsers godoc
+// @Summary Get all users
+// @Description Get a list of all users (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/users [get]
 func GetAllUsers(c *fiber.Ctx) error {
 	var users []models.User
 	if err := database.DB.Find(&users).Error; err != nil {
@@ -104,6 +137,17 @@ func GetAllUsers(c *fiber.Ctx) error {
 	}, "Users retrieved successfully")
 }
 
+// GetUserByID godoc
+// @Summary Get user by ID
+// @Description Get a user by ID (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /api/users/{id} [get]
 func GetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var user models.User
@@ -130,6 +174,19 @@ type CreateUserInput struct {
 	Info      string `json:"info"`
 }
 
+// CreateUser godoc
+// @Summary Create a new user
+// @Description Create a new user (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param input body CreateUserInput true "User info"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/users [post]
 func CreateUser(c *fiber.Ctx) error {
 	var input CreateUserInput
 	if err := c.BodyParser(&input); err != nil {
@@ -181,6 +238,21 @@ type UpdateUserAdminInput struct {
 	Info      string `json:"info"`
 }
 
+// UpdateUserAdmin godoc
+// @Summary Update a user
+// @Description Update a user (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param input body UpdateUserAdminInput true "User info"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/users/{id} [put]
 func UpdateUserAdmin(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var input UpdateUserAdminInput
@@ -211,6 +283,18 @@ func UpdateUserAdmin(c *fiber.Ctx) error {
 	}, "User updated successfully")
 }
 
+// DeleteUser godoc
+// @Summary Delete a user
+// @Description Delete a user (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/users/{id} [delete]
 func DeleteUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var user models.User // Fetch the user first to ensure it exists
@@ -227,11 +311,28 @@ func DeleteUser(c *fiber.Ctx) error {
 }
 
 // AdminResetPassword allows admins to reset a user's password
+type ResetPasswordInput struct {
+	NewPassword string `json:"new_password"`
+}
+
+// AdminResetPassword godoc
+// @Summary Reset user password
+// @Description Reset a user's password (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param input body ResetPasswordInput true "New password"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/users/{id}/reset-password [put]
 func AdminResetPassword(c *fiber.Ctx) error {
 	id := c.Params("id")
-	var input struct {
-		NewPassword string `json:"new_password"`
-	}
+	var input ResetPasswordInput
 
 	if err := c.BodyParser(&input); err != nil {
 		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid input"))

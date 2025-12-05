@@ -8,6 +8,14 @@ import (
 )
 
 // GetProjects retrieves all projects
+// GetProjects godoc
+// @Summary Get all projects
+// @Description Get a list of all projects
+// @Tags Projects
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/projects [get]
 func GetProjects(c *fiber.Ctx) error {
 	var projects []models.Project
 	result := database.DB.Order("sort_order asc").Find(&projects)
@@ -18,6 +26,15 @@ func GetProjects(c *fiber.Ctx) error {
 }
 
 // GetProject retrieves a project by ID
+// GetProject godoc
+// @Summary Get project by ID
+// @Description Get a project by ID
+// @Tags Projects
+// @Produce json
+// @Param id path string true "Project ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /api/projects/{id} [get]
 func GetProject(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var project models.Project
@@ -29,6 +46,17 @@ func GetProject(c *fiber.Ctx) error {
 }
 
 // CreateProject adds a new project
+// CreateProject godoc
+// @Summary Create a new project
+// @Description Create a new project
+// @Tags Projects
+// @Accept json
+// @Produce json
+// @Param input body models.Project true "Project info"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/projects [post]
 func CreateProject(c *fiber.Ctx) error {
 	project := new(models.Project)
 	if err := c.BodyParser(project); err != nil {
@@ -44,6 +72,18 @@ func CreateProject(c *fiber.Ctx) error {
 }
 
 // UpdateProject modifies an existing project
+// UpdateProject godoc
+// @Summary Update a project
+// @Description Update a project
+// @Tags Projects
+// @Accept json
+// @Produce json
+// @Param id path string true "Project ID"
+// @Param input body models.Project true "Project info"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /api/projects/{id} [put]
 func UpdateProject(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var project models.Project
@@ -66,6 +106,15 @@ func UpdateProject(c *fiber.Ctx) error {
 }
 
 // DeleteProject removes a project
+// DeleteProject godoc
+// @Summary Delete a project
+// @Description Delete a project
+// @Tags Projects
+// @Produce json
+// @Param id path string true "Project ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /api/projects/{id} [delete]
 func DeleteProject(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var project models.Project

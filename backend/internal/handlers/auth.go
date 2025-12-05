@@ -27,6 +27,17 @@ type RegisterInput struct {
 	Info      string `json:"info"`
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Login with username and password
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param input body LoginInput true "Login credentials"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /auth/login [post]
 func Login(c *fiber.Ctx) error {
 	var input LoginInput
 	if err := c.BodyParser(&input); err != nil {
@@ -69,6 +80,17 @@ func Login(c *fiber.Ctx) error {
 	}, "Login successful")
 }
 
+// Register godoc
+// @Summary Register user
+// @Description Register a new user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param input body RegisterInput true "User registration info"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /auth/register [post]
 func Register(c *fiber.Ctx) error {
 	var input RegisterInput
 	if err := c.BodyParser(&input); err != nil {
@@ -125,6 +147,17 @@ type RefreshTokenInput struct {
 	RefreshToken string `json:"refresh_token" validate:"required"`
 }
 
+// RefreshToken godoc
+// @Summary Refresh access token
+// @Description Get a new access token using refresh token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param input body RefreshTokenInput true "Refresh Token"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /auth/refresh [post]
 func RefreshToken(c *fiber.Ctx) error {
 	var input RefreshTokenInput
 	if err := c.BodyParser(&input); err != nil {
@@ -158,15 +191,29 @@ func RefreshToken(c *fiber.Ctx) error {
 	}, "Token refreshed successfully")
 }
 
+type ChangePasswordInput struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+// ChangePassword godoc
+// @Summary Change password
+// @Description Change user password
+// @Tags Auth
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Param input body ChangePasswordInput true "Password change info"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /auth/change-password [put]
 func ChangePassword(c *fiber.Ctx) error {
 	userID, err := utils.GetUserIDFromContext(c)
 	if err != nil {
 		return utils.SendError(c, fiber.StatusUnauthorized, err)
 	}
-	var input struct {
-		OldPassword string `json:"old_password"`
-		NewPassword string `json:"new_password"`
-	}
+	var input ChangePasswordInput
 
 	if err := c.BodyParser(&input); err != nil {
 		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid input"))

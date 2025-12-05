@@ -11,6 +11,11 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
+// @title 1931-DESIGN API
+// @version 1.0
+// @description RESTful API for 1931-DESIGN application
+// @host localhost:8080
+// @BasePath /api
 func main() {
 	// Load configuration
 	config.LoadConfig()
