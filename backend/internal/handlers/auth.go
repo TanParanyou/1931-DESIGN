@@ -42,13 +42,14 @@ func Login(c *fiber.Ctx) error {
 		return utils.SendError(c, fiber.StatusUnauthorized, errors.New("invalid username or password"))
 	}
 
-	token, err := utils.GenerateToken(user.ID, user.Username)
+	accessToken, refreshToken, err := utils.GenerateTokens(user.ID, user.Username)
 	if err != nil {
-		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not generate token"))
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not generate tokens"))
 	}
 
 	return utils.SendSuccess(c, fiber.Map{
-		"token": token,
+		"token":         accessToken,
+		"refresh_token": refreshToken,
 		"user": fiber.Map{
 			"id":         user.ID,
 			"username":   user.Username,
@@ -102,4 +103,41 @@ func Register(c *fiber.Ctx) error {
 			"role":       user.Role,
 		},
 	}, "User created successfully")
+}
+
+type RefreshTokenInput struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
+}
+
+func RefreshToken(c *fiber.Ctx) error {
+	var input RefreshTokenInput
+	if err := c.BodyParser(&input); err != nil {
+		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid input"))
+	}
+
+	claims, err := utils.ParseToken(input.RefreshToken)
+	if err != nil {
+		return utils.SendError(c, fiber.StatusUnauthorized, errors.New("invalid or expired refresh token"))
+	}
+
+	// Verify user still exists and is active
+	var user models.User
+	if err := database.DB.First(&user, claims.UserID).Error; err != nil {
+		return utils.SendError(c, fiber.StatusUnauthorized, errors.New("user not found"))
+	}
+
+	if !user.Active {
+		return utils.SendError(c, fiber.StatusUnauthorized, errors.New("user is inactive"))
+	}
+
+	// Generate new tokens
+	accessToken, newRefreshToken, err := utils.GenerateTokens(user.ID, user.Username)
+	if err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not generate tokens"))
+	}
+
+	return utils.SendSuccess(c, fiber.Map{
+		"token":         accessToken,
+		"refresh_token": newRefreshToken,
+	}, "Token refreshed successfully")
 }

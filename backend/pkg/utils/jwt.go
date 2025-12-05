@@ -28,18 +28,38 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(userID uint, username string) (string, error) {
-	claims := Claims{
+func GenerateTokens(userID uint, username string) (string, string, error) {
+	// Access Token (15 minutes)
+	accessClaims := Claims{
 		UserID:   userID,
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
+	signedAccessToken, err := accessToken.SignedString(getSecret())
+	if err != nil {
+		return "", "", err
+	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(getSecret())
+	// Refresh Token (7 days)
+	refreshClaims := Claims{
+		UserID:   userID,
+		Username: username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
+	signedRefreshToken, err := refreshToken.SignedString(getSecret())
+	if err != nil {
+		return "", "", err
+	}
+
+	return signedAccessToken, signedRefreshToken, nil
 }
 
 func ParseToken(tokenStr string) (*Claims, error) {
