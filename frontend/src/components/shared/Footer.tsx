@@ -14,12 +14,12 @@ export const Footer = () => {
 
     return (
         <footer className="relative z-10 border-t border-white/10 bg-black/20 backdrop-blur-md py-12 text-white">
-            <div className="max-w-[1920px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-6">
+            <div className="max-w-[1920px] mx-auto px-6 flex flex-col-reverse md:flex-row justify-between items-center gap-8 md:gap-6">
                 <div className="flex flex-col gap-2">
                     <div className="text-xs tracking-[0.2em] text-white/50 order-3 md:order-1">
                         © 2025 1931 CO., LTD. {t.footer.RIGHTS}
                     </div>
-                    <div className="text-xs tracking-[0.2em] text-white/50 order-2 md:order-3 md:pr-20">
+                    <div className="text-xs tracking-[0.2em] text-white/50 order-4 md:order-3 md:pr-20">
                         Power by <span className="text-green-300 font-medium">Nirvana</span>
                     </div>
                 </div>
