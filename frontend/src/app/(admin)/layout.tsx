@@ -166,7 +166,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </AnimatePresence>
 
             {/* Main Content */}
-            <main className="flex-1 md:ml-72 p-4 md:p-8 pt-20 md:pt-8 min-h-screen transition-all">
+            <main className="flex-1 md:ml-72 w-full max-w-[100vw] p-4 md:p-8 pt-20 md:pt-8 min-h-screen transition-all overflow-x-hidden">
                 <div className="max-w-6xl mx-auto">
                     {children}
                 </div>

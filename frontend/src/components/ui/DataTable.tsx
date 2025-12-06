@@ -77,7 +77,7 @@ export function DataTable<T extends Record<string, any>>({
                     </div>
                 )}
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left text-sm text-gray-200">
                         {/* Header */}
                         <thead className="border-b border-white/10 bg-white/5 text-xs uppercase text-gray-400">
@@ -90,7 +90,7 @@ export function DataTable<T extends Record<string, any>>({
                                         <th
                                             key={idx}
                                             className={cn(
-                                                "px-6 py-4 font-medium transition-colors",
+                                                "px-6 py-4 font-medium transition-colors whitespace-nowrap",
                                                 isSortable && "cursor-pointer hover:text-white",
                                                 col.className
                                             )}
@@ -122,7 +122,7 @@ export function DataTable<T extends Record<string, any>>({
                                             className="group transition-colors hover:bg-white/5"
                                         >
                                             {columns.map((col, colIdx) => (
-                                                <td key={colIdx} className={cn("px-6 py-4", col.className)}>
+                                                <td key={colIdx} className={cn("px-6 py-4 whitespace-nowrap", col.className)}>
                                                     {col.cell
                                                         ? col.cell(col.accessorKey ? row[col.accessorKey] : undefined, row)
                                                         : (col.accessorKey ? String(row[col.accessorKey]) : null)}
@@ -145,8 +145,8 @@ export function DataTable<T extends Record<string, any>>({
                 </div>
 
                 {/* Footer/Pagination */}
-                <div className="flex items-center justify-between border-t border-white/10 bg-white/5 px-6 py-4">
-                    <div className="text-xs text-gray-400">
+                <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/10 bg-white/5 px-6 py-4 gap-4">
+                    <div className="text-xs text-gray-400 text-center sm:text-left">
                         Showing <span className="text-white">{Math.min((page - 1) * limit + 1, totalItems)}</span> to <span className="text-white">{Math.min(page * limit, totalItems)}</span> of <span className="text-white">{totalItems}</span> entries
                     </div>
 
@@ -166,24 +166,30 @@ export function DataTable<T extends Record<string, any>>({
                             <ChevronLeft className="h-4 w-4" />
                         </button>
 
-                        {getPageNumbers().map((p, i) => (
-                            p === '...' ? (
-                                <span key={i} className="px-2 text-gray-500">...</span>
-                            ) : (
-                                <button
-                                    key={i}
-                                    onClick={() => onPageChange(p as number)}
-                                    className={cn(
-                                        "flex h-8 w-8 items-center justify-center rounded-lg  text-sm transition-all",
-                                        page === p
-                                            ? "bg-amber-500 text-white font-bold shadow-lg shadow-amber-500/20"
-                                            : "border border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
-                                    )}
-                                >
-                                    {p}
-                                </button>
-                            )
-                        ))}
+                        <div className="hidden sm:flex items-center gap-2">
+                            {getPageNumbers().map((p, i) => (
+                                p === '...' ? (
+                                    <span key={i} className="px-2 text-gray-500">...</span>
+                                ) : (
+                                    <button
+                                        key={i}
+                                        onClick={() => onPageChange(p as number)}
+                                        className={cn(
+                                            "flex h-8 w-8 items-center justify-center rounded-lg text-sm transition-all",
+                                            page === p
+                                                ? "bg-amber-500 text-white font-bold shadow-lg shadow-amber-500/20"
+                                                : "border border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
+                                        )}
+                                    >
+                                        {p}
+                                    </button>
+                                )
+                            ))}
+                        </div>
+                        {/* Mobile page indicator */}
+                        <span className="sm:hidden text-sm text-gray-300 font-medium px-2">
+                            {page} / {totalPages}
+                        </span>
 
                         <button
                             onClick={() => onPageChange(page + 1)}
