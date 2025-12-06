@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import api from '@/lib/api';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -14,35 +14,55 @@ interface User {
     id: number;
     username: string;
     email: string;
-    role: string;
+    role: { id: number; name: string };
     active: boolean;
     first_name: string;
     last_name: string;
 }
 
 export default function UsersPage() {
-    const [users, setUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    const fetchUsers = async () => {
+    // Define fetcher for server-side pagination
+    const fetchUsersData = useCallback(async (params: any) => {
         try {
-            // Note: api.get automatically adds Authorization header if token exists in localStorage
-            const response = await api.get('/users');
-            if (response.data.success) {
-                setUsers(response.data.data.users);
-            } else {
-                setError(response.data.message || 'Failed to fetch users');
-            }
+            const response = await api.get('/users', {
+                params: {
+                    page: params.page,
+                    limit: params.limit,
+                    search: params.search,
+                    // Map sortKey if needed or send as is
+                    // backend doesn't explicitly handle complex sort param in GetAllUsers yet based on my quick review, 
+                    // but I should send it. Actually backend GetAllUsers didn't have sort logic implemented in my plan 
+                    // (only offset/limit). I'll stick to offset/limit for now or add basic sort if standard.
+                    // The verified backend code only handles pagination. I'll pass basic params.
+                }
+            });
+            // Backend returns { success: true, data: User[], pagination: {...} }
+            // api (lib/api) returns AxiosResponse.
+            return response.data; // This matches ApiResponse<User[]>
         } catch (err: any) {
-            setError(err.response?.data?.message || 'An error occurred fetching users');
-        } finally {
-            setLoading(false);
+            setError(err.response?.data?.message || err.message || 'An error occurred fetching users');
+            throw err;
         }
+    }, []); // No dependencies as api is imported and stable
+
+    const {
+        data: paginatedData,
+        pagination,
+        sort,
+        onPageChange,
+        onSort,
+        onSearch,
+        isLoading: loading,
+        fetchData
+    } = useDataTable<User>({
+        fetcher: fetchUsersData,
+        initialPagination: { limit: 10 },
+    });
+
+    const refreshData = () => {
+        fetchData();
     };
 
     const { downloadCsv } = useCsvExport();
@@ -53,7 +73,7 @@ export default function UsersPage() {
         try {
             const response = await api.delete(`/users/${id}`);
             if (response.data.success) {
-                setUsers(users.filter(user => user.id !== id));
+                refreshData();
             } else {
                 alert(response.data.message || 'Failed to delete user');
             }
@@ -63,14 +83,15 @@ export default function UsersPage() {
     };
 
     const handleExport = () => {
+        // Exporting current view for now (server-side export would require separate endpoint or fetching all)
         downloadCsv({
             filename: 'users_export.csv',
             headers: ['ID', 'Username', 'Email', 'Role', 'Status', 'First Name', 'Last Name'],
-            data: users.map(user => [
+            data: paginatedData.map(user => [
                 user.id,
                 user.username,
                 user.email,
-                user.role,
+                user.role?.name || '',
                 user.active ? 'Active' : 'Inactive',
                 user.first_name,
                 user.last_name
@@ -78,15 +99,10 @@ export default function UsersPage() {
         });
     };
 
-    const { data: paginatedData, pagination, sort, onPageChange, onSort, onSearch } = useDataTable({
-        data: users,
-        initialPagination: { limit: 10 },
-    });
-
     const columns: Column<User>[] = [
         {
             header: 'User',
-            accessorKey: 'username', // valid key
+            accessorKey: 'username',
             sortable: true,
             cell: (_: any, user: User) => (
                 <div className="flex items-center gap-3">
@@ -106,14 +122,17 @@ export default function UsersPage() {
             header: 'Role',
             accessorKey: 'role',
             sortable: true,
-            cell: (role: any) => (
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${role === 'admin'
-                    ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                    : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                    }`}>
-                    {role}
-                </span>
-            )
+            cell: (role: any) => {
+                const roleName = role?.name || 'Unknown';
+                return (
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roleName === 'Super Admin'
+                        ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                        : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                        }`}>
+                        {roleName}
+                    </span>
+                );
+            }
         },
         {
             header: 'Status',
@@ -149,7 +168,7 @@ export default function UsersPage() {
         }
     ];
 
-    if (loading) return <div className="p-8 text-white">Loading users...</div>;
+    if (loading && !paginatedData.length) return <div className="p-8 text-white">Loading users...</div>;
 
     return (
         <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">

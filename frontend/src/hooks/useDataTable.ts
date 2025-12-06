@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 
 export type SortOrder = 'asc' | 'desc';
 
@@ -14,48 +14,89 @@ export interface PaginationState {
     totalItems: number;
 }
 
+export interface FetcherParams {
+    page: number;
+    limit: number;
+    search: string;
+    sortKey: string | null;
+    sortOrder: SortOrder;
+}
+
 export interface UseDataTableOptions<T> {
-    data: T[];
+    data?: T[];
     initialPagination?: Partial<PaginationState>;
     initialSort?: SortState;
+    initialLimit?: number;
+    fetcher?: (params: FetcherParams) => Promise<{ data: T[]; total: number }>;
 }
 
 export function useDataTable<T extends Record<string, any>>({
-    data,
-    initialPagination = { page: 1, limit: 10 },
+    data = [],
+    initialPagination = { page: 1, limit: 10, totalPages: 0, totalItems: 0 },
     initialSort = { key: null, order: 'asc' },
+    initialLimit = 10,
+    fetcher,
 }: UseDataTableOptions<T>) {
     // State
+    const [localData, setLocalData] = useState<T[]>(data);
     const [page, setPage] = useState(initialPagination.page || 1);
-    const [limit, setLimit] = useState(initialPagination.limit || 10);
+    const [limit, setLimit] = useState(initialLimit || initialPagination.limit || 10);
     const [searchQuery, setSearchQuery] = useState('');
     const [sort, setSort] = useState<SortState>(initialSort);
+    const [isLoading, setIsLoading] = useState(!!fetcher);
+    const [totalItems, setTotalItems] = useState(initialPagination.totalItems || 0);
 
-    // Handlers
-    const onPageChange = useCallback((newPage: number) => {
-        setPage(newPage);
-    }, []);
+    // Fetch Data (Server-side)
+    const fetchData = useCallback(async () => {
+        if (!fetcher) return;
 
-    const onLimitChange = useCallback((newLimit: number) => {
-        setLimit(newLimit);
-        setPage(1); // Reset to first page when limit changes
-    }, []);
+        setIsLoading(true);
+        try {
+            const result = await fetcher({
+                page,
+                limit,
+                search: searchQuery,
+                sortKey: sort.key,
+                sortOrder: sort.order,
+            });
 
-    const onSearch = useCallback((query: string) => {
-        setSearchQuery(query);
-        setPage(1); // Reset to first page when search changes
-    }, []);
+            // result is now expected to be ApiResponse<T[]> (or { data: T[], total: number } if legacy adapter used)
+            // But since we updated api.ts to return ApiResponse, we strictly expect that structure if using api.ts.
+            // However, fetcher definition in hook is generic (params) => Promise<{ data: T[]; total: number }>;
+            // We need to support the new structure.
 
-    const onSort = useCallback((key: string) => {
-        setSort((prev) => {
-            const isSameKey = prev.key === key;
-            const newOrder: SortOrder = isSameKey && prev.order === 'asc' ? 'desc' : 'asc';
-            return { key, order: newOrder };
-        });
-    }, []);
+            // Allow fetcher to return ApiResponse like object
+            // @ts-ignore
+            if (result.pagination) {
+                // @ts-ignore
+                setLocalData(result.data || []);
+                // @ts-ignore
+                setTotalItems(result.pagination.total_items);
+            } else {
+                // Legacy fallback support if fetcher manually constructs old format
+                // @ts-ignore
+                setLocalData(result.data || []);
+                // @ts-ignore
+                setTotalItems(result.total);
+            }
+        } catch (error) {
+            console.error('Failed to fetch data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [fetcher, page, limit, searchQuery, sort]);
 
-    // Filtering & Sorting Logic
+    // Initial Fetch
+    useEffect(() => {
+        if (fetcher) {
+            fetchData();
+        }
+    }, [fetchData]); // Dependencies handled by useCallback
+
+    // Client-side Filtering & Sorting
     const processedData = useMemo(() => {
+        if (fetcher) return localData; // Server-side handles this
+
         let result = [...data];
 
         // 1. Search (basic string matching across all values)
@@ -81,31 +122,68 @@ export function useDataTable<T extends Record<string, any>>({
         }
 
         return result;
-    }, [data, searchQuery, sort]);
+    }, [data, localData, searchQuery, sort, fetcher]);
 
-    // Pagination Logic
-    const paginatedData = useMemo(() => {
+    // Client-side Pagination
+    const displayedData = useMemo(() => {
+        if (fetcher) return localData; // Server-side handles pagination
+
         const start = (page - 1) * limit;
         const end = start + limit;
         return processedData.slice(start, end);
-    }, [processedData, page, limit]);
+    }, [processedData, page, limit, fetcher, localData]);
 
-    const totalItems = processedData.length;
-    const totalPages = Math.ceil(totalItems / limit);
+    // Calculations
+    const finalTotalItems = fetcher ? totalItems : processedData.length;
+    const totalPages = Math.ceil(finalTotalItems / limit);
+
+    // Handlers
+    const handlePageChange = useCallback((newPage: number) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setPage(newPage);
+        }
+    }, [totalPages]);
+
+    const handleLimitChange = useCallback((newLimit: number) => {
+        setLimit(newLimit);
+        setPage(1);
+    }, []);
+
+    const handleSearch = useCallback((query: string) => {
+        setSearchQuery(query);
+        setPage(1);
+    }, []);
+
+    const handleSort = useCallback((key: string) => {
+        setSort((prev) => {
+            const isSameKey = prev.key === key;
+            const newOrder: SortOrder = isSameKey && prev.order === 'asc' ? 'desc' : 'asc';
+            return { key, order: newOrder };
+        });
+    }, []);
 
     return {
-        data: paginatedData,
+        data: displayedData,
         pagination: {
             page,
             limit,
-            totalPages,
-            totalItems,
+            totalPages: totalPages || 1,
+            totalItems: finalTotalItems,
         },
         sort,
         searchQuery,
-        onPageChange,
-        onLimitChange,
-        onSearch,
-        onSort,
+        isLoading,
+        onPageChange: handlePageChange, // For backward compatibility / DataTable component
+        onLimitChange: handleLimitChange,
+        onSearch: handleSearch, // Compatible naming
+        onSort: handleSort, // Compatible naming
+        // Aliases for easier usage in components
+        handlePageChange,
+        handleLimitChange,
+        handleSearch,
+        handleSort,
+        fetchData,
+        setData: setLocalData,
+        setPagination: (p: Partial<PaginationState>) => { /* Helper if needed, mostly internal */ },
     };
 }

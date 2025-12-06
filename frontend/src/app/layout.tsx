@@ -4,49 +4,48 @@ import './globals.css';
 import { Providers } from './providers';
 import CookieConsent from '@/components/ui/CookieConsent';
 import GlobalAnnouncement from '@/components/ui/GlobalAnnouncement';
+import { siteConfig } from '@/config/site.config';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    metadataBase: new URL('https://1931-design.vercel.app'),
+    metadataBase: new URL(siteConfig.domain),
     title: {
-        default: '1931 Co., Ltd. | Architectural Design Studio',
-        template: '%s | 1931 Co., Ltd.',
+        default: siteConfig.seo.defaultTitle,
+        template: siteConfig.seo.titleTemplate,
     },
-    description:
-        '1931 Co., Ltd. is a premier architectural design studio based in Thailand, specializing in modern, sustainable, and innovative architectural solutions.',
-    keywords: [
-        'Architecture',
-        'Design',
-        'Interior Design',
-        'Thailand',
-        'Bangkok',
-        'Sustainable Design',
-        'Modern Architecture',
-        '1931 Co., Ltd.',
-        '1931 Design',
-    ],
-    authors: [{ name: '1931 Co., Ltd.' }],
-    creator: '1931 Co., Ltd.',
-    publisher: '1931 Co., Ltd.',
-    applicationName: '1931 Co., Ltd.',
+    description: siteConfig.seo.defaultDescription,
+    keywords: siteConfig.seo.keywords,
+    authors: siteConfig.authors,
+    creator: siteConfig.creator,
+    publisher: siteConfig.business?.legalName,
+    applicationName: siteConfig.siteName.en,
     appleWebApp: {
-        title: '1931 Co., Ltd.',
+        title: siteConfig.siteShortName,
         statusBarStyle: 'default',
     },
     openGraph: {
-        title: '1931 Co., Ltd. | Architectural Design Studio',
-        description:
-            'Premier architectural design studio based in Thailand, specializing in modern, sustainable, and innovative architectural solutions.',
-        url: 'https://1931-design.vercel.app',
-        siteName: '1931 Co., Ltd.',
+        title: siteConfig.seo.defaultTitle,
+        description: siteConfig.seo.defaultDescription,
+        url: siteConfig.domain,
+        siteName: siteConfig.siteName.en,
         locale: 'en_US',
         type: 'website',
+        images: [
+            {
+                url: siteConfig.seo.defaultOgImage,
+                width: 1200,
+                height: 630,
+                alt: siteConfig.siteName.en,
+            },
+        ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: '1931 Co., Ltd. | Architectural Design Studio',
-        description: 'Premier architectural design studio based in Thailand.',
+        title: siteConfig.seo.defaultTitle,
+        description: siteConfig.seo.defaultDescription,
+        images: [siteConfig.seo.defaultOgImage],
+        creator: siteConfig.social.twitter,
     },
     robots: {
         index: true,
@@ -80,9 +79,10 @@ export default function RootLayout({
                             __html: JSON.stringify({
                                 '@context': 'https://schema.org',
                                 '@type': 'ProfessionalService',
-                                name: '1931 Co., Ltd.',
-                                url: 'https://1931-design.vercel.app',
-                                logo: 'https://1931-design.vercel.app/logo.png',
+                                name: siteConfig.siteName.en,
+                                alternateName: siteConfig.siteName.th,
+                                url: siteConfig.domain,
+                                logo: `${siteConfig.domain}${siteConfig.logo.light}`,
                                 address: {
                                     '@type': 'PostalAddress',
                                     streetAddress: '160/78 Moo 5, Bang Kruai-Sai Noi Rd.',
@@ -93,9 +93,16 @@ export default function RootLayout({
                                 },
                                 contactPoint: {
                                     '@type': 'ContactPoint',
-                                    telephone: '+66-92-518-9280',
+                                    telephone: siteConfig.contact.phone,
                                     contactType: 'customer service',
+                                    email: siteConfig.contact.email,
                                 },
+                                sameAs: [
+                                    siteConfig.social.facebook,
+                                    siteConfig.social.instagram,
+                                    siteConfig.social.twitter,
+                                    siteConfig.social.github,
+                                ].filter(Boolean),
                             }),
                         }}
                     />

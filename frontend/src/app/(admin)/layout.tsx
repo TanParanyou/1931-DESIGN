@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, Newspaper, Briefcase, FolderKanban, LogOut, Menu, X, ChevronRight, User } from 'lucide-react';
+import { LayoutDashboard, Newspaper, Briefcase, FolderKanban, LogOut, Menu, X, ChevronRight, User, FileText } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const { logout, user, isLoading } = useAuth();
@@ -36,11 +36,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     const navItems = [
-        { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-        { name: 'Users', href: '/admin/users', icon: User },
-        // { name: 'News', href: '/admin/news', icon: Newspaper },
-        // { name: 'Careers', href: '/admin/careers', icon: Briefcase },
-        // { name: 'Projects', href: '/admin/projects', icon: FolderKanban },
+        { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, permission: 'dashboard.view' },
+        { name: 'Users', href: '/admin/users', icon: User, permission: 'users.view' },
+        // { name: 'News', href: '/admin/news', icon: Newspaper, permission: 'news.view' },
+        // { name: 'Careers', href: '/admin/careers', icon: Briefcase, permission: 'careers.view' },
+        // { name: 'Projects', href: '/admin/projects', icon: FolderKanban, permission: 'projects.view' },
+        { name: 'Audit Logs', href: '/admin/audit-logs', icon: FileText, permission: 'audit_logs.view' },
         { name: 'My Profile', href: '/admin/profile', icon: User },
     ];
 
@@ -59,7 +60,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="mb-4 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Menu
                 </div>
-                {navItems.map((item) => {
+                {navItems.filter(item => {
+                    if (!item.permission) return true;
+                    return user.permissions?.includes(item.permission);
+                }).map((item) => {
                     const isActive = pathname === item.href;
                     return (
                         <Link

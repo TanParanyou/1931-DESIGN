@@ -1,7 +1,8 @@
+import { siteConfig } from '@/config/site.config';
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://1931-design.vercel.app';
+    const baseUrl = siteConfig.domain;
 
     return [
         {

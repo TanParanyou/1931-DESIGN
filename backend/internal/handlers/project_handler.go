@@ -3,6 +3,9 @@ package handlers
 import (
 	"backend/internal/database"
 	"backend/internal/models"
+	"backend/internal/services"
+	"backend/pkg/utils"
+	"errors"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,14 +18,36 @@ import (
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Page limit" default(10)
 // @Router /api/projects [get]
 func GetProjects(c *fiber.Ctx) error {
+	page := c.QueryInt("page", 1)
+	limit := c.QueryInt("limit", 10)
+	offset := (page - 1) * limit
+
 	var projects []models.Project
-	result := database.DB.Order("sort_order asc").Find(&projects)
-	if result.Error != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": result.Error.Error()})
+	var total int64
+
+	if err := database.DB.Model(&models.Project{}).Count(&total).Error; err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not count projects"))
 	}
-	return c.JSON(fiber.Map{"status": "success", "data": projects})
+
+	if err := database.DB.Order("sort_order asc").Offset(offset).Limit(limit).Find(&projects).Error; err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not fetch projects"))
+	}
+
+	totalPages := int((total + int64(limit) - 1) / int64(limit))
+	pagination := &utils.Pagination{
+		Page:        page,
+		Limit:       limit,
+		TotalItems:  total,
+		TotalPages:  totalPages,
+		HasPrevious: page > 1,
+		HasNext:     page < totalPages,
+	}
+
+	return utils.SendSuccessWithPagination(c, projects, pagination, nil, "Projects retrieved successfully")
 }
 
 // GetProject retrieves a project by ID
@@ -38,11 +63,10 @@ func GetProjects(c *fiber.Ctx) error {
 func GetProject(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var project models.Project
-	result := database.DB.First(&project, id)
-	if result.Error != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Project not found"})
+	if err := database.DB.First(&project, id).Error; err != nil {
+		return utils.SendError(c, fiber.StatusNotFound, errors.New("project not found"))
 	}
-	return c.JSON(fiber.Map{"status": "success", "data": project})
+	return utils.SendSuccess(c, project, "Project retrieved successfully")
 }
 
 // CreateProject adds a new project
@@ -60,15 +84,17 @@ func GetProject(c *fiber.Ctx) error {
 func CreateProject(c *fiber.Ctx) error {
 	project := new(models.Project)
 	if err := c.BodyParser(project); err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid input"})
+		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid input"))
 	}
 
-	result := database.DB.Create(&project)
-	if result.Error != nil {
-		return c.Status(500).JSON(fiber.Map{"status": "error", "message": result.Error.Error()})
+	if err := database.DB.Create(&project).Error; err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not create project"))
 	}
 
-	return c.Status(201).JSON(fiber.Map{"status": "success", "data": project})
+	// Audit Log
+	services.CreateAuditLog(c, "PROJECT_CREATE", project.ID, "project", map[string]string{"title": project.Title})
+
+	return utils.SendCreated(c, project, "Project created successfully")
 }
 
 // UpdateProject modifies an existing project
@@ -87,14 +113,13 @@ func CreateProject(c *fiber.Ctx) error {
 func UpdateProject(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var project models.Project
-	result := database.DB.First(&project, id)
-	if result.Error != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Project not found"})
+	if err := database.DB.First(&project, id).Error; err != nil {
+		return utils.SendError(c, fiber.StatusNotFound, errors.New("project not found"))
 	}
 
 	updateData := new(models.Project)
 	if err := c.BodyParser(updateData); err != nil {
-		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "Invalid input"})
+		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid input"))
 	}
 
 	// Manually update fields to avoid zero-value issues with structs if needed,
@@ -102,7 +127,10 @@ func UpdateProject(c *fiber.Ctx) error {
 	// For simplicity using Model updates
 	database.DB.Model(&project).Updates(updateData)
 
-	return c.JSON(fiber.Map{"status": "success", "data": project})
+	// Audit Log
+	services.CreateAuditLog(c, "PROJECT_UPDATE", project.ID, "project", map[string]string{"title": project.Title})
+
+	return utils.SendSuccess(c, project, "Project updated successfully")
 }
 
 // DeleteProject removes a project
@@ -118,11 +146,13 @@ func UpdateProject(c *fiber.Ctx) error {
 func DeleteProject(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var project models.Project
-	result := database.DB.First(&project, id)
-	if result.Error != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Project not found"})
+	if err := database.DB.First(&project, id).Error; err != nil {
+		return utils.SendError(c, fiber.StatusNotFound, errors.New("project not found"))
 	}
 
 	database.DB.Delete(&project)
-	return c.JSON(fiber.Map{"status": "success", "message": "Project deleted successfully"})
+	// Audit Log
+	services.CreateAuditLog(c, "PROJECT_DELETE", project.ID, "project", map[string]string{"title": project.Title})
+
+	return utils.SendSuccess(c, nil, "Project deleted successfully")
 }

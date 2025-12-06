@@ -16,11 +16,15 @@ func Admin() fiber.Handler {
 		}
 
 		var user models.User
-		if err := database.DB.First(&user, userID).Error; err != nil {
+		// Preload role to check name
+		if err := database.DB.Preload("Role").First(&user, userID).Error; err != nil {
 			return utils.SendError(c, fiber.StatusUnauthorized, err)
 		}
 
-		if user.Role != "admin" {
+		// Check if role is 'Super Admin' or 'Admin' (case insensitive or specific ID)
+		// Better approach: check for specific permission e.g. "admin.access"
+		// For now, let's allow "Super Admin"
+		if user.Role.Name != "Super Admin" {
 			return utils.SendError(c, fiber.StatusForbidden, fiber.NewError(fiber.StatusForbidden, "forbidden access"))
 		}
 

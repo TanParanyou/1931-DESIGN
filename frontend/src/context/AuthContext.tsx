@@ -16,6 +16,7 @@ interface User {
     address?: string;
     line_id?: string;
     info?: string;
+    permissions?: string[];
 }
 
 interface AuthContextType {
@@ -36,10 +37,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
 
     useEffect(() => {
-        // Check localStorage first (persistent), then sessionStorage (session only)
-        const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token');
-        const storedRefreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
-        const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+        // Check localStorage only
+        const storedToken = localStorage.getItem('token');
+        const storedRefreshToken = localStorage.getItem('refresh_token');
+        const storedUser = localStorage.getItem('user');
 
         if (storedToken && storedUser) {
             setToken(storedToken);
@@ -54,15 +55,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setRefreshToken(newRefreshToken);
         setUser(newUser);
 
-        if (remember) {
-            localStorage.setItem('token', newToken);
-            localStorage.setItem('refresh_token', newRefreshToken);
-            localStorage.setItem('user', JSON.stringify(newUser));
-        } else {
-            sessionStorage.setItem('token', newToken);
-            sessionStorage.setItem('refresh_token', newRefreshToken);
-            sessionStorage.setItem('user', JSON.stringify(newUser));
-        }
+        // Always store in localStorage as requested
+        localStorage.setItem('token', newToken);
+        localStorage.setItem('refresh_token', newRefreshToken);
+        localStorage.setItem('user', JSON.stringify(newUser));
+
         router.push('/admin');
     };
 
@@ -71,11 +68,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setRefreshToken(null);
         setUser(null);
 
-        // Clear both storages to be safe
+        // Clear storage
         localStorage.removeItem('token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
 
+        // Clean up session storage just in case of transition
         sessionStorage.removeItem('token');
         sessionStorage.removeItem('refresh_token');
         sessionStorage.removeItem('user');

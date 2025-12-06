@@ -3,8 +3,11 @@ package handlers
 import (
 	"backend/internal/database"
 	"backend/internal/models"
+	"backend/internal/services"
+	"backend/pkg/email"
 	"backend/pkg/utils"
 	"errors"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -45,7 +48,7 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	var user models.User
-	if err := database.DB.Where("username = ?", input.Username).First(&user).Error; err != nil {
+	if err := database.DB.Preload("Role.Permissions").Where("username = ?", input.Username).First(&user).Error; err != nil {
 		return utils.SendError(c, fiber.StatusUnauthorized, errors.New("invalid username or password"))
 	}
 
@@ -57,25 +60,48 @@ func Login(c *fiber.Ctx) error {
 		return utils.SendError(c, fiber.StatusUnauthorized, errors.New("invalid username or password"))
 	}
 
+	// Flatten permissions
+	permissions := []string{}
+	if user.RoleID != nil {
+		for _, p := range user.Role.Permissions {
+			permissions = append(permissions, p.Slug)
+		}
+	}
+
 	accessToken, refreshToken, err := utils.GenerateTokens(user.ID, user.Username)
 	if err != nil {
 		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not generate tokens"))
 	}
 
+	// Send login notification email (async)
+	go func() {
+		if err := email.SendLoginNotification(user.Email, user.Username); err != nil {
+			// Log error but don't fail the request
+			// In a real app, use a proper logger
+			fmt.Printf("Failed to send login email: %v\n", err)
+		} else {
+			fmt.Println("Login email sent successfully")
+		}
+	}()
+
+	// Audit Log
+	services.CreateAuditLog(c, "USER_LOGIN", user.ID, "user", map[string]string{"username": user.Username}, user.ID)
+
 	return utils.SendSuccess(c, fiber.Map{
 		"token":         accessToken,
 		"refresh_token": refreshToken,
 		"user": fiber.Map{
-			"id":         user.ID,
-			"username":   user.Username,
-			"email":      user.Email,
-			"first_name": user.FirstName,
-			"last_name":  user.LastName,
-			"role":       user.Role,
-			"phone":      user.Phone,
-			"address":    user.Address,
-			"line_id":    user.LineID,
-			"info":       user.Info,
+			"id":          user.ID,
+			"username":    user.Username,
+			"email":       user.Email,
+			"first_name":  user.FirstName,
+			"last_name":   user.LastName,
+			"role":        user.Role.Name,
+			"phone":       user.Phone,
+			"address":     user.Address,
+			"line_id":     user.LineID,
+			"info":        user.Info,
+			"permissions": permissions,
 		},
 	}, "Login successful")
 }
@@ -108,18 +134,29 @@ func Register(c *fiber.Ctx) error {
 		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not hash password"))
 	}
 
+	// Default Role (User)
+	var role models.Role
+	// Try to find the user role
+	if err := database.DB.Where("name = ?", "user").First(&role).Error; err != nil {
+		// If role doesn't exist, we might want to handle it or let it run without role
+	}
+
 	user := models.User{
 		Username:  input.Username,
 		Password:  string(hashedPassword),
 		Email:     input.Email,
 		FirstName: input.FirstName,
 		LastName:  input.LastName,
-		Role:      "user", // Default role
-		Active:    true,   // Default active
+		Active:    true,
 		Phone:     input.Phone,
 		Address:   input.Address,
 		LineID:    input.LineID,
 		Info:      input.Info,
+	}
+
+	// Only assign role if found
+	if role.ID != 0 {
+		user.RoleID = &role.ID
 	}
 
 	if err := database.DB.Create(&user).Error; err != nil {
@@ -129,16 +166,17 @@ func Register(c *fiber.Ctx) error {
 	return utils.SendCreated(c, fiber.Map{
 		"message": "User created successfully",
 		"user": fiber.Map{
-			"id":         user.ID,
-			"username":   user.Username,
-			"email":      user.Email,
-			"first_name": user.FirstName,
-			"last_name":  user.LastName,
-			"role":       user.Role,
-			"phone":      user.Phone,
-			"address":    user.Address,
-			"line_id":    user.LineID,
-			"info":       user.Info,
+			"id":          user.ID,
+			"username":    user.Username,
+			"email":       user.Email,
+			"first_name":  user.FirstName,
+			"last_name":   user.LastName,
+			"role":        role.Name,
+			"phone":       user.Phone,
+			"address":     user.Address,
+			"line_id":     user.LineID,
+			"info":        user.Info,
+			"permissions": []string{},
 		},
 	}, "User created successfully")
 }

@@ -36,6 +36,7 @@ export function DataTable<T extends Record<string, any>>({
     onSort,
     className,
 }: DataTableProps<T>) {
+    const safeData = data || [];
     const { page, totalPages, limit, totalItems } = pagination;
 
     // Pagination Helper
@@ -111,8 +112,8 @@ export function DataTable<T extends Record<string, any>>({
                         {/* Body */}
                         <tbody className="divide-y divide-white/5">
                             <AnimatePresence mode="wait">
-                                {data.length > 0 ? (
-                                    data.map((row, rowIdx) => (
+                                {safeData.length > 0 ? (
+                                    safeData.map((row, rowIdx) => (
                                         <motion.tr
                                             key={row.id || rowIdx}
                                             initial={{ opacity: 0, y: 10 }}

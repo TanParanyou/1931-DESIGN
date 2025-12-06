@@ -43,6 +43,7 @@ func SetupRoutes(app *fiber.App) {
 	auth.Get("/profile", middleware.Protected(), handlers.GetProfile)
 	auth.Put("/profile", middleware.Protected(), handlers.UpdateProfile)
 	auth.Put("/change-password", middleware.Protected(), handlers.ChangePassword)
+	auth.Get("/menus", middleware.Protected(), handlers.GetMenus)
 
 	// Admin User Management
 	users := api.Group("/users", middleware.Protected(), middleware.Admin())
@@ -52,6 +53,9 @@ func SetupRoutes(app *fiber.App) {
 	users.Put("/:id", handlers.UpdateUserAdmin)
 	users.Put("/:id/reset-password", handlers.AdminResetPassword)
 	users.Delete("/:id", handlers.DeleteUser)
+
+	// Audit Logs
+	api.Get("/audit-logs", middleware.Protected(), middleware.Admin(), handlers.GetAuditLogs)
 
 	// Project routes
 	projects := api.Group("/projects")

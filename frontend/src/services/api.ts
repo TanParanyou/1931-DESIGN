@@ -18,7 +18,7 @@ const axiosInstance: AxiosInstance = axios.create({
 // Request Interceptor
 axiosInstance.interceptors.request.use(
     (config) => {
-        // Get token from localStorage (if exists)
+        // Get token from localStorage
         if (typeof window !== 'undefined') {
             const token = localStorage.getItem('token');
             if (token) {
@@ -40,11 +40,13 @@ axiosInstance.interceptors.response.use(
 
         // If the API returns a success flag as false, treat it as an error
         if (apiResponse.success === false) {
-            return Promise.reject(new Error(apiResponse.error || 'API Error'));
+            const errorMessage = apiResponse.error?.message || 'API Error';
+            return Promise.reject(new Error(errorMessage));
         }
 
-        // Return the actual data
-        return apiResponse.data;
+        // Return the FULL response object so pagination can be accessed
+        // We cast to any to bypass Axios declaration mismatch, as we are changing the return shape
+        return apiResponse as any;
     },
     (error: AxiosError) => {
         // Handle HTTP errors
@@ -52,7 +54,8 @@ axiosInstance.interceptors.response.use(
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
             const data = error.response.data as ApiResponse<any>;
-            const message = data.error || error.message || 'An error occurred';
+            // Extract error message from new structure or fallback
+            const message = data.error?.message || error.message || 'An error occurred';
 
             // You can handle specific status codes here
             if (error.response.status === 401) {

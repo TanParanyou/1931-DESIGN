@@ -38,9 +38,89 @@ func ConnectDB() {
 	log.Println("Connected to Supabase PostgreSQL database successfully")
 
 	// Auto Migrate
-	err = DB.AutoMigrate(&models.News{}, &models.Career{}, &models.Contact{}, &models.Project{}, &models.User{})
+	err = DB.AutoMigrate(
+		&models.Role{}, &models.Permission{}, &models.Menu{}, // RBAC tables
+		&models.News{}, &models.Career{}, &models.Contact{}, &models.Project{}, &models.User{}, &models.AuditLog{},
+	)
 	if err != nil {
 		log.Fatal("Failed to migrate database: ", err)
 	}
 	log.Println("Database migration completed")
+
+	// Seed RBAC Data
+	seedRBAC()
+}
+
+func seedRBAC() {
+	// 1. Create Permissions
+	permissions := []models.Permission{
+		{Slug: "dashboard.view", Description: "View Dashboard"},
+		{Slug: "users.view", Description: "View Users"},
+		{Slug: "users.manage", Description: "Create, Edit, Delete Users"},
+		{Slug: "audit_logs.view", Description: "View Audit Logs"},
+	}
+
+	for _, p := range permissions {
+		var perm models.Permission
+		if err := DB.Where(models.Permission{Slug: p.Slug}).FirstOrCreate(&perm).Error; err != nil {
+			log.Printf("Error finding/creating permission %s: %v", p.Slug, err)
+			continue
+		}
+		if err := DB.Model(&perm).Updates(p).Error; err != nil {
+			log.Printf("Error updating permission %s: %v", p.Slug, err)
+		}
+	}
+
+	// 2. Create Roles
+	roles := []models.Role{
+		{Name: "Super Admin", Description: "Full Access"},
+		{Name: "User", Description: "Standard User Access"},
+	}
+
+	for _, r := range roles {
+		var role models.Role
+		if err := DB.Where(models.Role{Name: r.Name}).FirstOrCreate(&role).Error; err != nil {
+			log.Printf("Error finding/creating role %s: %v", r.Name, err)
+			continue
+		}
+		if err := DB.Model(&role).Updates(r).Error; err != nil {
+			log.Printf("Error updating role %s: %v", r.Name, err)
+		}
+	}
+
+	// 3. Assign Permissions to Roles
+	// Super Admin gets ALL permissions
+	var superAdmin models.Role
+	if err := DB.Where("name = ?", "Super Admin").First(&superAdmin).Error; err == nil {
+		var allPerms []models.Permission
+		DB.Find(&allPerms)
+		DB.Model(&superAdmin).Association("Permissions").Replace(allPerms)
+	}
+
+	// User gets limited permissions (e.g. just dashboard)
+	var userRole models.Role
+	if err := DB.Where("name = ?", "User").First(&userRole).Error; err == nil {
+		var userPerms []models.Permission
+		DB.Where("slug IN ?", []string{"dashboard.view"}).Find(&userPerms)
+		DB.Model(&userRole).Association("Permissions").Replace(userPerms)
+	}
+
+	// 4. Seed Menus
+	menus := []models.Menu{
+		{Path: "/admin", Title: "Dashboard", Icon: "LayoutDashboard", PermissionSlug: "dashboard.view", Order: 1},
+		{Path: "/admin/users", Title: "Users", Icon: "User", PermissionSlug: "users.view", Order: 2},
+		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 3},
+		{Path: "/admin/profile", Title: "My Profile", Icon: "User", PermissionSlug: "", Order: 99},
+	}
+
+	for _, m := range menus {
+		var menu models.Menu
+		if err := DB.Where(models.Menu{Path: m.Path}).FirstOrCreate(&menu).Error; err != nil {
+			log.Printf("Error finding/creating menu %s: %v", m.Path, err)
+			continue
+		}
+		if err := DB.Model(&menu).Updates(m).Error; err != nil {
+			log.Printf("Error updating menu %s: %v", m.Path, err)
+		}
+	}
 }

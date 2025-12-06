@@ -55,6 +55,7 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
         info: '',
     });
 
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         // Handle checkbox
         if (e.target.type === 'checkbox') {
@@ -190,8 +191,8 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
                         onChange={handleChange}
                         icon={Shield}
                         options={[
-                            { value: 'user', label: 'User' },
-                            { value: 'admin', label: 'Admin' }
+                            { value: 'User', label: 'User' },
+                            { value: 'Super Admin', label: 'Super Admin' }
                         ]}
                     />
 
@@ -265,6 +266,9 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
                     icon={Info}
                     placeholder="Any additional information"
                 />
+
+                <div className="h-px bg-white/10 my-6" />
+
 
                 <div className="pt-4 flex justify-between items-center">
                     {isEdit ? (

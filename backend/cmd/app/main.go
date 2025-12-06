@@ -42,5 +42,13 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	app.Listen(":" + port)
+	if err := app.Listen(":" + port); err != nil {
+		// Log fatal error if server fails to start (e.g., port in use)
+		// We use panic/log.Fatal to ensure the process exits with non-zero code if wanted, or just logs it.
+		// Since main exits anyway, log.Fatal is good.
+		// Note: "log" must be imported. It is imported in line 4.
+		// Wait, "log" is imported in line 4.
+		// We use log.Fatal directly.
+		panic(err)
+	}
 }

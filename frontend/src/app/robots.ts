@@ -1,3 +1,4 @@
+import { siteConfig } from '@/config/site.config';
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
@@ -7,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: '/private/',
         },
-        sitemap: 'https://1931-design.vercel.app/sitemap.xml',
+        sitemap: `${siteConfig.domain}/sitemap.xml`,
     };
 }

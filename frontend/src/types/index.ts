@@ -28,9 +28,24 @@ export interface Contact {
     message: string;
 }
 
-export interface ApiResponse<T> {
+export interface PaginationMetadata {
+    page: number;
+    limit: number;
+    total_items: number;
+    total_pages: number;
+    has_previous: boolean;
+    has_next: boolean;
+}
+
+export interface ApiResponse<T = any> {
     success: boolean;
-    message?: string;
     data?: T;
-    error?: string;
+    pagination?: PaginationMetadata;
+    filters?: any;
+    message?: string;
+    error?: {
+        code?: string;
+        message?: string;
+        details?: string;
+    };
 }
