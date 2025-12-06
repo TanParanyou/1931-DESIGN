@@ -33,7 +33,7 @@ func Protected() fiber.Handler {
 			})
 		}
 
-		c.Locals("user_id", claims.UserID)
+		c.Locals("userID", claims.UserID)
 		return c.Next()
 	}
 }

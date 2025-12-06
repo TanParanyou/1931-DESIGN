@@ -83,7 +83,7 @@ func ParseToken(tokenStr string) (*Claims, error) {
 }
 
 func GetUserIDFromContext(c *fiber.Ctx) (uint, error) {
-	userID := c.Locals("user_id")
+	userID := c.Locals("userID")
 	if userID == nil {
 		return 0, errors.New("user id not found in context")
 	}

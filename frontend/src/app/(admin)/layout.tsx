@@ -5,13 +5,38 @@ import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, Newspaper, Briefcase, FolderKanban, LogOut, Menu, X, ChevronRight, User, FileText } from 'lucide-react';
+import {
+    LayoutDashboard, Newspaper, Briefcase, FolderKanban, LogOut, Menu, X, ChevronRight, User, FileText,
+    Clock, Calendar
+} from 'lucide-react';
+import api from '@/lib/api';
+
+// Map icon string (from DB) to Lucide component
+const IconMap: Record<string, any> = {
+    LayoutDashboard,
+    User,
+    Briefcase,
+    Clock,
+    Calendar,
+    FileText,
+    Newspaper,
+    FolderKanban
+};
+
+interface MenuItem {
+    id: number;
+    title: string;
+    path: string;
+    icon: string;
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const { logout, user, isLoading } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+    const [menuLoading, setMenuLoading] = useState(true);
 
     useEffect(() => {
         if (!isLoading && !user) {
@@ -19,7 +44,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
     }, [isLoading, user, router]);
 
-    if (isLoading) {
+    // Fetch Menus
+    useEffect(() => {
+        if (user) {
+            const fetchMenus = async () => {
+                try {
+                    const res = await api.get('/auth/menus');
+                    setMenuItems(res.data.data?.menus || []);
+                } catch (err) {
+                    console.error("Failed to fetch menus", err);
+                } finally {
+                    setMenuLoading(false);
+                }
+            };
+            fetchMenus();
+        }
+    }, [user]);
+
+    if (isLoading || (menuLoading && user)) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a] text-white">
                 <motion.div
@@ -34,16 +76,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!user) {
         return null;
     }
-
-    const navItems = [
-        { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, permission: 'dashboard.view' },
-        { name: 'Users', href: '/admin/users', icon: User, permission: 'users.view' },
-        // { name: 'News', href: '/admin/news', icon: Newspaper, permission: 'news.view' },
-        // { name: 'Careers', href: '/admin/careers', icon: Briefcase, permission: 'careers.view' },
-        // { name: 'Projects', href: '/admin/projects', icon: FolderKanban, permission: 'projects.view' },
-        { name: 'Audit Logs', href: '/admin/audit-logs', icon: FileText, permission: 'audit_logs.view' },
-        { name: 'My Profile', href: '/admin/profile', icon: User },
-    ];
 
     const SidebarContent = () => (
         <div className="flex flex-col h-full">
@@ -60,15 +92,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="mb-4 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Menu
                 </div>
-                {navItems.filter(item => {
-                    if (!item.permission) return true;
-                    return user.permissions?.includes(item.permission);
-                }).map((item) => {
-                    const isActive = pathname === item.href;
+                {menuItems.map((item) => {
+                    const isActive = pathname === item.path || pathname.startsWith(`${item.path}/`);
+                    const Icon = IconMap[item.icon] || FileText; // Fallback icon
                     return (
                         <Link
-                            key={item.href}
-                            href={item.href}
+                            key={item.path}
+                            href={item.path}
                             onClick={() => setIsSidebarOpen(false)}
                             className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 relative overflow-hidden ${isActive
                                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
@@ -83,8 +113,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 />
                             )}
-                            <item.icon size={20} className="relative z-10" />
-                            <span className="relative z-10 font-medium">{item.name}</span>
+                            <Icon size={20} className="relative z-10" />
+                            <span className="relative z-10 font-medium">{item.title}</span>
                             {isActive && <ChevronRight size={16} className="ml-auto relative z-10" />}
                         </Link>
                     );
@@ -93,7 +123,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             <div className="p-4 border-t border-white/10 bg-black/20">
                 <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-lg bg-white/5 border border-white/5">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-xs font-bold ring-2 ring-black">
+                    <div className="h-8 w-8 rounded-full bg-linear-to-br from-purple-500 to-blue-500 flex items-center justify-center text-xs font-bold ring-2 ring-black">
                         <User size={14} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -101,7 +131,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             {user?.username || 'Admin User'}
                         </p>
                         <p className="text-xs text-gray-400 truncate">
-                            Administrator
+                            {user?.role || 'Administrator'}
                         </p>
                     </div>
                 </div>

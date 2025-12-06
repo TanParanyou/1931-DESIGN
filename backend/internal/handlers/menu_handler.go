@@ -4,6 +4,7 @@ import (
 	"backend/internal/database"
 	"backend/internal/models"
 	"backend/pkg/utils"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -36,6 +37,10 @@ func GetMenus(c *fiber.Ctx) error {
 		}
 	}
 
+	// DEBUG: Log permissions
+	log.Printf("[DEBUG] User: %s, Role: %s", user.Username, user.Role.Name)
+	log.Printf("[DEBUG] Permissions: %v", userPerms)
+
 	// Fetch all menus ordered
 	var allMenus []models.Menu
 	if err := database.DB.Order("\"order\" asc").Find(&allMenus).Error; err != nil {
@@ -48,8 +53,11 @@ func GetMenus(c *fiber.Ctx) error {
 		// If no permission required, or user has permission
 		if m.PermissionSlug == "" || userPerms[m.PermissionSlug] {
 			visibleMenus = append(visibleMenus, m)
+		} else {
+			log.Printf("[DEBUG] Hidden Menu: %s (Req: %s)", m.Title, m.PermissionSlug)
 		}
 	}
+	log.Printf("[DEBUG] Visible Menus: %d", len(visibleMenus))
 
 	return utils.SendSuccess(c, fiber.Map{
 		"menus": visibleMenus,

@@ -41,6 +41,8 @@ func ConnectDB() {
 	err = DB.AutoMigrate(
 		&models.Role{}, &models.Permission{}, &models.Menu{}, // RBAC tables
 		&models.News{}, &models.Career{}, &models.Contact{}, &models.Project{}, &models.User{}, &models.AuditLog{},
+		&models.Employee{}, &models.Attendance{},
+		&models.LeaveRequest{}, &models.LeaveQuota{},
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database: ", err)
@@ -109,7 +111,10 @@ func seedRBAC() {
 	menus := []models.Menu{
 		{Path: "/admin", Title: "Dashboard", Icon: "LayoutDashboard", PermissionSlug: "dashboard.view", Order: 1},
 		{Path: "/admin/users", Title: "Users", Icon: "User", PermissionSlug: "users.view", Order: 2},
-		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 3},
+		{Path: "/admin/employees", Title: "Employees", Icon: "Briefcase", PermissionSlug: "users.manage", Order: 3}, // HR/Admin only
+		{Path: "/admin/attendance", Title: "Attendance", Icon: "Clock", PermissionSlug: "dashboard.view", Order: 4}, // Everyone can check in
+		{Path: "/admin/leaves", Title: "Leaves", Icon: "Calendar", PermissionSlug: "dashboard.view", Order: 5},      // Everyone can request leave
+		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 6},
 		{Path: "/admin/profile", Title: "My Profile", Icon: "User", PermissionSlug: "", Order: 99},
 	}
 

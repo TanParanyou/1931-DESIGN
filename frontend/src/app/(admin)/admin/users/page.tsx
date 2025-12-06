@@ -9,6 +9,7 @@ import { DataTable, Column } from '@/components/ui/DataTable';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
 import { useDataTable } from '@/hooks/useDataTable';
 import { useCsvExport } from '@/hooks/useCsvExport';
+import { useAuth } from '@/context/AuthContext';
 
 interface User {
     id: number;
@@ -22,6 +23,8 @@ interface User {
 
 export default function UsersPage() {
     const [error, setError] = useState('');
+    const { user } = useAuth();
+    const canManageUsers = user?.permissions?.includes('users.manage');
 
     // Define fetcher for server-side pagination
     const fetchUsersData = useCallback(async (params: any) => {
@@ -147,8 +150,11 @@ export default function UsersPage() {
                     {active ? 'Active' : 'Inactive'}
                 </span>
             )
-        },
-        {
+        }
+    ];
+
+    if (canManageUsers) {
+        columns.push({
             header: 'Actions',
             className: 'text-right',
             cell: (_: any, user: User) => (
@@ -165,8 +171,8 @@ export default function UsersPage() {
                     </DropdownItem>
                 </Dropdown>
             )
-        }
-    ];
+        });
+    }
 
     if (loading && !paginatedData.length) return <div className="p-8 text-white">Loading users...</div>;
 
@@ -191,13 +197,15 @@ export default function UsersPage() {
                         />
                     </div>
                     <div className="flex items-center gap-3">
-                        <Link
-                            href="/admin/users/create"
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-all shadow-lg shadow-emerald-500/20 active:scale-95 text-sm font-medium"
-                        >
-                            <Plus size={18} />
-                            <span className="whitespace-nowrap">Create User</span>
-                        </Link>
+                        {canManageUsers && (
+                            <Link
+                                href="/admin/users/create"
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-all shadow-lg shadow-emerald-500/20 active:scale-95 text-sm font-medium"
+                            >
+                                <Plus size={18} />
+                                <span className="whitespace-nowrap">Create User</span>
+                            </Link>
+                        )}
                         <button
                             onClick={handleExport}
                             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 text-sm font-medium"

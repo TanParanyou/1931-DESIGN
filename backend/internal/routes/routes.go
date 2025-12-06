@@ -64,4 +64,7 @@ func SetupRoutes(app *fiber.App) {
 	projects.Post("/", handlers.CreateProject)
 	projects.Put("/:id", handlers.UpdateProject)
 	projects.Delete("/:id", handlers.DeleteProject)
+
+	// HR Routes
+	SetupHRRoutes(api)
 }
