@@ -10,7 +10,7 @@ import (
 func CORS() fiber.Handler {
 	allowOrigins := os.Getenv("ALLOWED_ORIGINS")
 	if allowOrigins == "" {
-		allowOrigins = "http://localhost:3000"
+		allowOrigins = "http://localhost:3000, https://one931-design.onrender.com"
 	}
 
 	return cors.New(cors.Config{
