@@ -1,13 +1,9 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { ApiResponse } from '@/types';
-import { API_BASE_URL } from '@/constants';
 
-const baseURL = API_BASE_URL.endsWith('/api')
-    ? API_BASE_URL
-    : `${API_BASE_URL}/api`;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 const api = axios.create({
-    baseURL,
+    baseURL: API_URL + "/api",
     timeout: 10000, // 10 seconds
     headers: {
         'Content-Type': 'application/json',
@@ -49,7 +45,7 @@ api.interceptors.response.use(
                     // Call refresh token endpoint
                     // We use axios directly to avoid interceptor loop loop if this fails (though we check _retry)
                     // Or create a new instance. But here we can just use the base URL.
-                    const response = await axios.post(`${baseURL}/auth/refresh`, {
+                    const response = await axios.post(`${API_URL}/api/auth/refresh`, {
                         refresh_token: refreshToken,
                     });
 
