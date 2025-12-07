@@ -1,4 +1,4 @@
-import { api } from './api';
+import { apiHelpers as api } from '@/lib/api';
 import { Contact } from '@/types';
 
 export const ContactService = {

@@ -1,4 +1,4 @@
-import { api } from './api';
+import { apiHelpers as api } from '@/lib/api';
 import { Career } from '@/types';
 
 export const CareerService = {

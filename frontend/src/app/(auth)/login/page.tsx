@@ -146,14 +146,14 @@ export default function LoginPage() {
                         </Button>
                     </form>
 
-                    <div className="mt-8 text-center">
+                    {/* <div className="mt-8 text-center">
                         <p className="text-sm text-gray-500">
                             Don't have an account?{' '}
                             <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium transition-colors hover:underline decoration-blue-400/30 underline-offset-4">
                                 Register here
                             </Link>
                         </p>
-                    </div>
+                    </div> */}
                 </div>
             </motion.div>
         </div>

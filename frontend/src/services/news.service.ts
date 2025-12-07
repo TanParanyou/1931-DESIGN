@@ -1,4 +1,4 @@
-import { api } from './api';
+import { apiHelpers as api } from '@/lib/api';
 import { News } from '@/types';
 
 export const NewsService = {

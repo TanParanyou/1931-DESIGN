@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 import Link from 'next/link';
@@ -8,8 +8,10 @@ import { motion } from 'framer-motion';
 import { User, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -58,6 +60,10 @@ export default function RegisterPage() {
         }
     };
 
+    useEffect(() => {
+        router.push('/');
+    }, []);
+
     return (
         <div className="flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#0a0a0a] relative py-12">
             {/* Ambient Background */}
@@ -104,7 +110,7 @@ export default function RegisterPage() {
                         </motion.div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-5 hidden">
                         <div className="space-y-4">
                             <Input
                                 id="username"

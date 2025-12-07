@@ -1,9 +1,14 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
+import { ApiResponse } from '@/types';
+import { API_BASE_URL } from '@/constants';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+const baseURL = API_BASE_URL.endsWith('/api')
+    ? API_BASE_URL
+    : `${API_BASE_URL}/api`;
 
 const api = axios.create({
-    baseURL: API_URL,
+    baseURL,
+    timeout: 10000, // 10 seconds
     headers: {
         'Content-Type': 'application/json',
     },
@@ -44,7 +49,7 @@ api.interceptors.response.use(
                     // Call refresh token endpoint
                     // We use axios directly to avoid interceptor loop loop if this fails (though we check _retry)
                     // Or create a new instance. But here we can just use the base URL.
-                    const response = await axios.post(`${API_URL}/auth/refresh`, {
+                    const response = await axios.post(`${baseURL}/auth/refresh`, {
                         refresh_token: refreshToken,
                     });
 
@@ -95,3 +100,16 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+// Helper methods that unwrap the response.data automatically
+// Use these if you want to skip the `response.data` step and get the server body directly.
+export const apiHelpers = {
+    get: <T>(url: string, config?: AxiosRequestConfig) =>
+        api.get<T>(url, config).then((res) => res.data),
+    post: <T>(url: string, body: any, config?: AxiosRequestConfig) =>
+        api.post<T>(url, body, config).then((res) => res.data),
+    put: <T>(url: string, body: any, config?: AxiosRequestConfig) =>
+        api.put<T>(url, body, config).then((res) => res.data),
+    delete: <T>(url: string, config?: AxiosRequestConfig) =>
+        api.delete<T>(url, config).then((res) => res.data),
+};

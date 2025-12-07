@@ -1,4 +1,4 @@
-import { api } from './api';
+import { apiHelpers as api } from '@/lib/api';
 import { ApiResponse } from '@/types';
 
 export interface AuditLog {
