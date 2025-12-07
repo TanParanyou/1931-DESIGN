@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
-import CookieConsent from '@/components/ui/CookieConsent';
-import GlobalAnnouncement from '@/components/ui/GlobalAnnouncement';
+import ClientLayoutIntegrations from '@/components/layout/ClientLayoutIntegrations';
 import { siteConfig } from '@/config/site.config';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -107,8 +106,7 @@ export default function RootLayout({
                         }}
                     />
                 </Providers>
-                <CookieConsent />
-                <GlobalAnnouncement />
+                <ClientLayoutIntegrations />
             </body>
         </html>
     );
