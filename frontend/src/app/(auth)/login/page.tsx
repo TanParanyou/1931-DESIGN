@@ -30,7 +30,7 @@ export default function LoginPage() {
                 setError(response.data.message || 'Login failed');
             }
         } catch (err: any) {
-            setError(err.response?.data?.error || 'An error occurred during login');
+            setError(err.response?.data?.error?.message || 'An error occurred during login');
         } finally {
             setLoading(false);
         }
@@ -51,14 +51,14 @@ export default function LoginPage() {
                 className="relative z-10 w-full max-w-md p-8"
             >
                 <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl shadow-2xl p-8 overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+                    <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-blue-500 via-purple-500 to-pink-500" />
 
                     <div className="mb-8 text-center">
                         <motion.h2
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400"
+                            className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-gray-400"
                         >
                             Welcome Back
                         </motion.h2>
@@ -104,12 +104,12 @@ export default function LoginPage() {
                             />
                         </div>
 
-                        <div className="flex items-center space-x-2">
+                        {/* <div className="flex items-center space-x-2">
                             <button
                                 type="button"
                                 onClick={() => setRememberMe(!rememberMe)}
                                 className={`w-5 h-5 rounded border flex items-center justify-center transition-all duration-200 ${rememberMe
-                                    ? 'bg-gradient-to-br from-blue-500 to-purple-600 border-transparent shadow-[0_0_10px_rgba(59,130,246,0.5)]'
+                                    ? 'bg-linear-to-br from-blue-500 to-purple-600 border-transparent shadow-[0_0_10px_rgba(59,130,246,0.5)]'
                                     : 'bg-white/5 border-white/20 hover:border-white/40'
                                     }`}
                             >
@@ -134,7 +134,7 @@ export default function LoginPage() {
                             >
                                 Feature จำรหัสผ่าน
                             </span>
-                        </div>
+                        </div> */}
 
                         <Button
                             type="submit"

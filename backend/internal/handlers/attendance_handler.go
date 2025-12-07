@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend/internal/database"
 	"backend/internal/models"
+	"backend/pkg/utils"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,20 +20,13 @@ func CheckIn(c *fiber.Ctx) error {
 	// For now, we need to find the Employee ID associated with this user.
 	// Since we are not using standard auth middleware extracting yet in this snippet, let's assume we can get UserID.
 	// Important: Middleware should set "userID" in locals.
-	userID := c.Locals("userID")
-	if userID == nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	// 1. Get User ID from Context
+	userID, err := utils.GetUserIDFromContext(c)
+	if err != nil {
+		return utils.SendError(c, fiber.StatusUnauthorized, err)
 	}
 
-	uid, ok := userID.(float64) // JWT claims are often float64
-	if !ok {
-		// Try string or int if float fails?
-		// Adjust based on your actual auth middleware.
-		// Let's assume standard int for now if float fails, or cast.
-		// If using standard fiber jwt, values are in float64.
-		// For safety, let's look up Employee by user ID.
-	}
-	intUID := uint(uid)
+	intUID := userID
 
 	var employee models.Employee
 	if err := database.DB.Where("user_id = ?", intUID).First(&employee).Error; err != nil {
@@ -77,11 +71,11 @@ func CheckIn(c *fiber.Ctx) error {
 
 // CheckOut handles user check-out
 func CheckOut(c *fiber.Ctx) error {
-	userID := c.Locals("userID")
-	if userID == nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	userID, err := utils.GetUserIDFromContext(c)
+	if err != nil {
+		return utils.SendError(c, fiber.StatusUnauthorized, err)
 	}
-	uid := uint(userID.(float64))
+	uid := userID
 
 	var employee models.Employee
 	if err := database.DB.Where("user_id = ?", uid).First(&employee).Error; err != nil {
@@ -124,11 +118,11 @@ func CheckOut(c *fiber.Ctx) error {
 
 // GetAttendanceHistory gets history for the current user
 func GetAttendanceHistory(c *fiber.Ctx) error {
-	userID := c.Locals("userID")
-	if userID == nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	userID, err := utils.GetUserIDFromContext(c)
+	if err != nil {
+		return utils.SendError(c, fiber.StatusUnauthorized, err)
 	}
-	uid := uint(userID.(float64))
+	uid := userID
 
 	var employee models.Employee
 	if err := database.DB.Where("user_id = ?", uid).First(&employee).Error; err != nil {
@@ -143,11 +137,11 @@ func GetAttendanceHistory(c *fiber.Ctx) error {
 
 // GetTodayAttendanceStatus gets checks if user checked in today
 func GetTodayAttendanceStatus(c *fiber.Ctx) error {
-	userID := c.Locals("userID")
-	if userID == nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	userID, err := utils.GetUserIDFromContext(c)
+	if err != nil {
+		return utils.SendError(c, fiber.StatusUnauthorized, err)
 	}
-	uid := uint(userID.(float64))
+	uid := userID
 
 	var employee models.Employee
 	if err := database.DB.Where("user_id = ?", uid).First(&employee).Error; err != nil {

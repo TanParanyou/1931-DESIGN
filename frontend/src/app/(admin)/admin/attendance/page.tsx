@@ -21,7 +21,25 @@ export default function AttendancePage() {
         const fetchHistory = async () => {
             try {
                 const res = await api.get('/hr/attendance/history');
-                setHistory(res.data);
+                // Handle different response formats
+                let data = res.data;
+
+                // Case: Wrapped in data object { data: [...] }
+                if (data && !Array.isArray(data) && Array.isArray(data.data)) {
+                    data = data.data;
+                }
+
+                // Case: Single object wrapped { data: {...} } - Handling the user's specific JSON case
+                if (data && !Array.isArray(data) && data.data && typeof data.data === 'object' && !Array.isArray(data.data)) {
+                    data = [data.data];
+                }
+
+                if (Array.isArray(data)) {
+                    setHistory(data);
+                } else {
+                    console.error("Attendance history format error:", res.data);
+                    setHistory([]);
+                }
             } catch (err) {
                 console.error(err);
             }
@@ -71,8 +89,8 @@ export default function AttendancePage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${record.status === 'Present' ? 'bg-emerald-500/20 text-emerald-400' :
-                                                        record.status === 'Late' ? 'bg-orange-500/20 text-orange-400' :
-                                                            'bg-gray-500/20 text-gray-400'
+                                                    record.status === 'Late' ? 'bg-orange-500/20 text-orange-400' :
+                                                        'bg-gray-500/20 text-gray-400'
                                                     }`}>
                                                     {record.status}
                                                 </span>

@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"backend/internal/models"
 
@@ -126,6 +127,25 @@ func seedRBAC() {
 		}
 		if err := DB.Model(&menu).Updates(m).Error; err != nil {
 			log.Printf("Error updating menu %s: %v", m.Path, err)
+		}
+	}
+
+	// 5. Seed Admin Employee
+	var adminUser models.User
+	if err := DB.Where("username = ?", "admin").First(&adminUser).Error; err == nil {
+		var existingEmp models.Employee
+		if err := DB.Where("user_id = ?", adminUser.ID).First(&existingEmp).Error; err != nil {
+			// Create dummy employee for admin
+			adminEmp := models.Employee{
+				UserID:     adminUser.ID,
+				Position:   "SVP Code",
+				Department: "IT",
+				StartDate:  time.Now(),
+				Status:     models.EmployeeStatusActive,
+				Salary:     999999,
+			}
+			DB.Create(&adminEmp)
+			log.Println("Seeded Admin Employee record")
 		}
 	}
 }

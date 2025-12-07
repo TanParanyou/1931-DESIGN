@@ -43,6 +43,7 @@ export default function AttendanceCheckIn() {
     }, []);
 
     const getLocation = () => {
+
         return new Promise<string>((resolve, reject) => {
             if (!navigator.geolocation) {
                 reject('Geolocation is not supported by your browser');
