@@ -4,63 +4,75 @@ import './globals.css';
 import { Providers } from './providers';
 import ClientLayoutIntegrations from '@/components/layout/ClientLayoutIntegrations';
 import { siteConfig } from '@/config/site.config';
+import { settingService } from '@/services/setting.service';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
-    metadataBase: new URL(siteConfig.domain),
-    title: {
-        default: siteConfig.seo.defaultTitle,
-        template: siteConfig.seo.titleTemplate,
-    },
-    description: siteConfig.seo.defaultDescription,
-    keywords: siteConfig.seo.keywords,
-    authors: siteConfig.authors,
-    creator: siteConfig.creator,
-    publisher: siteConfig.business?.legalName,
-    applicationName: siteConfig.siteName.en,
-    appleWebApp: {
-        title: siteConfig.siteShortName,
-        statusBarStyle: 'default',
-    },
-    openGraph: {
-        title: siteConfig.seo.defaultTitle,
-        description: siteConfig.seo.defaultDescription,
-        url: siteConfig.domain,
-        siteName: siteConfig.siteName.en,
-        locale: 'en_US',
-        type: 'website',
-        images: [
-            {
-                url: siteConfig.seo.defaultOgImage,
-                width: 1200,
-                height: 630,
-                alt: siteConfig.siteName.en,
-            },
-        ],
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: siteConfig.seo.defaultTitle,
-        description: siteConfig.seo.defaultDescription,
-        images: [siteConfig.seo.defaultOgImage],
-        creator: siteConfig.social.twitter,
-    },
-    robots: {
-        index: true,
-        follow: true,
-        googleBot: {
+export async function generateMetadata(): Promise<Metadata> {
+    const settings = await settingService.getPublicSettingsServer();
+
+    // Default values from siteConfig if DB settings fail
+    const title = settings?.site_title || siteConfig.seo.defaultTitle;
+    const description = settings?.site_description || siteConfig.seo.defaultDescription;
+    const siteName = settings?.site_title || siteConfig.siteName.en;
+
+    return {
+        metadataBase: new URL(siteConfig.domain),
+        title: {
+            default: title,
+            template: `%s | ${siteName}`,
+        },
+        description: description,
+        keywords: settings?.seo_keywords
+            ? settings.seo_keywords.split(',').map((k) => k.trim())
+            : siteConfig.seo.keywords,
+        authors: siteConfig.authors,
+        creator: siteConfig.creator,
+        publisher: siteConfig.business?.legalName,
+        applicationName: siteName,
+        appleWebApp: {
+            title: settings?.site_title || siteConfig.siteShortName,
+            statusBarStyle: 'default',
+        },
+        openGraph: {
+            title: title,
+            description: description,
+            url: siteConfig.domain,
+            siteName: siteName,
+            locale: 'en_US',
+            type: 'website',
+            images: [
+                {
+                    url: siteConfig.seo.defaultOgImage,
+                    width: 1200,
+                    height: 630,
+                    alt: siteName,
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: title,
+            description: description,
+            images: [siteConfig.seo.defaultOgImage],
+            creator: settings?.social_twitter || siteConfig.social.twitter,
+        },
+        robots: {
             index: true,
             follow: true,
-            'max-video-preview': -1,
-            'max-image-preview': 'large',
-            'max-snippet': -1,
+            googleBot: {
+                index: true,
+                follow: true,
+                'max-video-preview': -1,
+                'max-image-preview': 'large',
+                'max-snippet': -1,
+            },
         },
-    },
-    verification: {
-        google: '91skezEiIQj2fP0mJPnUxiWdbxwqs48P-kuXvEBtXxs',
-    },
-};
+        verification: {
+            google: '91skezEiIQj2fP0mJPnUxiWdbxwqs48P-kuXvEBtXxs',
+        },
+    };
+}
 
 export default function RootLayout({
     children,

@@ -44,6 +44,7 @@ func ConnectDB() {
 		&models.News{}, &models.Career{}, &models.Contact{}, &models.Project{}, &models.User{}, &models.AuditLog{},
 		&models.Employee{}, &models.Attendance{},
 		&models.LeaveRequest{}, &models.LeaveQuota{},
+		&models.Setting{}, // Settings
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database: ", err)
@@ -52,6 +53,59 @@ func ConnectDB() {
 
 	// Seed RBAC Data
 	seedRBAC()
+	// Seed Settings
+	seedSettings()
+}
+
+func seedSettings() {
+	settings := []models.Setting{
+		// General
+		{Key: "site_title", Value: "1931 Design", Description: "The main title of the website", Group: "general", IsPublic: true},
+		{Key: "site_tagline_th", Value: "สตูดิโอออกแบบสถาปัตยกรรมและสเปซ", Description: "Tagline (Thai)", Group: "general", IsPublic: true},
+		{Key: "site_tagline_en", Value: "Architectural & Space Design Studio", Description: "Tagline (English)", Group: "general", IsPublic: true},
+		{Key: "maintenance_mode", Value: "false", Description: "Turn on maintenance mode", Type: "boolean", Group: "general", IsPublic: true},
+
+		// SEO
+		{Key: "site_description", Value: "1931 Co., Ltd. is a premier architectural design studio based in Thailand.", Description: "Meta description for SEO", Type: "textarea", Group: "seo", IsPublic: true},
+		{Key: "seo_keywords", Value: "Architecture, Design, Interior Design, Thailand, Bangkok, Sustainable Design", Description: "Comma-separated keywords", Type: "textarea", Group: "seo", IsPublic: true},
+		{Key: "google_verification", Value: "", Description: "Google Search Console Verification Code", Group: "seo", IsPublic: true},
+		{Key: "facebook_verification", Value: "", Description: "Facebook Domain Verification Code", Group: "seo", IsPublic: true},
+
+		// Contact
+		{Key: "contact_email", Value: "info@1931.co.th", Description: "Contact email", Group: "contact", IsPublic: true},
+		{Key: "contact_phone", Value: "+66-92-518-9280", Description: "Contact phone number", Group: "contact", IsPublic: true},
+		{Key: "contact_address_th", Value: "160/78 หมู่ 5 ถนนบางกรวย-ไทรน้อย ต.บางกรวย อ.บางกรวย จ.นนทบุรี 11130", Description: "Address (Thai)", Type: "textarea", Group: "contact", IsPublic: true},
+		{Key: "contact_address_en", Value: "160/78 Moo 5, Bang Kruai-Sai Noi Rd., Bang Kruai, Nonthaburi 11130", Description: "Address (English)", Type: "textarea", Group: "contact", IsPublic: true},
+		{Key: "google_map_url", Value: "", Description: "Google Maps Link", Group: "contact", IsPublic: true},
+
+		// Business
+		{Key: "business_legal_name", Value: "บริษัท 1931 จำกัด", Description: "Registered Legal Name", Group: "business", IsPublic: true},
+		{Key: "business_tax_id", Value: "", Description: "Tax Identification Number", Group: "business", IsPublic: true},
+
+		// Social
+		{Key: "social_facebook", Value: "https://facebook.com/1931", Description: "Facebook URL", Group: "social", IsPublic: true},
+		{Key: "social_instagram", Value: "https://instagram.com/1931_studio", Description: "Instagram URL", Group: "social", IsPublic: true},
+		{Key: "social_line", Value: "", Description: "Line Official Account URL", Group: "social", IsPublic: true},
+		{Key: "social_twitter", Value: "https://twitter.com/1931design", Description: "Twitter/X URL", Group: "social", IsPublic: true},
+		{Key: "social_github", Value: "https://github.com/1931design", Description: "Github URL", Group: "social", IsPublic: true},
+		{Key: "social_behance", Value: "", Description: "Behance URL", Group: "social", IsPublic: true},
+		{Key: "social_pinterest", Value: "", Description: "Pinterest URL", Group: "social", IsPublic: true},
+
+		// Analytics / Integrations
+		{Key: "analytics_google_id", Value: "", Description: "Google Analytics ID (G-XXXXXXXX)", Group: "analytics", IsPublic: true},
+		{Key: "analytics_gtm_id", Value: "", Description: "Google Tag Manager ID (GTM-XXXXXX)", Group: "analytics", IsPublic: true},
+		{Key: "analytics_pixel_id", Value: "", Description: "Meta Pixel ID", Group: "analytics", IsPublic: true},
+	}
+
+	for _, s := range settings {
+		var setting models.Setting
+		// If key doesn't exist, create it.
+		// We avoid updating existing settings to not overwrite user changes.
+		if err := DB.Where("key = ?", s.Key).First(&setting).Error; err != nil {
+			DB.Create(&s)
+			log.Printf("Seeded setting: %s", s.Key)
+		}
+	}
 }
 
 func seedRBAC() {
@@ -64,6 +118,8 @@ func seedRBAC() {
 		{Slug: "roles.manage", Description: "Create, Edit, Delete Roles"},
 		{Slug: "menus.view", Description: "View Menus"},
 		{Slug: "menus.manage", Description: "Create, Edit, Delete Menus"},
+		{Slug: "settings.view", Description: "View Settings"},
+		{Slug: "settings.manage", Description: "Manage Settings"},
 		{Slug: "audit_logs.view", Description: "View Audit Logs"},
 	}
 
@@ -119,6 +175,7 @@ func seedRBAC() {
 		{Path: "/admin/employees", Title: "Employees", Icon: "Briefcase", PermissionSlug: "users.manage", Order: 3}, // HR/Admin only
 		{Path: "/admin/roles", Title: "Roles", Icon: "Shield", PermissionSlug: "roles.view", Order: 4},
 		{Path: "/admin/menus", Title: "Menus", Icon: "List", PermissionSlug: "menus.view", Order: 5},
+		{Path: "/admin/settings", Title: "Settings", Icon: "Settings", PermissionSlug: "settings.view", Order: 90},
 		{Path: "/admin/attendance", Title: "Attendance", Icon: "Clock", PermissionSlug: "dashboard.view", Order: 6}, // Everyone can check in
 		{Path: "/admin/leaves", Title: "Leaves", Icon: "Calendar", PermissionSlug: "dashboard.view", Order: 7},      // Everyone can request leave
 		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 8},

@@ -6,8 +6,20 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    LayoutDashboard, Newspaper, Briefcase, FolderKanban, LogOut, Menu, X, ChevronRight, User, FileText,
-    Clock, Calendar, Shield
+    LayoutDashboard,
+    Newspaper,
+    Briefcase,
+    FolderKanban,
+    LogOut,
+    Menu,
+    X,
+    ChevronRight,
+    User,
+    FileText,
+    Clock,
+    Calendar,
+    Shield,
+    Settings,
 } from 'lucide-react';
 import api from '@/lib/api';
 
@@ -21,7 +33,8 @@ const IconMap: Record<string, any> = {
     FileText,
     Newspaper,
     FolderKanban,
-    Shield
+    Shield,
+    Settings,
 };
 
 interface MenuItem {
@@ -53,7 +66,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     const res = await api.get('/auth/menus');
                     setMenuItems(res.data.data?.menus || []);
                 } catch (err) {
-                    console.error("Failed to fetch menus", err);
+                    console.error('Failed to fetch menus', err);
                 } finally {
                     setMenuLoading(false);
                 }
@@ -67,7 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a] text-white">
                 <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
                     className="h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full"
                 />
             </div>
@@ -101,22 +114,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             key={item.path}
                             href={item.path}
                             onClick={() => setIsSidebarOpen(false)}
-                            className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 relative overflow-hidden ${isActive
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                : 'text-gray-400 hover:text-white hover:bg-white/5'
-                                }`}
+                            className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 relative overflow-hidden ${
+                                isActive
+                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                            }`}
                         >
                             {isActive && (
                                 <motion.div
                                     layoutId="activeNav"
                                     className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-500 z-0"
                                     initial={false}
-                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                                 />
                             )}
                             <Icon size={20} className="relative z-10" />
                             <span className="relative z-10 font-medium">{item.title}</span>
-                            {isActive && <ChevronRight size={16} className="ml-auto relative z-10" />}
+                            {isActive && (
+                                <ChevronRight size={16} className="ml-auto relative z-10" />
+                            )}
                         </Link>
                     );
                 })}
@@ -185,7 +201,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             initial={{ x: '-100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
-                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                             className="fixed inset-y-0 left-0 z-50 w-72 bg-[#111] border-r border-white/10 md:hidden"
                         >
                             <button
@@ -202,9 +218,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             {/* Main Content */}
             <main className="flex-1 md:ml-72 w-full max-w-[100vw] p-4 md:p-8 pt-20 md:pt-8 min-h-screen transition-all overflow-x-hidden">
-                <div className="max-w-6xl mx-auto">
-                    {children}
-                </div>
+                <div className="max-w-6xl mx-auto">{children}</div>
             </main>
         </div>
     );

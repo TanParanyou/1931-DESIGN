@@ -37,6 +37,7 @@ export type SeoConfig = {
 export type ContactInfo = {
     email?: string;
     phone?: string;
+    phone2?: string;
     address?: LocalizedText;
     googleMapUrl?: string;
 };
@@ -123,11 +124,10 @@ export const siteConfig: SiteConfig = {
 
     social: {
         // line: "https://lin.ee/xxxx",
-        instagram: 'https://instagram.com/1931_studio', // Placeholder
-        facebook: 'https://facebook.com/1931', // Placeholder
-        email: 'info@1931.co.th', // Placeholder
-        twitter: 'https://twitter.com/1931design',
-        github: 'https://github.com/1931design',
+        instagram:
+            'https://www.instagram.com/1931company?igsh=cjRoanFoNGJ1bnA3&utm_source=qr&ref=share', // Placeholder
+        facebook: 'https://www.facebook.com/share/1BY4Sti3BB/?mibextid=wwXIfr&ref=share', // Placeholder
+        email: 'ccontact.1931@gmail.com',
     },
 
     seo: {
@@ -150,13 +150,15 @@ export const siteConfig: SiteConfig = {
     },
 
     contact: {
-        email: 'info@1931.co.th',
+        email: 'ccontact.1931@gmail.com',
         phone: '+66-92-518-9280',
+        phone2: '+66-85-046-0291',
+        googleMapUrl:
+            'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15498.120498178407!2d100.4832440407703!3d13.80717542324026!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e29b002b623bc9%3A0x3695b943ca86c45d!2s1931%20Company!5e0!3m2!1sen!2sth!4v1765484728388!5m2!1sen!2sth',
         address: {
             th: '160/78 หมู่ 5 ถนนบางกรวย-ไทรน้อย ต.บางกรวย อ.บางกรวย จ.นนทบุรี 11130',
             en: '160/78 Moo 5, Bang Kruai-Sai Noi Rd., Bang Kruai, Nonthaburi 11130',
         },
-        // googleMapUrl: "https://maps.app.goo.gl/xxxx",
     },
 
     business: {

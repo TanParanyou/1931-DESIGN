@@ -86,4 +86,11 @@ func SetupRoutes(app *fiber.App) {
 
 	// HR Routes
 	SetupHRRoutes(api)
+
+	// Settings Routes
+	api.Get("/public/settings", handlers.GetPublicSettings)
+
+	settings := api.Group("/settings", middleware.Protected(), middleware.Admin())
+	settings.Get("/", handlers.GetSettings)
+	settings.Put("/", handlers.UpdateSettings)
 }

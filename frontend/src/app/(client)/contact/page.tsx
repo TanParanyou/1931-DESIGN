@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { MapPin, Phone, Mail, Copy, Check } from 'lucide-react';
 import { useActionState } from 'react';
 import { sendContactEmail, ContactFormState } from './actions';
+import { settingService } from '@/services/setting.service';
+import { siteConfig } from '@/config/site.config';
 
 const initialState: ContactFormState = {
     success: false,
@@ -16,6 +18,43 @@ import { useLanguage } from '@/context/LanguageContext';
 export default function ContactPage() {
     const { t } = useLanguage();
     const [state, formAction, isPending] = useActionState(sendContactEmail, initialState);
+    const [settings, setSettings] = useState<Record<string, string>>({});
+    const [addressCopied, setAddressCopied] = useState(false);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            const data = await settingService.getPublicSettings();
+            if (data && Object.keys(data).length > 0) {
+                setSettings(data);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    const getVal = (key: string, fallback: string) => settings[key] || fallback;
+
+    // Default Fallbacks
+    const defaultAddress =
+        siteConfig.contact.address?.en ||
+        '160 78 Bang Kruai,\nBang Kruai District,\nNonthaburi 11130';
+    const defaultPhone = siteConfig.contact.phone || '+66 92 518 9280';
+    const defaultPhone2 = siteConfig.contact.phone2 || '+66 85 046 0291';
+    const defaultEmail = siteConfig.contact.email || 'ccontact.1931@gmail.com';
+    const defaultMap =
+        'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15498.120498178407!2d100.4832440407703!3d13.80717542324026!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e29b002b623bc9%3A0x3695b943ca86c45d!2s1931%20Company!5e0!3m2!1sen!2sth!4v1765484728388!5m2!1sen!2sth';
+
+    const address = getVal('contact_address_en', defaultAddress);
+    const phone = getVal('contact_phone', defaultPhone);
+    const phone2 = getVal('contact_phone2', defaultPhone2);
+    const email = getVal('contact_email', defaultEmail);
+    const mapUrl = getVal('google_map_url', defaultMap);
+
+    const handleCopyAddress = () => {
+        navigator.clipboard.writeText(address);
+        setAddressCopied(true);
+        setTimeout(() => setAddressCopied(false), 2000);
+    };
+
     return (
         <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen">
             <h1 className="text-4xl md:text-6xl font-light tracking-wide mb-16 text-white">
@@ -29,31 +68,53 @@ export default function ContactPage() {
                         <h3 className="text-sm font-bold tracking-widest mb-6 tx-green">
                             {t.contact.HEADQUARTERS}
                         </h3>
-                        <div className="flex gap-4 items-start text-white/80 mb-4">
+                        <div className="flex gap-4 items-start text-white/80 mb-4 group">
                             <MapPin size={20} className="mt-1 shrink-0 tx-green" />
-                            <p className="leading-relaxed font-light">
-                                160/78 หมู่ที่ 5 ถนนบางกรวย-ไทรน้อย
-                                <br />
-                                ตำบลบางกรวย อำเภอบางกรวย
-                                <br />
-                                จ.นนทบุรี 11130
+                            <p className="leading-relaxed font-light whitespace-pre-line flex-1">
+                                {address}
                             </p>
+                            <button
+                                onClick={handleCopyAddress}
+                                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white/50 hover:text-white"
+                                title="Copy Address"
+                            >
+                                {addressCopied ? (
+                                    <Check size={16} className="text-green-400" />
+                                ) : (
+                                    <Copy size={16} />
+                                )}
+                            </button>
                         </div>
                         <div className="flex gap-4 items-center text-white/80 mb-4">
                             <Phone size={20} className="shrink-0 tx-green" />
-                            <p className="font-light">+66 92 518 9280</p>
+                            <a
+                                href={`tel:${phone}`}
+                                className="font-light hover:text-green-300 hover:border-green-300 transition-all"
+                            >
+                                {phone}
+                            </a>
                         </div>
                         <div className="flex gap-4 items-center text-white/80 mb-4">
                             <Phone size={20} className="shrink-0 tx-green" />
-                            <p className="font-light">+66 85 046 0291</p>
+                            <a
+                                href={`tel:${phone2}`}
+                                className="font-light hover:text-green-300 hover:border-green-300 transition-all"
+                            >
+                                {phone2}
+                            </a>
                         </div>
                         <div className="flex gap-4 items-center text-white/80">
                             <Mail size={20} className="shrink-0 tx-green" />
-                            <p className="font-light">ccontact.1931@gmail.com</p>
+                            <a
+                                href={`mailto:${email}`}
+                                className="font-light hover:text-green-300 hover:border-green-300 transition-all"
+                            >
+                                {email}
+                            </a>
                         </div>
                     </div>
 
-                    <div>
+                    {/* <div>
                         <h3 className="text-sm font-bold tracking-widest mb-6 tx-green">
                             {t.contact.CAREERS}
                         </h3>
@@ -61,27 +122,30 @@ export default function ContactPage() {
                             We are always looking for talented individuals to join our team.
                         </p>
                         <a
-                            href="mailto:ccontact.1931@gmail.com"
+                            href={`mailto:${email}`}
                             className="tx-green border-b border-white/30 pb-1 hover:text-green-300 hover:border-green-300 transition-all"
                         >
-                            ccontact.1931@gmail.com
+                            {email}
                         </a>
-                    </div>
-
+                    </div> */}
+                    <div className="text-white/80 font-light mb-2">Google Map</div>
                     <div className="w-full h-64 rounded-lg overflow-hidden border border-white/10">
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            style={{ border: 0 }}
-                            loading="lazy"
-                            allowFullScreen
-                            referrerPolicy="no-referrer-when-downgrade"
-                            src="https://maps.google.com/maps?q=160%2F78+หมู่ที่+5+ถนนบางกรวย-ไทรน้อย+ตำบลบางกรวย+อำเภอบางกรวย+จ.นนทบุรี+11130&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                            title="Google Map"
-                        ></iframe>
+                        {mapUrl && (
+                            <iframe
+                                id="map"
+                                width="100%"
+                                height="100%"
+                                style={{ border: 0 }}
+                                loading="lazy"
+                                allowFullScreen
+                                referrerPolicy="no-referrer-when-downgrade"
+                                src={mapUrl}
+                                title="Google Map"
+                            ></iframe>
+                        )}
                     </div>
                 </div>
-
+                {/* Form */}
                 {/* Form */}
                 <div className="glass p-8 md:p-12 rounded-2xl border-white/10 bg-black/20">
                     <h3 className="text-xl font-light tracking-wide mb-8 text-white">
