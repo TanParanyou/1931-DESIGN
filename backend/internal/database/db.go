@@ -60,6 +60,10 @@ func seedRBAC() {
 		{Slug: "dashboard.view", Description: "View Dashboard"},
 		{Slug: "users.view", Description: "View Users"},
 		{Slug: "users.manage", Description: "Create, Edit, Delete Users"},
+		{Slug: "roles.view", Description: "View Roles"},
+		{Slug: "roles.manage", Description: "Create, Edit, Delete Roles"},
+		{Slug: "menus.view", Description: "View Menus"},
+		{Slug: "menus.manage", Description: "Create, Edit, Delete Menus"},
 		{Slug: "audit_logs.view", Description: "View Audit Logs"},
 	}
 
@@ -113,9 +117,11 @@ func seedRBAC() {
 		{Path: "/admin", Title: "Dashboard", Icon: "LayoutDashboard", PermissionSlug: "dashboard.view", Order: 1},
 		{Path: "/admin/users", Title: "Users", Icon: "User", PermissionSlug: "users.view", Order: 2},
 		{Path: "/admin/employees", Title: "Employees", Icon: "Briefcase", PermissionSlug: "users.manage", Order: 3}, // HR/Admin only
-		{Path: "/admin/attendance", Title: "Attendance", Icon: "Clock", PermissionSlug: "dashboard.view", Order: 4}, // Everyone can check in
-		{Path: "/admin/leaves", Title: "Leaves", Icon: "Calendar", PermissionSlug: "dashboard.view", Order: 5},      // Everyone can request leave
-		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 6},
+		{Path: "/admin/roles", Title: "Roles", Icon: "Shield", PermissionSlug: "roles.view", Order: 4},
+		{Path: "/admin/menus", Title: "Menus", Icon: "List", PermissionSlug: "menus.view", Order: 5},
+		{Path: "/admin/attendance", Title: "Attendance", Icon: "Clock", PermissionSlug: "dashboard.view", Order: 6}, // Everyone can check in
+		{Path: "/admin/leaves", Title: "Leaves", Icon: "Calendar", PermissionSlug: "dashboard.view", Order: 7},      // Everyone can request leave
+		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 8},
 		{Path: "/admin/profile", Title: "My Profile", Icon: "User", PermissionSlug: "", Order: 99},
 	}
 

@@ -4,10 +4,30 @@ import (
 	"backend/internal/database"
 	"backend/internal/models"
 	"backend/pkg/utils"
+	"errors"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 )
+
+type CreateMenuInput struct {
+	Title          string `json:"title" validate:"required"`
+	Path           string `json:"path" validate:"required"`
+	Icon           string `json:"icon"`
+	PermissionSlug string `json:"permission_slug"`
+	ParentID       *uint  `json:"parent_id"`
+	Order          int    `json:"order"`
+}
+
+type UpdateMenuInput struct {
+	Title          string `json:"title"`
+	Path           string `json:"path"`
+	Icon           string `json:"icon"`
+	PermissionSlug string `json:"permission_slug"`
+	ParentID       *uint  `json:"parent_id"`
+	Order          int    `json:"order"`
+	IsActive       *bool  `json:"is_active"`
+}
 
 // GetMenus godoc
 // @Summary Get user menus
@@ -62,4 +82,96 @@ func GetMenus(c *fiber.Ctx) error {
 	return utils.SendSuccess(c, fiber.Map{
 		"menus": visibleMenus,
 	}, "Menus retrieved successfully")
+}
+
+// GetAllMenus returns all menus (Admin)
+func GetAllMenus(c *fiber.Ctx) error {
+	var menus []models.Menu
+	if err := database.DB.Order("\"order\" asc").Find(&menus).Error; err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not fetch menus"))
+	}
+	return utils.SendSuccess(c, fiber.Map{"menus": menus}, "Menus retrieved successfully")
+}
+
+func GetMenu(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid menu ID"))
+	}
+	var menu models.Menu
+	if err := database.DB.First(&menu, id).Error; err != nil {
+		return utils.SendError(c, fiber.StatusNotFound, errors.New("menu not found"))
+	}
+	return utils.SendSuccess(c, fiber.Map{"menu": menu}, "Menu retrieved successfully")
+}
+
+func CreateMenu(c *fiber.Ctx) error {
+	var input CreateMenuInput
+	if err := c.BodyParser(&input); err != nil {
+		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid input"))
+	}
+	menu := models.Menu{
+		Title:          input.Title,
+		Path:           input.Path,
+		Icon:           input.Icon,
+		PermissionSlug: input.PermissionSlug,
+		ParentID:       input.ParentID,
+		Order:          input.Order,
+		IsActive:       true,
+	}
+	if err := database.DB.Create(&menu).Error; err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not create menu"))
+	}
+	return utils.SendCreated(c, fiber.Map{"menu": menu}, "Menu created successfully")
+}
+
+func UpdateMenu(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid menu ID"))
+	}
+	var input UpdateMenuInput
+	if err := c.BodyParser(&input); err != nil {
+		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid input"))
+	}
+	var menu models.Menu
+	if err := database.DB.First(&menu, id).Error; err != nil {
+		return utils.SendError(c, fiber.StatusNotFound, errors.New("menu not found"))
+	}
+
+	if input.Title != "" {
+		menu.Title = input.Title
+	}
+	if input.Path != "" {
+		menu.Path = input.Path
+	}
+	if input.Icon != "" {
+		menu.Icon = input.Icon
+	}
+	menu.PermissionSlug = input.PermissionSlug
+	menu.ParentID = input.ParentID
+	menu.Order = input.Order
+	if input.IsActive != nil {
+		menu.IsActive = *input.IsActive
+	}
+
+	if err := database.DB.Save(&menu).Error; err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not update menu"))
+	}
+	return utils.SendSuccess(c, fiber.Map{"menu": menu}, "Menu updated successfully")
+}
+
+func DeleteMenu(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid menu ID"))
+	}
+	var menu models.Menu
+	if err := database.DB.First(&menu, id).Error; err != nil {
+		return utils.SendError(c, fiber.StatusNotFound, errors.New("menu not found"))
+	}
+	if err := database.DB.Delete(&menu).Error; err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not delete menu"))
+	}
+	return utils.SendSuccess(c, nil, "Menu deleted successfully")
 }

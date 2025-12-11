@@ -1,9 +1,9 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL_LOCAL || 'http://localhost:8080/api';
 
 const api = axios.create({
-    baseURL: API_URL + "/api",
+    baseURL: API_URL + '/api',
     timeout: 10000, // 10 seconds
     headers: {
         'Content-Type': 'application/json',
@@ -39,7 +39,8 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+            const refreshToken =
+                localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
             if (refreshToken) {
                 try {
                     // Call refresh token endpoint
@@ -102,9 +103,9 @@ export default api;
 export const apiHelpers = {
     get: <T>(url: string, config?: AxiosRequestConfig) =>
         api.get<T>(url, config).then((res) => res.data),
-    post: <T>(url: string, body: any, config?: AxiosRequestConfig) =>
+    post: <T>(url: string, body: unknown, config?: AxiosRequestConfig) =>
         api.post<T>(url, body, config).then((res) => res.data),
-    put: <T>(url: string, body: any, config?: AxiosRequestConfig) =>
+    put: <T>(url: string, body: unknown, config?: AxiosRequestConfig) =>
         api.put<T>(url, body, config).then((res) => res.data),
     delete: <T>(url: string, config?: AxiosRequestConfig) =>
         api.delete<T>(url, config).then((res) => res.data),

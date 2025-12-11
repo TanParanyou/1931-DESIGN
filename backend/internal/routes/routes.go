@@ -57,6 +57,25 @@ func SetupRoutes(app *fiber.App) {
 	// Audit Logs
 	api.Get("/audit-logs", middleware.Protected(), middleware.Admin(), handlers.GetAuditLogs)
 
+	// Role & Permission Management
+	roles := api.Group("/roles", middleware.Protected(), middleware.Admin())
+	roles.Get("/", handlers.GetAllRoles)
+	roles.Post("/", handlers.CreateRole)
+	roles.Get("/:id", handlers.GetRole)
+	roles.Put("/:id", handlers.UpdateRole)
+	roles.Delete("/:id", handlers.DeleteRole)
+
+	// Menu Management
+	menus := api.Group("/menus", middleware.Protected(), middleware.Admin())
+	menus.Get("/", handlers.GetAllMenus)
+	menus.Post("/", handlers.CreateMenu)
+	menus.Get("/:id", handlers.GetMenu)
+	menus.Put("/:id", handlers.UpdateMenu)
+	menus.Delete("/:id", handlers.DeleteMenu)
+
+	permissions := api.Group("/permissions", middleware.Protected(), middleware.Admin())
+	permissions.Get("/", handlers.GetAllPermissions)
+
 	// Project routes
 	projects := api.Group("/projects")
 	projects.Get("/", handlers.GetProjects)

@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard, Newspaper, Briefcase, FolderKanban, LogOut, Menu, X, ChevronRight, User, FileText,
-    Clock, Calendar
+    Clock, Calendar, Shield
 } from 'lucide-react';
 import api from '@/lib/api';
 
@@ -20,7 +20,8 @@ const IconMap: Record<string, any> = {
     Calendar,
     FileText,
     Newspaper,
-    FolderKanban
+    FolderKanban,
+    Shield
 };
 
 interface MenuItem {
