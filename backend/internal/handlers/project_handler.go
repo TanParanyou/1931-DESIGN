@@ -150,9 +150,53 @@ func DeleteProject(c *fiber.Ctx) error {
 		return utils.SendError(c, fiber.StatusNotFound, errors.New("project not found"))
 	}
 
+	// Delete images from R2 if any
+	if len(project.Images) > 0 {
+		// Extract keys from URLs
+		var keys []string
+		for _, img := range project.Images {
+			keys = append(keys, img)
+		}
+		DeleteImages(keys)
+	}
+
 	database.DB.Delete(&project)
 	// Audit Log
 	services.CreateAuditLog(c, "PROJECT_DELETE", project.ID, "project", map[string]string{"title": project.Title})
 
 	return utils.SendSuccess(c, nil, "Project deleted successfully")
+}
+
+// UpdateProjectOrder updates the sort order of projects
+// UpdateProjectOrder godoc
+// @Summary Update project order
+// @Description Update the sort order of multiple projects
+// @Tags Projects
+// @Accept json
+// @Produce json
+// @Param input body []map[string]interface{} true "Project order"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Security BearerAuth
+// @Router /api/projects/order [put]
+func UpdateProjectOrder(c *fiber.Ctx) error {
+	var orderData []struct {
+		ID        uint `json:"id"`
+		SortOrder int  `json:"sort_order"`
+	}
+
+	if err := c.BodyParser(&orderData); err != nil {
+		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid input"))
+	}
+
+	tx := database.DB.Begin()
+	for _, item := range orderData {
+		if err := tx.Model(&models.Project{}).Where("id = ?", item.ID).Update("sort_order", item.SortOrder).Error; err != nil {
+			tx.Rollback()
+			return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not update project order"))
+		}
+	}
+	tx.Commit()
+
+	return utils.SendSuccess(c, nil, "Project order updated successfully")
 }

@@ -1,19 +1,54 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { categories, projects } from '@/lib/data';
 import { useLanguage } from '@/context/LanguageContext';
+import { projectService } from '@/services/project.service';
+import { Project, Category } from '@/types/project';
+import { Loader2 } from 'lucide-react';
 
 export default function ProjectsPage() {
     const [activeCategory, setActiveCategory] = useState('ALL');
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
     const { t } = useLanguage();
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const [projectsResponse, cats] = await Promise.all([
+                    projectService.getProjects(1, 100), // Get all projects
+                    projectService.getCategories(),
+                ]);
+                // Filter only active projects
+                const activeProjects = (projectsResponse.data || []).filter(
+                    (p: Project) => p.is_active
+                );
+                setProjects(activeProjects);
+                setCategories(cats);
+            } catch (err) {
+                console.error('Failed to load projects:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadData();
+    }, []);
 
     const filteredProjects =
         activeCategory === 'ALL' ? projects : projects.filter((p) => p.category === activeCategory);
+
+    if (loading) {
+        return (
+            <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen flex items-center justify-center">
+                <Loader2 size={48} className="text-white/50 animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen">
@@ -63,12 +98,18 @@ export default function ProjectsPage() {
                     >
                         <Link href={`/projects/${project.id}`}>
                             <div className="relative aspect-4/3 overflow-hidden rounded-xl mb-6 border border-white/10 shadow-lg">
-                                <Image
-                                    src={project.image}
-                                    alt={project.title}
-                                    fill
-                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                                />
+                                {project.images?.[0] ? (
+                                    <Image
+                                        src={project.images[0]}
+                                        alt={project.title}
+                                        fill
+                                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 bg-white/5 flex items-center justify-center text-white/30">
+                                        No Image
+                                    </div>
+                                )}
                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500" />
 
                                 {/* Hover Overlay */}
@@ -95,6 +136,12 @@ export default function ProjectsPage() {
                     </motion.div>
                 ))}
             </div>
+
+            {filteredProjects.length === 0 && (
+                <div className="text-center text-white/50 py-16">
+                    No projects found in this category.
+                </div>
+            )}
         </div>
     );
 }

@@ -44,7 +44,8 @@ func ConnectDB() {
 		&models.News{}, &models.Career{}, &models.Contact{}, &models.Project{}, &models.User{}, &models.AuditLog{},
 		&models.Employee{}, &models.Attendance{},
 		&models.LeaveRequest{}, &models.LeaveQuota{},
-		&models.Setting{}, // Settings
+		&models.Setting{},  // Settings
+		&models.Category{}, // Categories
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database: ", err)
@@ -55,6 +56,8 @@ func ConnectDB() {
 	seedRBAC()
 	// Seed Settings
 	seedSettings()
+	// Seed Categories
+	seedCategories()
 }
 
 func seedSettings() {
@@ -121,6 +124,10 @@ func seedRBAC() {
 		{Slug: "settings.view", Description: "View Settings"},
 		{Slug: "settings.manage", Description: "Manage Settings"},
 		{Slug: "audit_logs.view", Description: "View Audit Logs"},
+		{Slug: "projects.view", Description: "View Projects"},
+		{Slug: "projects.manage", Description: "Create, Edit, Delete Projects"},
+		{Slug: "categories.view", Description: "View Categories"},
+		{Slug: "categories.manage", Description: "Create, Edit, Delete Categories"},
 	}
 
 	for _, p := range permissions {
@@ -172,13 +179,15 @@ func seedRBAC() {
 	menus := []models.Menu{
 		{Path: "/admin", Title: "Dashboard", Icon: "LayoutDashboard", PermissionSlug: "dashboard.view", Order: 1},
 		{Path: "/admin/users", Title: "Users", Icon: "User", PermissionSlug: "users.view", Order: 2},
-		{Path: "/admin/employees", Title: "Employees", Icon: "Briefcase", PermissionSlug: "users.manage", Order: 3}, // HR/Admin only
-		{Path: "/admin/roles", Title: "Roles", Icon: "Shield", PermissionSlug: "roles.view", Order: 4},
-		{Path: "/admin/menus", Title: "Menus", Icon: "List", PermissionSlug: "menus.view", Order: 5},
+		{Path: "/admin/employees", Title: "Employees", Icon: "Briefcase", PermissionSlug: "users.manage", Order: 3},
+		{Path: "/admin/projects", Title: "Projects", Icon: "FolderKanban", PermissionSlug: "projects.view", Order: 4},
+		{Path: "/admin/categories", Title: "Categories", Icon: "Tags", PermissionSlug: "categories.view", Order: 5},
+		{Path: "/admin/roles", Title: "Roles", Icon: "Shield", PermissionSlug: "roles.view", Order: 6},
+		{Path: "/admin/menus", Title: "Menus", Icon: "List", PermissionSlug: "menus.view", Order: 7},
 		{Path: "/admin/settings", Title: "Settings", Icon: "Settings", PermissionSlug: "settings.view", Order: 90},
-		{Path: "/admin/attendance", Title: "Attendance", Icon: "Clock", PermissionSlug: "dashboard.view", Order: 6}, // Everyone can check in
-		{Path: "/admin/leaves", Title: "Leaves", Icon: "Calendar", PermissionSlug: "dashboard.view", Order: 7},      // Everyone can request leave
-		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 8},
+		{Path: "/admin/attendance", Title: "Attendance", Icon: "Clock", PermissionSlug: "dashboard.view", Order: 8},
+		{Path: "/admin/leaves", Title: "Leaves", Icon: "Calendar", PermissionSlug: "dashboard.view", Order: 9},
+		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 10},
 		{Path: "/admin/profile", Title: "My Profile", Icon: "User", PermissionSlug: "", Order: 99},
 	}
 
@@ -209,6 +218,25 @@ func seedRBAC() {
 			}
 			DB.Create(&adminEmp)
 			log.Println("Seeded Admin Employee record")
+		}
+	}
+}
+
+func seedCategories() {
+	categories := []models.Category{
+		{Name: "Architecture", Slug: "architecture", SortOrder: 1, IsActive: true},
+		{Name: "Interior", Slug: "interior", SortOrder: 2, IsActive: true},
+		{Name: "Built-in", Slug: "built-in", SortOrder: 3, IsActive: true},
+		{Name: "Renovate", Slug: "renovate", SortOrder: 4, IsActive: true},
+		{Name: "Landscape", Slug: "landscape", SortOrder: 5, IsActive: true},
+		{Name: "Construction", Slug: "construction", SortOrder: 6, IsActive: true},
+	}
+
+	for _, c := range categories {
+		var cat models.Category
+		if err := DB.Where("slug = ?", c.Slug).First(&cat).Error; err != nil {
+			DB.Create(&c)
+			log.Printf("Seeded category: %s", c.Name)
 		}
 	}
 }

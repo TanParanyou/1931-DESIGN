@@ -76,13 +76,34 @@ func SetupRoutes(app *fiber.App) {
 	permissions := api.Group("/permissions", middleware.Protected(), middleware.Admin())
 	permissions.Get("/", handlers.GetAllPermissions)
 
-	// Project routes
+	// Project routes (public read)
 	projects := api.Group("/projects")
 	projects.Get("/", handlers.GetProjects)
 	projects.Get("/:id", handlers.GetProject)
-	projects.Post("/", handlers.CreateProject)
-	projects.Put("/:id", handlers.UpdateProject)
-	projects.Delete("/:id", handlers.DeleteProject)
+
+	// Project routes (admin protected)
+	projectsAdmin := api.Group("/projects", middleware.Protected(), middleware.Admin())
+	projectsAdmin.Post("/", handlers.CreateProject)
+	projectsAdmin.Put("/:id", handlers.UpdateProject)
+	projectsAdmin.Delete("/:id", handlers.DeleteProject)
+	projectsAdmin.Put("/order", handlers.UpdateProjectOrder)
+
+	// Category routes (public read)
+	api.Get("/categories", handlers.GetCategories)
+
+	// Category routes (admin protected)
+	categories := api.Group("/categories", middleware.Protected(), middleware.Admin())
+	categories.Get("/all", handlers.GetAllCategories)
+	categories.Get("/:id", handlers.GetCategory)
+	categories.Post("/", handlers.CreateCategory)
+	categories.Put("/order", handlers.UpdateCategoryOrder)
+	categories.Put("/:id", handlers.UpdateCategory)
+	categories.Delete("/:id", handlers.DeleteCategory)
+
+	// Upload routes (admin protected)
+	upload := api.Group("/upload", middleware.Protected(), middleware.Admin())
+	upload.Post("/image", handlers.UploadImage)
+	upload.Delete("/image/*", handlers.DeleteImage)
 
 	// HR Routes
 	SetupHRRoutes(api)
