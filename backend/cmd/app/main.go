@@ -3,8 +3,10 @@ package main
 import (
 	"backend/config"
 	"backend/internal/database"
+	"backend/internal/handlers"
 	"backend/internal/routes"
 	"backend/pkg/middleware"
+	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,6 +24,14 @@ func main() {
 
 	// Connect to database
 	database.ConnectDB()
+
+	// Initialize R2 Upload Service
+	if err := handlers.InitR2Service(); err != nil {
+		log.Printf("Warning: R2 Service not initialized: %v", err)
+		log.Println("Image uploads will not work until R2 is configured")
+	} else {
+		log.Println("R2 Upload Service initialized successfully")
+	}
 
 	// Initialize Fiber app
 	app := fiber.New()
