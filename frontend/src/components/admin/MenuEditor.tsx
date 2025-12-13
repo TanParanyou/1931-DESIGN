@@ -1,26 +1,53 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, Permission, CreateMenuInput, UpdateMenuInput } from '@/types/rbac';
+import { Menu, Permission } from '@/types/rbac';
 import { rbacService } from '@/services/rbac';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Select } from '@/components/ui/Select';
+import { IconPicker } from '@/components/ui/IconPicker';
 
 interface MenuEditorProps {
     menu?: Menu;
+    menus?: Menu[]; // รับ list ของ menus สำหรับเลือก parent
     onSave: () => void;
     onCancel: () => void;
 }
 
-export default function MenuEditor({ menu, onSave, onCancel }: MenuEditorProps) {
+export default function MenuEditor({ menu, menus = [], onSave, onCancel }: MenuEditorProps) {
     const [title, setTitle] = useState(menu?.title || '');
     const [path, setPath] = useState(menu?.path || '');
     const [icon, setIcon] = useState(menu?.icon || '');
     const [permissionSlug, setPermissionSlug] = useState(menu?.permission_slug || '');
+    const [parentId, setParentId] = useState<number | undefined>(menu?.parent_id);
     const [order, setOrder] = useState(menu?.order || 0);
+    const [isGroup, setIsGroup] = useState(menu?.path === '#' || false);
     const [loading, setLoading] = useState(false);
 
     // For Permission Selection (Optional)
     const [availablePermissions, setAvailablePermissions] = useState<Permission[]>([]);
+
+    // กรองเอาเฉพาะ top-level menus (ที่เป็น group หรือไม่มี parent) สำหรับเลือกเป็น parent
+    const availableParents = menus.filter(
+        (m) => !m.parent_id && m.id !== menu?.id // ไม่รวมตัวเอง
+    );
+
+    // สร้าง options สำหรับ Select components
+    const parentOptions = [
+        { value: '', label: 'None (Top Level)' },
+        ...availableParents.map((p) => ({
+            value: p.id,
+            label: p.icon ? `${p.icon} - ${p.title}` : p.title,
+        })),
+    ];
+
+    const permissionOptions = [
+        { value: '', label: 'None (Public/All Authenticated)' },
+        ...availablePermissions.map((p) => ({
+            value: p.slug,
+            label: `${p.slug} (${p.description})`,
+        })),
+    ];
 
     useEffect(() => {
         loadPermissions();
@@ -39,22 +66,19 @@ export default function MenuEditor({ menu, onSave, onCancel }: MenuEditorProps) 
         e.preventDefault();
         setLoading(true);
         try {
+            const menuData = {
+                title,
+                path: isGroup ? '#' : path, // Group ใช้ # แทน path
+                icon,
+                permission_slug: permissionSlug,
+                parent_id: parentId,
+                order: Number(order),
+            };
+
             if (menu) {
-                await rbacService.updateMenu(menu.id, {
-                    title,
-                    path,
-                    icon,
-                    permission_slug: permissionSlug,
-                    order: Number(order),
-                });
+                await rbacService.updateMenu(menu.id, menuData);
             } else {
-                await rbacService.createMenu({
-                    title,
-                    path,
-                    icon,
-                    permission_slug: permissionSlug,
-                    order: Number(order),
-                });
+                await rbacService.createMenu(menuData);
             }
             onSave();
         } catch (error) {
@@ -67,6 +91,27 @@ export default function MenuEditor({ menu, onSave, onCancel }: MenuEditorProps) 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
+                {/* Is Group Checkbox */}
+                <Checkbox
+                    id="isGroup"
+                    checked={isGroup}
+                    onChange={(e) => setIsGroup(e.target.checked)}
+                    label="เป็น Menu Group (ใช้สำหรับจัดกลุ่มเมนูย่อย)"
+                />
+
+                {/* Parent Menu Dropdown */}
+                {!isGroup && availableParents.length > 0 && (
+                    <Select
+                        label="Parent Menu (Groups)"
+                        value={parentId ?? ''}
+                        onChange={(e) =>
+                            setParentId(e.target.value ? Number(e.target.value) : undefined)
+                        }
+                        options={parentOptions}
+                        placeholder="None (Top Level)"
+                    />
+                )}
+
                 <Input
                     label="Title"
                     value={title}
@@ -74,37 +119,27 @@ export default function MenuEditor({ menu, onSave, onCancel }: MenuEditorProps) 
                     placeholder="e.g. Dashboard"
                     required
                 />
-                <Input
-                    label="Path"
-                    value={path}
-                    onChange={(e) => setPath(e.target.value)}
-                    placeholder="e.g. /admin/dashboard"
-                    required
-                />
-                <Input
-                    label="Icon"
-                    value={icon}
-                    onChange={(e) => setIcon(e.target.value)}
-                    placeholder="Lucide Icon Name (e.g. Home)"
-                />
 
-                <div>
-                    <label className="block text-sm font-medium text-white/70 mb-1">
-                        Required Permission
-                    </label>
-                    <select
-                        value={permissionSlug}
-                        onChange={(e) => setPermissionSlug(e.target.value)}
-                        className="w-full bg-black/20 border border-white/10 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-purple-500/50"
-                    >
-                        <option value="">None (Public/All Authenticated)</option>
-                        {availablePermissions.map((p) => (
-                            <option key={p.id} value={p.slug}>
-                                {p.slug} ({p.description})
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                {/* Path - ซ่อนถ้าเป็น Group */}
+                {!isGroup && (
+                    <Input
+                        label="Path"
+                        value={path}
+                        onChange={(e) => setPath(e.target.value)}
+                        placeholder="e.g. /admin/dashboard"
+                        required
+                    />
+                )}
+
+                <IconPicker label="Icon" value={icon} onChange={setIcon} />
+
+                <Select
+                    label="Required Permission"
+                    value={permissionSlug}
+                    onChange={(e) => setPermissionSlug(e.target.value)}
+                    options={permissionOptions}
+                    placeholder="None (Public/All Authenticated)"
+                />
 
                 <Input
                     label="Order"

@@ -3,8 +3,8 @@
 import { useState, useCallback } from 'react';
 import api from '@/lib/api';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Edit2, Trash2, Plus, User as UserIcon, Search, Download, MoreVertical } from 'lucide-react';
+import { Edit2, Trash2, Plus, User as UserIcon, Search, Download } from 'lucide-react';
+import { PageLoading } from '@/components/ui/Loading';
 import { DataTable, Column } from '@/components/ui/DataTable';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
 import { useDataTable } from '@/hooks/useDataTable';
@@ -35,17 +35,19 @@ export default function UsersPage() {
                     limit: params.limit,
                     search: params.search,
                     // Map sortKey if needed or send as is
-                    // backend doesn't explicitly handle complex sort param in GetAllUsers yet based on my quick review, 
-                    // but I should send it. Actually backend GetAllUsers didn't have sort logic implemented in my plan 
+                    // backend doesn't explicitly handle complex sort param in GetAllUsers yet based on my quick review,
+                    // but I should send it. Actually backend GetAllUsers didn't have sort logic implemented in my plan
                     // (only offset/limit). I'll stick to offset/limit for now or add basic sort if standard.
                     // The verified backend code only handles pagination. I'll pass basic params.
-                }
+                },
             });
             // Backend returns { success: true, data: User[], pagination: {...} }
             // api (lib/api) returns AxiosResponse.
             return response.data; // This matches ApiResponse<User[]>
         } catch (err: any) {
-            setError(err.response?.data?.message || err.message || 'An error occurred fetching users');
+            setError(
+                err.response?.data?.message || err.message || 'An error occurred fetching users'
+            );
             throw err;
         }
     }, []); // No dependencies as api is imported and stable
@@ -58,7 +60,7 @@ export default function UsersPage() {
         onSort,
         onSearch,
         isLoading: loading,
-        fetchData
+        fetchData,
     } = useDataTable<User>({
         fetcher: fetchUsersData,
         initialPagination: { limit: 10 },
@@ -90,15 +92,15 @@ export default function UsersPage() {
         downloadCsv({
             filename: 'users_export.csv',
             headers: ['ID', 'Username', 'Email', 'Role', 'Status', 'First Name', 'Last Name'],
-            data: paginatedData.map(user => [
+            data: paginatedData.map((user) => [
                 user.id,
                 user.username,
                 user.email,
                 user.role?.name || '',
                 user.active ? 'Active' : 'Inactive',
                 user.first_name,
-                user.last_name
-            ])
+                user.last_name,
+            ]),
         });
     };
 
@@ -119,7 +121,7 @@ export default function UsersPage() {
                         <div className="text-sm text-gray-500">{user.email}</div>
                     </div>
                 </div>
-            )
+            ),
         },
         {
             header: 'Role',
@@ -128,29 +130,37 @@ export default function UsersPage() {
             cell: (role: any) => {
                 const roleName = role?.name || 'Unknown';
                 return (
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roleName === 'Super Admin'
-                        ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                        : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                        }`}>
+                    <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            roleName === 'Super Admin'
+                                ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                                : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                        }`}
+                    >
                         {roleName}
                     </span>
                 );
-            }
+            },
         },
         {
             header: 'Status',
             accessorKey: 'active',
             sortable: true,
             cell: (active: any) => (
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${active
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                    }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-emerald-400' : 'bg-red-400'}`} />
+                <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        active
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                            : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                    }`}
+                >
+                    <span
+                        className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-emerald-400' : 'bg-red-400'}`}
+                    />
                     {active ? 'Active' : 'Inactive'}
                 </span>
-            )
-        }
+            ),
+        },
     ];
 
     if (canManageUsers) {
@@ -170,11 +180,11 @@ export default function UsersPage() {
                         Delete
                     </DropdownItem>
                 </Dropdown>
-            )
+            ),
         });
     }
 
-    if (loading && !paginatedData.length) return <div className="p-8 text-white">Loading users...</div>;
+    if (loading && !paginatedData.length) return <PageLoading text="กำลังโหลดข้อมูลผู้ใช้..." />;
 
     return (
         <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
@@ -183,12 +193,17 @@ export default function UsersPage() {
                     <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-gray-400">
                         User Management
                     </h1>
-                    <p className="text-sm md:text-base text-gray-400">Manage system users and their roles</p>
+                    <p className="text-sm md:text-base text-gray-400">
+                        Manage system users and their roles
+                    </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
                     <div className="relative grow sm:grow-0">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <Search
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                            size={18}
+                        />
                         <input
                             type="text"
                             placeholder="Search users..."

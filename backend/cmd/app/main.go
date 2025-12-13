@@ -31,6 +31,8 @@ func main() {
 		log.Println("Image uploads will not work until R2 is configured")
 	} else {
 		log.Println("R2 Upload Service initialized successfully")
+		// Initialize Cleanup Service with R2 and start scheduler
+		handlers.InitCleanupService()
 	}
 
 	// Initialize Fiber app

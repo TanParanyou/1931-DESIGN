@@ -6,8 +6,18 @@ import api from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { User, Save, Briefcase, Building, Calendar, DollarSign, FileText, Activity } from 'lucide-react';
+import {
+    User,
+    Save,
+    Briefcase,
+    Building,
+    Calendar,
+    DollarSign,
+    FileText,
+    Activity,
+} from 'lucide-react';
 import Link from 'next/link';
+import { Loading } from '@/components/ui/Loading';
 
 interface EmployeeFormData {
     user_id: number;
@@ -25,26 +35,86 @@ interface EmployeeFormProps {
     employeeId?: string | number;
 }
 
-export default function EmployeeForm({ initialData, isEdit = false, employeeId }: EmployeeFormProps) {
+interface UserOption {
+    id: number;
+    username: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+}
+
+interface DepartmentOption {
+    id: number;
+    name: string;
+}
+
+interface PositionOption {
+    id: number;
+    name: string;
+    department_id?: number;
+}
+
+export default function EmployeeForm({
+    initialData,
+    isEdit = false,
+    employeeId,
+}: EmployeeFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [loadingData, setLoadingData] = useState(true);
     const [message, setMessage] = useState({ type: '', text: '' });
 
-    const [formData, setFormData] = useState<EmployeeFormData>(initialData || {
-        user_id: 0,
-        position: '',
-        department: '',
-        start_date: '',
-        status: 'Probation',
-        salary: 0,
-        documents: '',
-    });
+    // Options สำหรับ dropdowns
+    const [users, setUsers] = useState<UserOption[]>([]);
+    const [departments, setDepartments] = useState<DepartmentOption[]>([]);
+    const [positions, setPositions] = useState<PositionOption[]>([]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const [formData, setFormData] = useState<EmployeeFormData>(
+        initialData || {
+            user_id: 0,
+            position: '',
+            department: '',
+            start_date: '',
+            status: 'Probation',
+            salary: 0,
+            documents: '',
+        }
+    );
+
+    // โหลด Master Data
+    useEffect(() => {
+        const fetchMasterData = async () => {
+            try {
+                setLoadingData(true);
+                const [usersRes, deptRes, posRes] = await Promise.all([
+                    !isEdit
+                        ? api.get('/hr/users-without-employee')
+                        : Promise.resolve({ data: { data: [] } }),
+                    api.get('/hr/departments?active=true'),
+                    api.get('/hr/positions?active=true'),
+                ]);
+
+                if (!isEdit) {
+                    setUsers(usersRes.data.data || []);
+                }
+                setDepartments(deptRes.data.data || []);
+                setPositions(posRes.data.data || []);
+            } catch (err) {
+                console.error('Error loading master data:', err);
+            } finally {
+                setLoadingData(false);
+            }
+        };
+        fetchMasterData();
+    }, [isEdit]);
+
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    ) => {
         const { id, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
-            [id]: id === 'user_id' || id === 'salary' ? Number(value) : value
+            [id]: id === 'user_id' || id === 'salary' ? Number(value) : value,
         }));
     };
 
@@ -62,22 +132,58 @@ export default function EmployeeForm({ initialData, isEdit = false, employeeId }
             }
 
             if (response.status === 201 || response.status === 200) {
-                setMessage({ type: 'success', text: isEdit ? 'Employee updated successfully' : 'Employee created successfully' });
+                setMessage({
+                    type: 'success',
+                    text: isEdit
+                        ? 'Employee updated successfully'
+                        : 'Employee created successfully',
+                });
                 setTimeout(() => router.push('/admin/employees'), 1500);
             } else {
                 setMessage({ type: 'error', text: 'Operation failed' });
             }
-        } catch (err: any) {
-            setMessage({ type: 'error', text: err.response?.data?.error || 'An error occurred' });
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { error?: string } } };
+            setMessage({ type: 'error', text: error.response?.data?.error || 'An error occurred' });
         } finally {
             setLoading(false);
         }
     };
 
+    // แสดง loading ขณะโหลด master data
+    if (loadingData) {
+        return (
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-xl flex items-center justify-center min-h-[300px]">
+                <Loading variant="orbit" text="กำลังโหลดข้อมูล..." />
+            </div>
+        );
+    }
+
+    // สร้าง options สำหรับ Select components
+    const userOptions = [
+        { value: '', label: 'เลือกผู้ใช้' },
+        ...users.map((u) => ({
+            value: String(u.id),
+            label: `${u.first_name || ''} ${u.last_name || ''} (${u.username}) - ${u.email}`,
+        })),
+    ];
+
+    const departmentOptions = [
+        { value: '', label: 'เลือกแผนก' },
+        ...departments.map((d) => ({ value: d.name, label: d.name })),
+    ];
+
+    const positionOptions = [
+        { value: '', label: 'เลือกตำแหน่ง' },
+        ...positions.map((p) => ({ value: p.name, label: p.name })),
+    ];
+
     return (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
             {message.text && (
-                <div className={`mb-6 p-4 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                <div
+                    className={`mb-6 p-4 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}
+                >
                     {message.text}
                 </div>
             )}
@@ -90,35 +196,34 @@ export default function EmployeeForm({ initialData, isEdit = false, employeeId }
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {!isEdit && (
-                        <Input
+                        <Select
                             id="user_id"
-                            type="number"
-                            label="User ID *"
-                            value={formData.user_id}
+                            label="ผู้ใช้ *"
+                            value={String(formData.user_id || '')}
                             onChange={handleChange}
                             icon={User}
-                            placeholder="Enter User ID"
+                            options={userOptions}
                             required
                         />
                     )}
 
-                    <Input
-                        id="position"
-                        label="Position *"
-                        value={formData.position}
-                        onChange={handleChange}
-                        icon={Briefcase}
-                        placeholder="Software Engineer"
-                        required
-                    />
-
-                    <Input
+                    <Select
                         id="department"
-                        label="Department *"
+                        label="แผนก *"
                         value={formData.department}
                         onChange={handleChange}
                         icon={Building}
-                        placeholder="Engineering"
+                        options={departmentOptions}
+                        required
+                    />
+
+                    <Select
+                        id="position"
+                        label="ตำแหน่ง *"
+                        value={formData.position}
+                        onChange={handleChange}
+                        icon={Briefcase}
+                        options={positionOptions}
                         required
                     />
 
@@ -145,7 +250,7 @@ export default function EmployeeForm({ initialData, isEdit = false, employeeId }
                         options={[
                             { value: 'Probation', label: 'Probation' },
                             { value: 'Active', label: 'Active' },
-                            { value: 'Resigned', label: 'Resigned' }
+                            { value: 'Resigned', label: 'Resigned' },
                         ]}
                     />
 
@@ -173,13 +278,11 @@ export default function EmployeeForm({ initialData, isEdit = false, employeeId }
 
                 <div className="flex justify-end gap-4">
                     <Link href="/admin/employees">
-                        <Button type="button" variant="ghost">Cancel</Button>
+                        <Button type="button" variant="ghost">
+                            Cancel
+                        </Button>
                     </Link>
-                    <Button
-                        type="submit"
-                        isLoading={loading}
-                        icon={<Save size={18} />}
-                    >
+                    <Button type="submit" isLoading={loading} icon={<Save size={18} />}>
                         {isEdit ? 'Save Changes' : 'Create Employee'}
                     </Button>
                 </div>

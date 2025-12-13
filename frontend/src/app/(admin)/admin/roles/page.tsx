@@ -7,6 +7,7 @@ import RoleEditor from '@/components/admin/RoleEditor';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { Plus, Edit2, Trash2, Shield, X } from 'lucide-react';
+import { Loading } from '@/components/ui/Loading';
 
 export default function RolesPage() {
     const [roles, setRoles] = useState<Role[]>([]);
@@ -67,44 +68,52 @@ export default function RolesPage() {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {roles.map((role) => (
-                    <div
-                        key={role.id}
-                        className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all group"
-                    >
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400">
-                                <Shield size={24} />
+            {loading ? (
+                <div className="flex items-center justify-center min-h-[300px]">
+                    <Loading variant="pulse" size="lg" text="กำลังโหลด..." />
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {roles.map((role) => (
+                        <div
+                            key={role.id}
+                            className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all group"
+                        >
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400">
+                                    <Shield size={24} />
+                                </div>
+                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={() => handleEdit(role)}
+                                        className="p-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
+                                    >
+                                        <Edit2 size={16} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(role.id)}
+                                        className="p-2 hover:bg-red-500/10 rounded-lg text-white/70 hover:text-red-400 transition-colors"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
                             </div>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                    onClick={() => handleEdit(role)}
-                                    className="p-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
-                                >
-                                    <Edit2 size={16} />
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(role.id)}
-                                    className="p-2 hover:bg-red-500/10 rounded-lg text-white/70 hover:text-red-400 transition-colors"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
+
+                            <h3 className="text-xl font-medium text-white mb-2">{role.name}</h3>
+                            <p className="text-white/50 text-sm mb-6 h-10 line-clamp-2">
+                                {role.description}
+                            </p>
+
+                            <div className="flex items-center gap-2 text-xs font-medium text-white/40 bg-black/20 p-3 rounded-lg">
+                                <span className="text-white/70">
+                                    {role.permissions?.length || 0}
+                                </span>{' '}
+                                Permissions assigned
                             </div>
                         </div>
-
-                        <h3 className="text-xl font-medium text-white mb-2">{role.name}</h3>
-                        <p className="text-white/50 text-sm mb-6 h-10 line-clamp-2">
-                            {role.description}
-                        </p>
-
-                        <div className="flex items-center gap-2 text-xs font-medium text-white/40 bg-black/20 p-3 rounded-lg">
-                            <span className="text-white/70">{role.permissions?.length || 0}</span>{' '}
-                            Permissions assigned
-                        </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
 
             {/* Modal Overlay for Editor */}
             <AnimatePresence>

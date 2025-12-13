@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Edit2, Trash2, Plus, FolderKanban, Search, Download, Eye } from 'lucide-react';
+import { PageLoading } from '@/components/ui/Loading';
 import { DataTable, Column } from '@/components/ui/DataTable';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
 import { useDataTable } from '@/hooks/useDataTable';
@@ -178,8 +180,7 @@ export default function ProjectsPage() {
         });
     }
 
-    if (loading && !paginatedData.length)
-        return <div className="p-8 text-white">Loading projects...</div>;
+    if (loading && !paginatedData.length) return <PageLoading text="กำลังโหลดโปรเจกต์..." />;
 
     return (
         <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">

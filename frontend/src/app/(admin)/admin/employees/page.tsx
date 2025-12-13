@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import api from '@/lib/api';
 import Link from 'next/link';
 import { Edit2, Plus, Briefcase, Search } from 'lucide-react';
+import { PageLoading } from '@/components/ui/Loading';
 import { DataTable, Column } from '@/components/ui/DataTable';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
 import { useDataTable } from '@/hooks/useDataTable';
@@ -21,7 +22,7 @@ interface Employee {
         last_name: string;
         username: string;
         email: string;
-    }
+    };
 }
 
 export default function EmployeesPage() {
@@ -31,7 +32,7 @@ export default function EmployeesPage() {
             // Adapt if response structure is nested differently, but handler returns {data: [], meta: {}}
             // response.data is { data: [], meta: {} }
             // DataTable hook usually expects { data: [], pagination: {} } or similar.
-            // Check useDataTable generic. 
+            // Check useDataTable generic.
             // In UsersPage: return response.data; matches {data: User[], pagination: ...}
             // My handler returns {data: Employees[], meta: {page, limit, total}}
             // I might need to adapt "meta" to "pagination" or useDataTable handles it.
@@ -72,31 +73,38 @@ export default function EmployeesPage() {
                         <div className="text-sm text-gray-500">{emp.position}</div>
                     </div>
                 </div>
-            )
+            ),
         },
         {
             header: 'Department',
             accessorKey: 'department',
             sortable: true,
-            cell: (dept: string) => <span className="text-gray-300">{dept}</span>
+            cell: (dept: string) => <span className="text-gray-300">{dept}</span>,
         },
         {
             header: 'Status',
             accessorKey: 'status',
             sortable: true,
             cell: (status: string) => (
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status === 'Active' ? 'bg-emerald-500/20 text-emerald-400' :
-                    status === 'Probation' ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-red-500/20 text-red-400'
-                    }`}>
+                <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        status === 'Active'
+                            ? 'bg-emerald-500/20 text-emerald-400'
+                            : status === 'Probation'
+                              ? 'bg-yellow-500/20 text-yellow-400'
+                              : 'bg-red-500/20 text-red-400'
+                    }`}
+                >
                     {status}
                 </span>
-            )
+            ),
         },
         {
             header: 'Joined',
             accessorKey: 'start_date',
-            cell: (date: string) => <span className="text-gray-400">{new Date(date).toLocaleDateString()}</span>
+            cell: (date: string) => (
+                <span className="text-gray-400">{new Date(date).toLocaleDateString()}</span>
+            ),
         },
         {
             header: 'Actions',
@@ -107,11 +115,11 @@ export default function EmployeesPage() {
                         <DropdownItem icon={Edit2}>Edit</DropdownItem>
                     </Link>
                 </Dropdown>
-            )
-        }
+            ),
+        },
     ];
 
-    if (loading && !paginatedData.length) return <div className="p-8 text-white">Loading employees...</div>;
+    if (loading && !paginatedData.length) return <PageLoading text="กำลังโหลดข้อมูลพนักงาน..." />;
 
     return (
         <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
@@ -120,12 +128,17 @@ export default function EmployeesPage() {
                     <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-gray-400">
                         Employee Management
                     </h1>
-                    <p className="text-sm md:text-base text-gray-400">Manage employee records, contracts, and status.</p>
+                    <p className="text-sm md:text-base text-gray-400">
+                        Manage employee records, contracts, and status.
+                    </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
                     <div className="relative grow sm:grow-0">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <Search
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                            size={18}
+                        />
                         <input
                             type="text"
                             placeholder="Search employees..."

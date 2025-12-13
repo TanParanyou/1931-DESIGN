@@ -10,6 +10,25 @@ import (
 func SetupHRRoutes(api fiber.Router) {
 	hr := api.Group("/hr", middleware.Protected())
 
+	// Master Data - Departments (public read, admin write)
+	departments := hr.Group("/departments")
+	departments.Get("/", handlers.GetDepartments)
+	departments.Get("/:id", handlers.GetDepartment)
+	departments.Post("/", middleware.Admin(), handlers.CreateDepartment)
+	departments.Put("/:id", middleware.Admin(), handlers.UpdateDepartment)
+	departments.Delete("/:id", middleware.Admin(), handlers.DeleteDepartment)
+
+	// Master Data - Positions (public read, admin write)
+	positions := hr.Group("/positions")
+	positions.Get("/", handlers.GetPositions)
+	positions.Get("/:id", handlers.GetPosition)
+	positions.Post("/", middleware.Admin(), handlers.CreatePosition)
+	positions.Put("/:id", middleware.Admin(), handlers.UpdatePosition)
+	positions.Delete("/:id", middleware.Admin(), handlers.DeletePosition)
+
+	// Users without employee record (for dropdown in employee form)
+	hr.Get("/users-without-employee", middleware.Admin(), handlers.GetUsersWithoutEmployee)
+
 	// Employees
 	employees := hr.Group("/employees")
 	// Only admin (or HR role) should manage employees. For now using Admin middleware

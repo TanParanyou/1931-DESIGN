@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Edit2, Trash2, GripVertical, Save, X, Loader2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, GripVertical, Save, X } from 'lucide-react';
+import { Loading } from '@/components/ui/Loading';
 import { projectService } from '@/services/project.service';
 import { Category, CreateCategoryInput } from '@/types/project';
 import {
@@ -181,8 +182,8 @@ export default function CategoriesPage() {
 
     if (loading) {
         return (
-            <div className="p-8 flex items-center justify-center">
-                <Loader2 size={32} className="text-indigo-500 animate-spin" />
+            <div className="p-8 flex items-center justify-center min-h-[400px]">
+                <Loading variant="orbit" size="lg" text="กำลังโหลด..." />
             </div>
         );
     }
@@ -282,7 +283,7 @@ export default function CategoriesPage() {
                                     className="flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl disabled:opacity-50"
                                 >
                                     {saving ? (
-                                        <Loader2 size={16} className="animate-spin" />
+                                        <Loading variant="dots" size="sm" />
                                     ) : (
                                         <Save size={16} />
                                     )}

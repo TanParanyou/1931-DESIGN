@@ -6,6 +6,8 @@ import (
 	"backend/internal/services"
 	"backend/pkg/utils"
 	"errors"
+	"os"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -152,12 +154,19 @@ func DeleteProject(c *fiber.Ctx) error {
 
 	// Delete images from R2 if any
 	if len(project.Images) > 0 {
-		// Extract keys from URLs
+		// Extract keys from URLs by removing the R2 public URL prefix
+		publicURL := strings.TrimSuffix(os.Getenv("R2_PUBLIC_URL"), "/")
 		var keys []string
 		for _, img := range project.Images {
-			keys = append(keys, img)
+			// Extract key from URL: https://xxx.r2.dev/projects/2025/12/abc.jpg -> projects/2025/12/abc.jpg
+			key := strings.TrimPrefix(img, publicURL+"/")
+			if key != "" && key != img { // Only add if we actually extracted a key
+				keys = append(keys, key)
+			}
 		}
-		DeleteImages(keys)
+		if len(keys) > 0 {
+			DeleteImages(keys)
+		}
 	}
 
 	database.DB.Delete(&project)

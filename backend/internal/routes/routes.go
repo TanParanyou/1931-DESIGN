@@ -108,6 +108,11 @@ func SetupRoutes(app *fiber.App) {
 	// HR Routes
 	SetupHRRoutes(api)
 
+	// Admin Cleanup Routes
+	cleanup := api.Group("/admin/cleanup", middleware.Protected(), middleware.Admin())
+	cleanup.Post("/images", handlers.CleanupOrphanedImages)
+	cleanup.Get("/status", handlers.GetCleanupStatus)
+
 	// Settings Routes
 	api.Get("/public/settings", handlers.GetPublicSettings)
 

@@ -223,3 +223,33 @@ func getContentType(ext string) string {
 		return "image/jpeg"
 	}
 }
+
+// ListObjects lists all objects in a folder
+func (r *R2Service) ListObjects(prefix string) ([]string, error) {
+	var keys []string
+	var continuationToken *string
+
+	for {
+		input := &s3.ListObjectsV2Input{
+			Bucket:            aws.String(r.bucket),
+			Prefix:            aws.String(prefix),
+			ContinuationToken: continuationToken,
+		}
+
+		result, err := r.client.ListObjectsV2(context.TODO(), input)
+		if err != nil {
+			return nil, fmt.Errorf("failed to list objects: %w", err)
+		}
+
+		for _, obj := range result.Contents {
+			keys = append(keys, *obj.Key)
+		}
+
+		if !*result.IsTruncated {
+			break
+		}
+		continuationToken = result.NextContinuationToken
+	}
+
+	return keys, nil
+}

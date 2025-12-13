@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import { projectService } from '@/services/project.service';
 import { Project, Category } from '@/types/project';
-import { Loader2 } from 'lucide-react';
+import { Loading } from '@/components/ui/Loading';
 
 export default function ProjectsPage() {
     const [activeCategory, setActiveCategory] = useState('ALL');
@@ -45,7 +45,7 @@ export default function ProjectsPage() {
     if (loading) {
         return (
             <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen flex items-center justify-center">
-                <Loader2 size={48} className="text-white/50 animate-spin" />
+                <Loading variant="gradient" size="xl" text="กำลังโหลดโปรเจกต์..." />
             </div>
         );
     }

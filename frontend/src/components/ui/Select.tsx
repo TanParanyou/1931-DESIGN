@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef, useEffect } from 'react';
 import { LucideIcon, ChevronDown, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,7 +21,22 @@ interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLDivElement>, '
 }
 
 const Select = React.forwardRef<HTMLDivElement, SelectProps>(
-    ({ className, label, error, icon: Icon, options, containerClassName, value, onChange, id, name, ...props }, ref) => {
+    (
+        {
+            className,
+            label,
+            error,
+            icon: Icon,
+            options,
+            containerClassName,
+            value,
+            onChange,
+            id,
+            name,
+            ...props
+        },
+        ref
+    ) => {
         const [isOpen, setIsOpen] = useState(false);
         const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
         const triggerRef = useRef<HTMLDivElement>(null);
@@ -30,14 +46,21 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
         useClickOutside([triggerRef, dropdownRef], () => setIsOpen(false));
 
         useEffect(() => {
-            const handleScroll = () => {
+            const handleScroll = (e: Event) => {
+                // ไม่ปิด dropdown ถ้า scroll ภายใน dropdown เอง
+                if (dropdownRef.current?.contains(e.target as Node)) {
+                    return;
+                }
+                if (isOpen) setIsOpen(false);
+            };
+            const handleResize = () => {
                 if (isOpen) setIsOpen(false);
             };
             window.addEventListener('scroll', handleScroll, true);
-            window.addEventListener('resize', handleScroll);
+            window.addEventListener('resize', handleResize);
             return () => {
                 window.removeEventListener('scroll', handleScroll, true);
-                window.removeEventListener('resize', handleScroll);
+                window.removeEventListener('resize', handleResize);
             };
         }, [isOpen]);
 
@@ -47,7 +70,7 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                 setPosition({
                     top: rect.bottom + 8,
                     left: rect.left,
-                    width: rect.width
+                    width: rect.width,
                 });
             }
         }, [isOpen]);
@@ -59,23 +82,20 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                     target: {
                         name: name || '',
                         id: id || '',
-                        value: optionValue
-                    }
+                        value: optionValue,
+                    },
                 };
                 onChange(syntheticEvent);
             }
             setIsOpen(false);
         };
 
-        const selectedOption = options.find(opt => opt.value === value);
+        const selectedOption = options.find((opt) => opt.value === value);
 
         return (
             <div className={`space-y-1 ${containerClassName || ''}`} ref={ref}>
                 {label && (
-                    <label
-                        htmlFor={id}
-                        className="text-sm font-medium text-gray-300 ml-1"
-                    >
+                    <label htmlFor={id} className="text-sm font-medium text-gray-300 ml-1">
                         {label}
                     </label>
                 )}
@@ -91,13 +111,17 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                     )}
 
                     <div
-                        className={`w-full bg-black/20 border ${error ? 'border-red-500/50' : (isOpen ? 'border-purple-500' : 'border-white/10')} rounded-lg py-3 ${Icon ? 'pl-10' : 'pl-4'
-                            } pr-10 text-white cursor-pointer transition-all hover:bg-black/30 flex items-center min-h-[46px] ${props.disabled ? 'opacity-50 cursor-not-allowed' : ''
-                            } ${className || ''}`}
+                        className={`w-full bg-black/20 border ${error ? 'border-red-500/50' : isOpen ? 'border-purple-500' : 'border-white/10'} rounded-lg py-3 ${
+                            Icon ? 'pl-10' : 'pl-4'
+                        } pr-10 text-white cursor-pointer transition-all hover:bg-black/30 flex items-center min-h-[46px] ${
+                            props.disabled ? 'opacity-50 cursor-not-allowed' : ''
+                        } ${className || ''}`}
                         id={id}
                     >
                         <span className={selectedOption ? 'text-white' : 'text-gray-500'}>
-                            {selectedOption ? selectedOption.label : props.placeholder || 'Select an option'}
+                            {selectedOption
+                                ? selectedOption.label
+                                : props.placeholder || 'Select an option'}
                         </span>
                     </div>
 
@@ -112,54 +136,56 @@ const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                 </div>
 
                 {/* Dropdown Portal */}
-                {typeof document !== 'undefined' && createPortal(
-                    <AnimatePresence>
-                        {isOpen && (
-                            <motion.div
-                                ref={dropdownRef}
-                                initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                                transition={{ duration: 0.1 }}
-                                style={{
-                                    top: position.top,
-                                    left: position.left,
-                                    width: position.width,
-                                    position: 'fixed',
-                                    zIndex: 9999
-                                }}
-                                className="bg-[#1A1A1A] border border-white/10 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto backdrop-blur-xl"
-                            >
-                                <div className="p-1 space-y-0.5">
-                                    {options.map((option) => (
-                                        <button
-                                            key={option.value}
-                                            type="button"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleSelect(option.value);
-                                            }}
-                                            className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-colors ${value === option.value
-                                                ? 'bg-purple-600/20 text-purple-300'
-                                                : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                {typeof document !== 'undefined' &&
+                    createPortal(
+                        <AnimatePresence>
+                            {isOpen && (
+                                <motion.div
+                                    ref={dropdownRef}
+                                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                                    transition={{ duration: 0.1 }}
+                                    style={{
+                                        top: position.top,
+                                        left: position.left,
+                                        width: position.width,
+                                        position: 'fixed',
+                                        zIndex: 9999,
+                                        scrollbarWidth: 'thin',
+                                        scrollbarColor: 'rgba(255,255,255,0.2) transparent',
+                                    }}
+                                    className="bg-[#1A1A1A] border border-white/10 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto backdrop-blur-xl scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20 hover:scrollbar-thumb-white/30"
+                                >
+                                    <div className="p-1 space-y-0.5">
+                                        {options.map((option) => (
+                                            <button
+                                                key={option.value}
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleSelect(option.value);
+                                                }}
+                                                className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-colors ${
+                                                    value === option.value
+                                                        ? 'bg-purple-600/20 text-purple-300'
+                                                        : 'text-gray-300 hover:bg-white/5 hover:text-white'
                                                 }`}
-                                        >
-                                            <span>{option.label}</span>
-                                            {value === option.value && (
-                                                <Check size={16} className="text-purple-400" />
-                                            )}
-                                        </button>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>,
-                    document.body
-                )}
+                                            >
+                                                <span>{option.label}</span>
+                                                {value === option.value && (
+                                                    <Check size={16} className="text-purple-400" />
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>,
+                        document.body
+                    )}
 
-                {error && (
-                    <p className="text-sm text-red-400 ml-1">{error}</p>
-                )}
+                {error && <p className="text-sm text-red-400 ml-1">{error}</p>}
             </div>
         );
     }

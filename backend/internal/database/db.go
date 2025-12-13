@@ -44,8 +44,9 @@ func ConnectDB() {
 		&models.News{}, &models.Career{}, &models.Contact{}, &models.Project{}, &models.User{}, &models.AuditLog{},
 		&models.Employee{}, &models.Attendance{},
 		&models.LeaveRequest{}, &models.LeaveQuota{},
-		&models.Setting{},  // Settings
-		&models.Category{}, // Categories
+		&models.Setting{},                        // Settings
+		&models.Category{},                       // Categories
+		&models.Department{}, &models.Position{}, // HR Master Data
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database: ", err)
@@ -180,14 +181,16 @@ func seedRBAC() {
 		{Path: "/admin", Title: "Dashboard", Icon: "LayoutDashboard", PermissionSlug: "dashboard.view", Order: 1},
 		{Path: "/admin/users", Title: "Users", Icon: "User", PermissionSlug: "users.view", Order: 2},
 		{Path: "/admin/employees", Title: "Employees", Icon: "Briefcase", PermissionSlug: "users.manage", Order: 3},
-		{Path: "/admin/projects", Title: "Projects", Icon: "FolderKanban", PermissionSlug: "projects.view", Order: 4},
-		{Path: "/admin/categories", Title: "Categories", Icon: "Tags", PermissionSlug: "categories.view", Order: 5},
-		{Path: "/admin/roles", Title: "Roles", Icon: "Shield", PermissionSlug: "roles.view", Order: 6},
-		{Path: "/admin/menus", Title: "Menus", Icon: "List", PermissionSlug: "menus.view", Order: 7},
+		{Path: "/admin/hr/departments", Title: "Departments", Icon: "Building", PermissionSlug: "users.manage", Order: 4},
+		{Path: "/admin/hr/positions", Title: "Positions", Icon: "BadgeCheck", PermissionSlug: "users.manage", Order: 5},
+		{Path: "/admin/projects", Title: "Projects", Icon: "FolderKanban", PermissionSlug: "projects.view", Order: 6},
+		{Path: "/admin/categories", Title: "Categories", Icon: "Tags", PermissionSlug: "categories.view", Order: 7},
+		{Path: "/admin/roles", Title: "Roles", Icon: "Shield", PermissionSlug: "roles.view", Order: 8},
+		{Path: "/admin/menus", Title: "Menus", Icon: "List", PermissionSlug: "menus.view", Order: 9},
 		{Path: "/admin/settings", Title: "Settings", Icon: "Settings", PermissionSlug: "settings.view", Order: 90},
-		{Path: "/admin/attendance", Title: "Attendance", Icon: "Clock", PermissionSlug: "dashboard.view", Order: 8},
-		{Path: "/admin/leaves", Title: "Leaves", Icon: "Calendar", PermissionSlug: "dashboard.view", Order: 9},
-		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 10},
+		{Path: "/admin/attendance", Title: "Attendance", Icon: "Clock", PermissionSlug: "dashboard.view", Order: 10},
+		{Path: "/admin/leaves", Title: "Leaves", Icon: "Calendar", PermissionSlug: "dashboard.view", Order: 11},
+		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 12},
 		{Path: "/admin/profile", Title: "My Profile", Icon: "User", PermissionSlug: "", Order: 99},
 	}
 

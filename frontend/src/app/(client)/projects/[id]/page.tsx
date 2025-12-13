@@ -8,7 +8,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { projectService } from '@/services/project.service';
 import { Project } from '@/types/project';
 import { Lightbox } from '@/components/ui/Lightbox';
-import { Loader2 } from 'lucide-react';
+import { Loading } from '@/components/ui/Loading';
 
 export default function ProjectDetailPage() {
     const params = useParams();
@@ -59,7 +59,7 @@ export default function ProjectDetailPage() {
     if (loading) {
         return (
             <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen flex items-center justify-center">
-                <Loader2 size={48} className="text-white/50 animate-spin" />
+                <Loading variant="orbit" size="xl" text="กำลังโหลด..." />
             </div>
         );
     }
