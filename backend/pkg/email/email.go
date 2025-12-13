@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"net/smtp"
 	"os"
+	"strings"
 )
 
 // SendEmail sends an email using the configured SMTP server.
 func SendEmail(to []string, subject string, body string) error {
-	smtpHost := os.Getenv("SMTP_HOST")
-	smtpPort := os.Getenv("SMTP_PORT")
-	smtpUser := os.Getenv("SMTP_USER")
-	smtpPassword := os.Getenv("SMTP_PASSWORD")
-	fromEmail := os.Getenv("SMTP_FROM_EMAIL")
-	fromName := os.Getenv("SMTP_FROM_NAME")
+	smtpHost := strings.TrimSpace(os.Getenv("SMTP_HOST"))
+	smtpPort := strings.TrimSpace(os.Getenv("SMTP_PORT"))
+	smtpUser := strings.TrimSpace(os.Getenv("SMTP_USER"))
+	smtpPassword := strings.TrimSpace(os.Getenv("SMTP_PASSWORD"))
+	fromEmail := strings.TrimSpace(os.Getenv("SMTP_FROM_EMAIL"))
+	fromName := strings.TrimSpace(os.Getenv("SMTP_FROM_NAME"))
 
 	if smtpHost == "" || smtpPort == "" || smtpUser == "" || smtpPassword == "" {
 		return fmt.Errorf("SMTP configuration is missing")
