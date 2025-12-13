@@ -12,7 +12,7 @@ import { ArrowLeft } from 'lucide-react';
 export default function NewsDetailPage() {
     const params = useParams();
     // const { t } = useLanguage();
-    const id = Number(params.id);
+    const id = Number(params?.id);
     const [item, setItem] = useState<News | null>(null);
     const [loading, setLoading] = useState(true);
 

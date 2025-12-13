@@ -15,9 +15,9 @@ export default function EditEmployeePage() {
 
     useEffect(() => {
         const fetchEmployee = async () => {
-            if (!params.id) return;
+            if (params?.id) return;
             try {
-                const response = await api.get(`/hr/employees/${params.id}`);
+                const response = await api.get(`/hr/employees/${params?.id}`);
                 setEmployee(response.data);
             } catch (err) {
                 console.error(err);
@@ -28,14 +28,17 @@ export default function EditEmployeePage() {
         };
 
         fetchEmployee();
-    }, [params.id, router]);
+    }, [params?.id, router]);
 
     if (loading) return <div className="p-8 text-white">Loading...</div>;
 
     return (
         <div className="p-4 md:p-8 max-w-4xl mx-auto">
             <div className="mb-6">
-                <Link href="/admin/employees" className="inline-flex items-center text-gray-400 hover:text-white transition-colors gap-2 text-sm mb-4">
+                <Link
+                    href="/admin/employees"
+                    className="inline-flex items-center text-gray-400 hover:text-white transition-colors gap-2 text-sm mb-4"
+                >
                     <ArrowLeft size={16} />
                     Back to Employees
                 </Link>
@@ -46,7 +49,7 @@ export default function EditEmployeePage() {
                 <EmployeeForm
                     initialData={employee}
                     isEdit={true}
-                    employeeId={params.id as string}
+                    employeeId={params?.id as string}
                 />
             )}
         </div>

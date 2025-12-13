@@ -11,7 +11,7 @@ import { ArrowLeft } from 'lucide-react';
 export default function CareerDetailPage() {
     const params = useParams();
     // const { t } = useLanguage();
-    const id = Number(params.id);
+    const id = Number(params?.id);
     const [job, setJob] = useState<Career | null>(null);
     const [loading, setLoading] = useState(true);
 
