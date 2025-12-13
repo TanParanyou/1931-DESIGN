@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Role, Permission, CreateRoleInput, UpdateRoleInput } from '@/types/rbac';
+import { Role, Permission } from '@/types/rbac';
 import { rbacService } from '@/services/rbac';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { CheckCheck, XCircle } from 'lucide-react';
 
 interface RoleEditorProps {
     role?: Role;
@@ -39,28 +40,19 @@ export default function RoleEditor({ role, onSave, onCancel }: RoleEditorProps) 
         setLoading(true);
         try {
             if (role) {
+                // แก้ไข role ที่มีอยู่ - ส่ง permission_ids ไปด้วยเสมอ (รวมถึง empty array)
                 await rbacService.updateRole(role.id, {
                     name,
                     description,
                     permission_ids: selectedPermissions,
                 });
             } else {
+                // สร้าง role ใหม่พร้อม permissions (ใช้ transaction ใน backend)
                 await rbacService.createRole({
                     name,
                     description,
+                    permission_ids: selectedPermissions,
                 });
-                // Note: Create endpoint might not accept permissions immediately if not designed so,
-                // but checking my backend CreateRole implementation, it only takes Name/Description.
-                // However, user might expect to save permissions too.
-                // Creating role then updating permissions would be better if backend doesn't support it.
-                // My backend CreateRoleInput ONLY has Name/Description.
-                // So if creating, we might need to do 2 steps or just create then edit.
-                // For now, I'll just create. The users can edit to add permissions or I should update backend to accept permissions on create.
-                // Let's stick to Create -> then if success and permissions selected, we iterate?
-                // Or better, I should have updated backend CreateRole to accept permissions.
-                // But given the plan, I'll leave it as is: Create Role first, then user can Edit to add permissions (or I update backend later).
-                // Actually, wait, if I want a good UX, I should probably update backend CreateRole to accept permissions or handle it here.
-                // I will handle it here: if creates successful, and we have permissions, call update.
             }
             onSave();
         } catch (error) {
@@ -74,6 +66,16 @@ export default function RoleEditor({ role, onSave, onCancel }: RoleEditorProps) 
         setSelectedPermissions((prev) =>
             prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
         );
+    };
+
+    // เลือกทั้งหมด
+    const handleSelectAll = () => {
+        setSelectedPermissions(permissions.map((p) => p.id));
+    };
+
+    // ไม่เลือกเลย
+    const handleDeselectAll = () => {
+        setSelectedPermissions([]);
     };
 
     return (
@@ -95,7 +97,29 @@ export default function RoleEditor({ role, onSave, onCancel }: RoleEditorProps) 
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-white/70 mb-3">Permissions</label>
+                <div className="flex items-center justify-between mb-3">
+                    <label className="block text-sm font-medium text-white/70">
+                        Permissions ({selectedPermissions.length}/{permissions.length})
+                    </label>
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={handleSelectAll}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/10 rounded-lg transition-colors"
+                        >
+                            <CheckCheck size={14} />
+                            เลือกทั้งหมด
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDeselectAll}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                        >
+                            <XCircle size={14} />
+                            ไม่เลือกเลย
+                        </button>
+                    </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-white/5 rounded-xl border border-white/10 max-h-60 overflow-y-auto">
                     {permissions.map((perm) => (
                         <label
@@ -115,12 +139,6 @@ export default function RoleEditor({ role, onSave, onCancel }: RoleEditorProps) 
                         </label>
                     ))}
                 </div>
-                {role === undefined && selectedPermissions.length > 0 && (
-                    <p className="text-xs text-yellow-500 mt-2">
-                        Note: Permissions will be saved after creating the role.
-                        {/* Actually I should fix the submit logic to handle this */}
-                    </p>
-                )}
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t border-white/10">

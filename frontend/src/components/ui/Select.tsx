@@ -7,7 +7,7 @@ import { useClickOutside } from '@/hooks/useClickOutside';
 
 interface SelectOption {
     value: string | number;
-    label: string;
+    label: React.ReactNode;
 }
 
 interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLDivElement>, 'onChange'> {

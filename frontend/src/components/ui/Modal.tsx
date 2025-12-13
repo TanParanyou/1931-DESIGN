@@ -151,7 +151,7 @@ const Modal: React.FC<ModalProps> = ({
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
                         onClick={closeOnOverlayClick ? onClose : undefined}
-                        className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
                     />
 
                     {/* Modal Container */}
@@ -163,7 +163,7 @@ const Modal: React.FC<ModalProps> = ({
                             transition={{ duration: 0.2, ease: 'easeOut' }}
                             className={`
                                 w-full ${sizeClasses[size]}
-                                bg-[#1a1a2e] rounded-2xl border border-white/10
+                                bg-[#111] rounded-3xl border border-white/10
                                 shadow-2xl pointer-events-auto overflow-hidden
                                 ${className}
                             `}
@@ -171,15 +171,15 @@ const Modal: React.FC<ModalProps> = ({
                         >
                             {/* Header */}
                             {(title || showCloseButton) && (
-                                <div className="flex items-start justify-between p-6 border-b border-white/10">
+                                <div className="flex items-center justify-between p-6 md:p-8 border-b border-white/10">
                                     <div>
                                         {title && (
-                                            <h2 className="text-xl font-semibold text-white">
+                                            <h2 className="text-2xl font-light text-white">
                                                 {title}
                                             </h2>
                                         )}
                                         {description && (
-                                            <p className="mt-1 text-sm text-gray-400">
+                                            <p className="mt-1 text-sm text-white/50">
                                                 {description}
                                             </p>
                                         )}
@@ -187,7 +187,7 @@ const Modal: React.FC<ModalProps> = ({
                                     {showCloseButton && (
                                         <button
                                             onClick={onClose}
-                                            className="p-2 -m-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                            className="p-2 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-colors"
                                         >
                                             <X size={20} />
                                         </button>
@@ -197,12 +197,14 @@ const Modal: React.FC<ModalProps> = ({
 
                             {/* Body */}
                             {children && (
-                                <div className="p-6 max-h-[60vh] overflow-y-auto">{children}</div>
+                                <div className="p-6 md:p-8 max-h-[60vh] overflow-y-auto">
+                                    {children}
+                                </div>
                             )}
 
                             {/* Footer */}
                             {footer && (
-                                <div className="flex items-center justify-end gap-3 p-6 border-t border-white/10 bg-white/5">
+                                <div className="flex items-center justify-end gap-3 p-6 md:p-8 border-t border-white/10 bg-black/20">
                                     {footer}
                                 </div>
                             )}

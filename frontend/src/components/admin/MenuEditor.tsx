@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Select } from '@/components/ui/Select';
 import { IconPicker } from '@/components/ui/IconPicker';
+import { icons } from 'lucide-react';
 
 interface MenuEditorProps {
     menu?: Menu;
@@ -35,10 +36,18 @@ export default function MenuEditor({ menu, menus = [], onSave, onCancel }: MenuE
     // สร้าง options สำหรับ Select components
     const parentOptions = [
         { value: '', label: 'None (Top Level)' },
-        ...availableParents.map((p) => ({
-            value: p.id,
-            label: p.icon ? `${p.icon} - ${p.title}` : p.title,
-        })),
+        ...availableParents.map((p) => {
+            const Icon = p.icon ? (icons[p.icon as keyof typeof icons] as any) : null;
+            return {
+                value: p.id,
+                label: (
+                    <div className="flex items-center gap-2">
+                        {Icon && <Icon size={16} />}
+                        <span>{p.title}</span>
+                    </div>
+                ),
+            };
+        }),
     ];
 
     const permissionOptions = [

@@ -40,6 +40,11 @@ export const rbacService = {
         return response.data.data;
     },
 
+    getRoleUsers: async (id: number) => {
+        const response = await api.get<any>(`/roles/${id}/users`);
+        return response.data.data;
+    },
+
     // Menu Management
     getAllMenus: async () => {
         const response = await api.get<any>('/menus');

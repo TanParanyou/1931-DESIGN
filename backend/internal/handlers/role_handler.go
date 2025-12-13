@@ -52,13 +52,14 @@ func GetRole(c *fiber.Ctx) error {
 }
 
 type CreateRoleInput struct {
-	Name        string `json:"name" validate:"required"`
-	Description string `json:"description"`
+	Name          string `json:"name" validate:"required"`
+	Description   string `json:"description"`
+	PermissionIDs []uint `json:"permission_ids"` // รองรับการสร้าง role พร้อม permissions
 }
 
 // CreateRole godoc
 // @Summary Create a new role
-// @Description Create a new role
+// @Description Create a new role with optional permissions
 // @Tags Admin
 // @Security ApiKeyAuth
 // @Accept json
@@ -77,9 +78,33 @@ func CreateRole(c *fiber.Ctx) error {
 		Description: input.Description,
 	}
 
-	if err := database.DB.Create(&role).Error; err != nil {
+	// ใช้ transaction เพื่อสร้าง role และ assign permissions พร้อมกัน
+	err := database.DB.Transaction(func(tx *gorm.DB) error {
+		// สร้าง role
+		if err := tx.Create(&role).Error; err != nil {
+			return err
+		}
+
+		// ถ้ามี permission_ids ให้ assign permissions
+		if len(input.PermissionIDs) > 0 {
+			var permissions []models.Permission
+			if err := tx.Find(&permissions, input.PermissionIDs).Error; err != nil {
+				return err
+			}
+			if err := tx.Model(&role).Association("Permissions").Replace(permissions); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
 		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not create role"))
 	}
+
+	// Reload role with permissions
+	database.DB.Preload("Permissions").First(&role, role.ID)
 
 	return utils.SendCreated(c, fiber.Map{
 		"role": role,
@@ -180,4 +205,64 @@ func DeleteRole(c *fiber.Ctx) error {
 	}
 
 	return utils.SendSuccess(c, nil, "Role deleted successfully")
+}
+
+// GetRoleUsers godoc
+// @Summary Get users by role ID
+// @Description Get a list of users that have this role
+// @Tags Admin
+// @Security ApiKeyAuth
+// @Produce json
+// @Param id path string true "Role ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/roles/{id}/users [get]
+func GetRoleUsers(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	// Check if role exists
+	var role models.Role
+	if err := database.DB.First(&role, id).Error; err != nil {
+		return utils.SendError(c, fiber.StatusNotFound, errors.New("role not found"))
+	}
+
+	// Get users with this role - ใช้ fields ที่ถูกต้องตาม User model
+	var users []struct {
+		ID        uint   `json:"id"`
+		Email     string `json:"email"`
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+		Username  string `json:"username"`
+	}
+
+	if err := database.DB.Model(&models.User{}).
+		Select("id, email, first_name, last_name, username").
+		Where("role_id = ?", id).
+		Find(&users).Error; err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not fetch users"))
+	}
+
+	// แปลงเป็น format ที่ frontend ใช้
+	type UserResponse struct {
+		ID    uint   `json:"id"`
+		Email string `json:"email"`
+		Name  string `json:"name"`
+	}
+
+	var response []UserResponse
+	for _, u := range users {
+		name := u.FirstName + " " + u.LastName
+		if name == " " {
+			name = u.Username
+		}
+		response = append(response, UserResponse{
+			ID:    u.ID,
+			Email: u.Email,
+			Name:  name,
+		})
+	}
+
+	return utils.SendSuccess(c, fiber.Map{
+		"users": response,
+		"count": len(response),
+	}, "Users retrieved successfully")
 }

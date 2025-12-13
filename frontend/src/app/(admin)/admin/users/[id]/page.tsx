@@ -9,7 +9,7 @@ import UserForm from '@/components/admin/UserForm';
 
 export default function EditUserPage() {
     const params = useParams<{ id: string }>();
-    const id = params.id;
+    const id = params?.id;
     const router = useRouter();
     const [initialLoading, setInitialLoading] = useState(true);
     const [message, setMessage] = useState({ type: '', text: '' });
@@ -35,7 +35,8 @@ export default function EditUserPage() {
     };
 
     if (initialLoading) return <div className="p-8 text-white">Loading user details...</div>;
-    if (message.type === 'error' && !userData) return <div className="p-8 text-red-400">{message.text}</div>;
+    if (message.type === 'error' && !userData)
+        return <div className="p-8 text-red-400">{message.text}</div>;
 
     return (
         <div className="p-6">
@@ -56,13 +57,7 @@ export default function EditUserPage() {
                     </Button>
                 </div>
 
-                {userData && (
-                    <UserForm
-                        initialData={userData}
-                        isEdit={true}
-                        userId={id}
-                    />
-                )}
+                {userData && <UserForm initialData={userData} isEdit={true} userId={id} />}
             </motion.div>
         </div>
     );

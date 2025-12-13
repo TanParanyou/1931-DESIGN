@@ -18,6 +18,7 @@ export interface Role {
 export interface CreateRoleInput {
     name: string;
     description: string;
+    permission_ids?: number[];
 }
 
 export interface UpdateRoleInput {

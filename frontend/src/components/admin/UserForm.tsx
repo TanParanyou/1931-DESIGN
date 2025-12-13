@@ -1,13 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import { rbacService } from '@/services/rbac';
+import { Role } from '@/types/rbac';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Checkbox } from '@/components/ui/Checkbox';
-import { User, Save, Phone, MapPin, MessageCircle, Info, Shield, Key, Mail, Lock } from 'lucide-react';
+import {
+    User,
+    Save,
+    Phone,
+    MapPin,
+    MessageCircle,
+    Info,
+    Shield,
+    Key,
+    Mail,
+    Lock,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
@@ -36,43 +49,73 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
 
+    // Roles list from API
+    const [roles, setRoles] = useState<Role[]>([]);
+
     // Reset Password Modal State (Only for Edit mode)
     const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
     const [newPassword, setNewPassword] = useState('');
     const [resetLoading, setResetLoading] = useState(false);
 
-    const [formData, setFormData] = useState<UserFormData>(initialData || {
-        username: '',
-        email: '',
-        password: '',
-        first_name: '',
-        last_name: '',
-        role: 'user',
-        active: true,
-        phone: '',
-        address: '',
-        line_id: '',
-        info: '',
+    const [formData, setFormData] = useState<UserFormData>(() => {
+        const defaultData = {
+            username: '',
+            email: '',
+            password: '',
+            first_name: '',
+            last_name: '',
+            role: '',
+            active: true,
+            phone: '',
+            address: '',
+            line_id: '',
+            info: '',
+        };
+
+        if (initialData) {
+            // Handle role if it comes as an object
+            let roleName = initialData.role;
+            if (typeof initialData.role === 'object' && initialData.role !== null) {
+                // @ts-expect-error - Handling dynamic API response
+                roleName = initialData.role.name;
+            }
+            return { ...defaultData, ...initialData, role: roleName || '' };
+        }
+        return defaultData;
     });
 
+    // Fetch รายการ roles จาก API
+    useEffect(() => {
+        const fetchRoles = async () => {
+            try {
+                const data = await rbacService.getRoles();
+                setRoles(data.roles || []);
+            } catch (error) {
+                console.error('Failed to fetch roles', error);
+            }
+        };
+        fetchRoles();
+    }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    ) => {
         // Handle checkbox
         if (e.target.type === 'checkbox') {
             const checked = (e.target as HTMLInputElement).checked;
-            setFormData(prev => ({ ...prev, [e.target.id]: checked }));
+            setFormData((prev) => ({ ...prev, [e.target.id]: checked }));
             return;
         }
 
         // Handle other inputs
-        // For standard inputs, we use id or name. 
+        // For standard inputs, we use id or name.
         // The Input component might pass event with id or name.
         const { id, name, value } = e.target;
         const key = id || name;
 
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
-            [key]: value
+            [key]: value,
         }));
     };
 
@@ -90,7 +133,10 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
             }
 
             if (response.data.success) {
-                setMessage({ type: 'success', text: isEdit ? 'User updated successfully' : 'User created successfully' });
+                setMessage({
+                    type: 'success',
+                    text: isEdit ? 'User updated successfully' : 'User created successfully',
+                });
                 if (!isEdit) {
                     setTimeout(() => router.push('/admin/users'), 1500);
                 } else {
@@ -117,7 +163,7 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
         setResetLoading(true);
         try {
             const response = await api.put(`/users/${userId}/reset-password`, {
-                new_password: newPassword
+                new_password: newPassword,
             });
             if (response.data.success) {
                 setMessage({ type: 'success', text: 'Password reset successfully' });
@@ -136,7 +182,9 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
     return (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
             {message.text && (
-                <div className={`mb-6 p-4 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                <div
+                    className={`mb-6 p-4 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}
+                >
                     {message.text}
                 </div>
             )}
@@ -191,8 +239,8 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
                         onChange={handleChange}
                         icon={Shield}
                         options={[
-                            { value: 'User', label: 'User' },
-                            { value: 'Super Admin', label: 'Super Admin' }
+                            { value: '', label: 'เลือก Role' },
+                            ...roles.map((r) => ({ value: r.name, label: r.name })),
                         ]}
                     />
 
@@ -269,7 +317,6 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
 
                 <div className="h-px bg-white/10 my-6" />
 
-
                 <div className="pt-4 flex justify-between items-center">
                     {isEdit ? (
                         <Button
@@ -287,13 +334,11 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
 
                     <div className="flex gap-4">
                         <Link href="/admin/users">
-                            <Button type="button" variant="ghost">Cancel</Button>
+                            <Button type="button" variant="ghost">
+                                Cancel
+                            </Button>
                         </Link>
-                        <Button
-                            type="submit"
-                            isLoading={loading}
-                            icon={<Save size={18} />}
-                        >
+                        <Button type="submit" isLoading={loading} icon={<Save size={18} />}>
                             {isEdit ? 'Save Changes' : 'Create User'}
                         </Button>
                     </div>

@@ -6,14 +6,31 @@ import { Role } from '@/types/rbac';
 import RoleEditor from '@/components/admin/RoleEditor';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
-import { Plus, Edit2, Trash2, Shield, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Shield, X, Users } from 'lucide-react';
 import { Loading } from '@/components/ui/Loading';
+import { useConfirm, Modal } from '@/components/ui/Modal';
+
+interface RoleUser {
+    id: number;
+    email: string;
+    name: string;
+    created_at: string;
+}
 
 export default function RolesPage() {
     const [roles, setRoles] = useState<Role[]>([]);
     const [loading, setLoading] = useState(true);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [editingRole, setEditingRole] = useState<Role | undefined>(undefined);
+
+    // สำหรับแสดง users ที่ใช้ role
+    const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+    const [selectedRoleName, setSelectedRoleName] = useState('');
+    const [roleUsers, setRoleUsers] = useState<RoleUser[]>([]);
+    const [loadingUsers, setLoadingUsers] = useState(false);
+
+    // useConfirm hook สำหรับ delete
+    const { confirm, ConfirmDialog } = useConfirm();
 
     const fetchRoles = async () => {
         try {
@@ -42,11 +59,21 @@ export default function RolesPage() {
     };
 
     const handleDelete = async (id: number) => {
-        if (!confirm('Are you sure you want to delete this role?')) return;
+        const confirmed = await confirm({
+            title: 'ยืนยันการลบ',
+            message: 'คุณต้องการลบ Role นี้หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้',
+            variant: 'danger',
+            confirmText: 'ลบ',
+            cancelText: 'ยกเลิก',
+        });
+
+        if (!confirmed) return;
+
         try {
             await rbacService.deleteRole(id);
             fetchRoles();
         } catch (error) {
+            // TODO: อาจใช้ AlertModal แทน alert
             alert('Failed to delete role (it might be in use)');
         }
     };
@@ -54,6 +81,23 @@ export default function RolesPage() {
     const handleSave = async () => {
         setIsEditorOpen(false);
         fetchRoles();
+    };
+
+    // แสดง users ที่ใช้ role นี้
+    const handleViewUsers = async (role: Role) => {
+        setSelectedRoleName(role.name);
+        setLoadingUsers(true);
+        setIsUsersModalOpen(true);
+
+        try {
+            const data = await rbacService.getRoleUsers(role.id);
+            setRoleUsers(data.users || []);
+        } catch (error) {
+            console.error('Failed to fetch role users', error);
+            setRoleUsers([]);
+        } finally {
+            setLoadingUsers(false);
+        }
     };
 
     return (
@@ -84,6 +128,13 @@ export default function RolesPage() {
                                     <Shield size={24} />
                                 </div>
                                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={() => handleViewUsers(role)}
+                                        className="p-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-cyan-400 transition-colors"
+                                        title="ดูผู้ใช้งาน"
+                                    >
+                                        <Users size={16} />
+                                    </button>
                                     <button
                                         onClick={() => handleEdit(role)}
                                         className="p-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
@@ -158,6 +209,50 @@ export default function RolesPage() {
                     </>
                 )}
             </AnimatePresence>
+
+            {/* Modal for displaying users in role */}
+            <Modal
+                isOpen={isUsersModalOpen}
+                onClose={() => setIsUsersModalOpen(false)}
+                title={`ผู้ใช้งาน Role: ${selectedRoleName}`}
+                description="รายการผู้ใช้งานที่ใช้ Role นี้"
+                size="md"
+            >
+                {loadingUsers ? (
+                    <div className="flex items-center justify-center py-8">
+                        <Loading variant="dots" size="md" text="กำลังโหลด..." />
+                    </div>
+                ) : roleUsers.length === 0 ? (
+                    <div className="text-center py-8">
+                        <Users size={48} className="mx-auto text-white/20 mb-4" />
+                        <p className="text-white/50">ไม่มีผู้ใช้งานที่ใช้ Role นี้</p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <p className="text-sm text-white/50 mb-4">
+                            พบผู้ใช้งาน {roleUsers.length} คน
+                        </p>
+                        <div className="max-h-80 overflow-y-auto space-y-2">
+                            {roleUsers.map((user) => (
+                                <div
+                                    key={user.id}
+                                    className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10"
+                                >
+                                    <div>
+                                        <p className="text-white font-medium">
+                                            {user.name || 'ไม่ระบุชื่อ'}
+                                        </p>
+                                        <p className="text-white/50 text-sm">{user.email}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </Modal>
+
+            {/* Confirm Dialog */}
+            <ConfirmDialog />
         </div>
     );
 }

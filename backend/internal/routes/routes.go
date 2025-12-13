@@ -61,6 +61,7 @@ func SetupRoutes(app *fiber.App) {
 	roles := api.Group("/roles", middleware.Protected(), middleware.Admin())
 	roles.Get("/", handlers.GetAllRoles)
 	roles.Post("/", handlers.CreateRole)
+	roles.Get("/:id/users", handlers.GetRoleUsers) // ต้องอยู่ก่อน /:id
 	roles.Get("/:id", handlers.GetRole)
 	roles.Put("/:id", handlers.UpdateRole)
 	roles.Delete("/:id", handlers.DeleteRole)

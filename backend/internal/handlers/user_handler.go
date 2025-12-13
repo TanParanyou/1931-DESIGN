@@ -185,7 +185,7 @@ func GetAllUsers(c *fiber.Ctx) error {
 func GetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var user models.User
-	if err := database.DB.First(&user, id).Error; err != nil {
+	if err := database.DB.Preload("Role").First(&user, id).Error; err != nil {
 		return utils.SendError(c, fiber.StatusNotFound, errors.New("user not found"))
 	}
 
