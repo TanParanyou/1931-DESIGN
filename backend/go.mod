@@ -71,10 +71,10 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.68.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
+	golang.org/x/image v0.34.0 // indirect
 	golang.org/x/mod v0.30.0 // indirect
-	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/text v0.32.0 // indirect
 	golang.org/x/tools v0.39.0 // indirect
 )

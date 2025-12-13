@@ -14,7 +14,7 @@ export default function ProjectDetailPage() {
     const params = useParams();
     const router = useRouter();
     const { t } = useLanguage();
-    const id = Number(params.id);
+    const id = Number(params?.id);
 
     const [project, setProject] = useState<Project | null>(null);
     const [relatedProjects, setRelatedProjects] = useState<Project[]>([]);
@@ -190,7 +190,7 @@ export default function ProjectDetailPage() {
                                 href={`/projects/${related.id}`}
                                 className="group cursor-pointer"
                             >
-                                <div className="relative aspect-[4/3] overflow-hidden rounded-xl mb-4 border border-white/10">
+                                <div className="relative aspect-4/3 overflow-hidden rounded-xl mb-4 border border-white/10">
                                     {related.images?.[0] ? (
                                         <Image
                                             src={related.images[0]}

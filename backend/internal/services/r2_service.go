@@ -5,7 +5,9 @@ import (
 	"context"
 	"fmt"
 	"image"
+	_ "image/gif" // Register GIF decoder
 	"image/jpeg"
+	_ "image/png" // Register PNG decoder
 	"io"
 	"os"
 	"path/filepath"
@@ -18,6 +20,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/disintegration/imaging"
 	"github.com/google/uuid"
+	_ "golang.org/x/image/webp" // Register WebP decoder
 )
 
 type R2Service struct {
