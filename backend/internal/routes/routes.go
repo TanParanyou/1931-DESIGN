@@ -36,14 +36,25 @@ func SetupRoutes(app *fiber.App) {
 	// Auth routes
 	auth := api.Group("/auth")
 	auth.Post("/login", handlers.Login)
+	auth.Post("/login-pin", handlers.LoginWithPin)
 	auth.Post("/register", handlers.Register)
 	auth.Post("/refresh", handlers.RefreshToken)
+
+	// Forgot password routes (public)
+	auth.Post("/forgot-password", handlers.ForgotPassword)
+	auth.Get("/verify-reset-token/:token", handlers.VerifyResetToken)
+	auth.Post("/reset-password", handlers.ResetPassword)
 
 	// Protected routes
 	auth.Get("/profile", middleware.Protected(), handlers.GetProfile)
 	auth.Put("/profile", middleware.Protected(), handlers.UpdateProfile)
 	auth.Put("/change-password", middleware.Protected(), handlers.ChangePassword)
 	auth.Get("/menus", middleware.Protected(), handlers.GetMenus)
+
+	// PIN routes (protected)
+	auth.Put("/pin", middleware.Protected(), handlers.SetPin)
+	auth.Delete("/pin", middleware.Protected(), handlers.DisablePin)
+	auth.Get("/pin-status", middleware.Protected(), handlers.GetPinStatus)
 
 	// Admin User Management
 	users := api.Group("/users", middleware.Protected(), middleware.Admin())
@@ -108,6 +119,12 @@ func SetupRoutes(app *fiber.App) {
 
 	// HR Routes
 	SetupHRRoutes(api)
+
+	// Dashboard Routes
+	dashboard := api.Group("/dashboard", middleware.Protected())
+	dashboard.Get("/stats", handlers.GetDashboardStats)
+	dashboard.Get("/activities", handlers.GetRecentActivities)
+	dashboard.Get("/recent-logins", handlers.GetRecentLogins)
 
 	// Admin Cleanup Routes
 	cleanup := api.Group("/admin/cleanup", middleware.Protected(), middleware.Admin())

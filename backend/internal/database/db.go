@@ -47,6 +47,7 @@ func ConnectDB() {
 		&models.Setting{},                        // Settings
 		&models.Category{},                       // Categories
 		&models.Department{}, &models.Position{}, // HR Master Data
+		&models.PasswordReset{}, // Password Reset Tokens
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database: ", err)
@@ -115,6 +116,7 @@ func seedSettings() {
 func seedRBAC() {
 	// 1. Create Permissions
 	permissions := []models.Permission{
+		{Slug: "admin.access", Description: "Access Admin Panel"},
 		{Slug: "dashboard.view", Description: "View Dashboard"},
 		{Slug: "users.view", Description: "View Users"},
 		{Slug: "users.manage", Description: "Create, Edit, Delete Users"},
@@ -129,6 +131,10 @@ func seedRBAC() {
 		{Slug: "projects.manage", Description: "Create, Edit, Delete Projects"},
 		{Slug: "categories.view", Description: "View Categories"},
 		{Slug: "categories.manage", Description: "Create, Edit, Delete Categories"},
+		{Slug: "attendance.view", Description: "View Attendance"},
+		{Slug: "attendance.manage", Description: "Manage Attendance"},
+		{Slug: "leaves.view", Description: "View Leaves"},
+		{Slug: "leaves.manage", Description: "Manage Leave Requests"},
 	}
 
 	for _, p := range permissions {
@@ -160,12 +166,16 @@ func seedRBAC() {
 	}
 
 	// 3. Assign Permissions to Roles
-	// Super Admin gets ALL permissions
+	// Super Admin gets ALL permissions (รันทุกครั้งเพื่อให้ได้ permissions ใหม่)
 	var superAdmin models.Role
 	if err := DB.Where("name = ?", "Super Admin").First(&superAdmin).Error; err == nil {
 		var allPerms []models.Permission
 		DB.Find(&allPerms)
-		DB.Model(&superAdmin).Association("Permissions").Replace(allPerms)
+		if err := DB.Model(&superAdmin).Association("Permissions").Replace(allPerms); err != nil {
+			log.Printf("Error assigning permissions to Super Admin: %v", err)
+		} else {
+			log.Printf("Assigned %d permissions to Super Admin role", len(allPerms))
+		}
 	}
 
 	// User gets limited permissions (e.g. just dashboard)
@@ -188,8 +198,8 @@ func seedRBAC() {
 		{Path: "/admin/roles", Title: "Roles", Icon: "Shield", PermissionSlug: "roles.view", Order: 8},
 		{Path: "/admin/menus", Title: "Menus", Icon: "List", PermissionSlug: "menus.view", Order: 9},
 		{Path: "/admin/settings", Title: "Settings", Icon: "Settings", PermissionSlug: "settings.view", Order: 90},
-		{Path: "/admin/attendance", Title: "Attendance", Icon: "Clock", PermissionSlug: "dashboard.view", Order: 10},
-		{Path: "/admin/leaves", Title: "Leaves", Icon: "Calendar", PermissionSlug: "dashboard.view", Order: 11},
+		{Path: "/admin/attendance", Title: "Attendance", Icon: "Clock", PermissionSlug: "attendance.view", Order: 10},
+		{Path: "/admin/leaves", Title: "Leaves", Icon: "Calendar", PermissionSlug: "leaves.view", Order: 11},
 		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 12},
 		{Path: "/admin/profile", Title: "My Profile", Icon: "User", PermissionSlug: "", Order: 99},
 	}

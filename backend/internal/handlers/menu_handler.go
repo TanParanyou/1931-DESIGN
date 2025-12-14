@@ -67,10 +67,36 @@ func GetMenus(c *fiber.Ctx) error {
 		return utils.SendError(c, fiber.StatusInternalServerError, err)
 	}
 
-	// Filter
+	// สร้าง map ของ child menus ตาม parent_id
+	childrenByParent := make(map[uint][]models.Menu)
+	for _, m := range allMenus {
+		if m.ParentID != nil {
+			childrenByParent[*m.ParentID] = append(childrenByParent[*m.ParentID], m)
+		}
+	}
+
+	// Filter เมนูตาม permission
 	var visibleMenus []models.Menu
 	for _, m := range allMenus {
-		// If no permission required, or user has permission
+		// ถ้าเป็น group menu (path="#") ต้องเช็คว่ามี child ที่ user มี permission หรือไม่
+		if m.Path == "#" {
+			children := childrenByParent[m.ID]
+			hasVisibleChild := false
+			for _, child := range children {
+				if child.PermissionSlug == "" || userPerms[child.PermissionSlug] {
+					hasVisibleChild = true
+					break
+				}
+			}
+			if hasVisibleChild {
+				visibleMenus = append(visibleMenus, m)
+			} else {
+				log.Printf("[DEBUG] Hidden Group (no visible children): %s", m.Title)
+			}
+			continue
+		}
+
+		// เมนูปกติ: ถ้าไม่มี permission หรือ user มี permission ถึงแสดง
 		if m.PermissionSlug == "" || userPerms[m.PermissionSlug] {
 			visibleMenus = append(visibleMenus, m)
 		} else {

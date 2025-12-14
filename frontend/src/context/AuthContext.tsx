@@ -17,6 +17,7 @@ interface User {
     line_id?: string;
     info?: string;
     permissions?: string[];
+    last_login?: string;
 }
 
 interface AuthContextType {
@@ -50,7 +51,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsLoading(false);
     }, []);
 
-    const login = (newToken: string, newRefreshToken: string, newUser: User, remember: boolean = true) => {
+    const login = (
+        newToken: string,
+        newRefreshToken: string,
+        newUser: User,
+        remember: boolean = true
+    ) => {
         setToken(newToken);
         setRefreshToken(newRefreshToken);
         setUser(newUser);

@@ -8,7 +8,16 @@ import { motion } from 'framer-motion';
 import { User, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { PasswordStrength, usePasswordStrength } from '@/components/ui/PasswordStrength';
 import { useRouter } from 'next/navigation';
+
+interface ApiError {
+    response?: {
+        data?: {
+            error?: string;
+        };
+    };
+}
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -26,6 +35,7 @@ export default function RegisterPage() {
     const [error, setError] = useState('');
     const { login } = useAuth();
     const [loading, setLoading] = useState(false);
+    const passwordStrength = usePasswordStrength(formData.password);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
@@ -44,17 +54,22 @@ export default function RegisterPage() {
             if (response.data.success) {
                 const loginResponse = await api.post('/auth/login', {
                     username: formData.username,
-                    password: formData.password
+                    password: formData.password,
                 });
 
                 if (loginResponse.data.success) {
-                    login(loginResponse.data.data.token, loginResponse.data.data.refresh_token, loginResponse.data.data.user);
+                    login(
+                        loginResponse.data.data.token,
+                        loginResponse.data.data.refresh_token,
+                        loginResponse.data.data.user
+                    );
                 }
             } else {
                 setError(response.data.message || 'Registration failed');
             }
-        } catch (err: any) {
-            setError(err.response?.data?.error || 'An error occurred during registration');
+        } catch (err: unknown) {
+            const error = err as ApiError;
+            setError(error.response?.data?.error || 'An error occurred during registration');
         } finally {
             setLoading(false);
         }
@@ -182,15 +197,20 @@ export default function RegisterPage() {
                                 onChange={handleChange}
                             />
 
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder="Password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                icon={Lock}
-                                required
-                            />
+                            <div className="space-y-2">
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    placeholder="Password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    icon={Lock}
+                                    required
+                                />
+                                {formData.password && (
+                                    <PasswordStrength password={formData.password} />
+                                )}
+                            </div>
                         </div>
 
                         <Button
@@ -206,7 +226,10 @@ export default function RegisterPage() {
                     <div className="mt-8 text-center">
                         <p className="text-sm text-gray-500">
                             Already have an account?{' '}
-                            <Link href="/login" className="text-purple-400 hover:text-purple-300 font-medium transition-colors hover:underline decoration-purple-400/30 underline-offset-4">
+                            <Link
+                                href="/login"
+                                className="text-purple-400 hover:text-purple-300 font-medium transition-colors hover:underline decoration-purple-400/30 underline-offset-4"
+                            >
                                 Sign in here
                             </Link>
                         </p>

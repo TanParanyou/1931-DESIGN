@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { PasswordStrength, usePasswordStrength } from '@/components/ui/PasswordStrength';
 import {
     User,
     Save,
@@ -42,6 +43,14 @@ interface UserFormProps {
     initialData?: UserFormData;
     isEdit?: boolean;
     userId?: string | number;
+}
+
+interface ApiError {
+    response?: {
+        data?: {
+            message?: string;
+        };
+    };
 }
 
 export default function UserForm({ initialData, isEdit = false, userId }: UserFormProps) {
@@ -83,6 +92,9 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
         }
         return defaultData;
     });
+
+    // Password strength hooks (must be after formData)
+    const resetPasswordStrength = usePasswordStrength(newPassword);
 
     // Fetch รายการ roles จาก API
     useEffect(() => {
@@ -146,8 +158,12 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
             } else {
                 setMessage({ type: 'error', text: response.data.message || 'Operation failed' });
             }
-        } catch (err: any) {
-            setMessage({ type: 'error', text: err.response?.data?.message || 'An error occurred' });
+        } catch (err: unknown) {
+            const error = err as ApiError;
+            setMessage({
+                type: 'error',
+                text: error.response?.data?.message || 'An error occurred',
+            });
         } finally {
             setLoading(false);
         }
@@ -155,8 +171,8 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
 
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (newPassword.length < 6) {
-            setMessage({ type: 'error', text: 'Password must be at least 6 characters' });
+        if (!resetPasswordStrength.isValid) {
+            setMessage({ type: 'error', text: 'Password does not meet strength requirements' });
             return;
         }
 
@@ -172,8 +188,12 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
             } else {
                 setMessage({ type: 'error', text: response.data.message || 'Reset failed' });
             }
-        } catch (err: any) {
-            setMessage({ type: 'error', text: err.response?.data?.message || 'An error occurred' });
+        } catch (err: unknown) {
+            const error = err as ApiError;
+            setMessage({
+                type: 'error',
+                text: error.response?.data?.message || 'An error occurred',
+            });
         } finally {
             setResetLoading(false);
         }
@@ -218,17 +238,21 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
                                 placeholder="john@example.com"
                                 required
                             />
-                            <Input
-                                id="password"
-                                type="password"
-                                label="Password *"
-                                value={formData.password}
-                                onChange={handleChange}
-                                icon={Lock}
-                                placeholder="Min. 6 characters"
-                                required
-                                minLength={6}
-                            />
+                            <div className="space-y-2">
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    label="Password *"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    icon={Lock}
+                                    placeholder="Strong password required"
+                                    required
+                                />
+                                {formData.password && (
+                                    <PasswordStrength password={formData.password} />
+                                )}
+                            </div>
                         </>
                     )}
 
@@ -359,16 +383,19 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
                         </p>
 
                         <form onSubmit={handleResetPassword} className="space-y-4">
-                            <Input
-                                id="new_password"
-                                label="New Password"
-                                type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                icon={Key}
-                                placeholder="Min. 6 characters"
-                                required
-                            />
+                            <div className="space-y-2">
+                                <Input
+                                    id="new_password"
+                                    label="New Password"
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    icon={Key}
+                                    placeholder="Strong password required"
+                                    required
+                                />
+                                {newPassword && <PasswordStrength password={newPassword} />}
+                            </div>
 
                             <div className="flex justify-end gap-3 mt-6">
                                 <Button
@@ -385,6 +412,7 @@ export default function UserForm({ initialData, isEdit = false, userId }: UserFo
                                 <Button
                                     type="submit"
                                     isLoading={resetLoading}
+                                    disabled={!resetPasswordStrength.isValid}
                                     className="bg-red-600 hover:bg-red-700 text-white"
                                 >
                                     Reset Password

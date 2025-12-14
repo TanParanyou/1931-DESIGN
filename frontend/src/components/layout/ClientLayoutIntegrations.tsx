@@ -16,9 +16,14 @@ export default function ClientLayoutIntegrations() {
 
     useEffect(() => {
         const fetchSettings = async () => {
-            const data = await settingService.getPublicSettings();
-            if (data && Object.keys(data).length > 0) {
-                setSettings(data);
+            try {
+                const data = await settingService.getPublicSettings();
+                if (data && Object.keys(data).length > 0) {
+                    setSettings(data);
+                }
+            } catch (error) {
+                console.error('Failed to load public settings:', error);
+                // Non-critical error, just consume it so app doesn't crash
             }
         };
         fetchSettings();

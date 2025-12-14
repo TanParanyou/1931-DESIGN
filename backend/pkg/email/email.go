@@ -58,3 +58,52 @@ func SendLoginNotification(email string, username string) error {
 
 	return SendEmail([]string{email}, subject, body)
 }
+
+// SendPasswordResetEmail ส่ง email พร้อม link สำหรับ reset password
+func SendPasswordResetEmail(email, username, resetLink string) error {
+	subject := "Password Reset Request"
+	body := fmt.Sprintf(`
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<style>
+				body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+				.container { max-width: 600px; margin: 0 auto; padding: 20px; }
+				.header { background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+				.header h1 { color: white; margin: 0; }
+				.content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+				.button { display: inline-block; background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+				.footer { text-align: center; margin-top: 20px; color: #888; font-size: 12px; }
+				.warning { background: #fff3cd; border: 1px solid #ffc107; padding: 10px; border-radius: 5px; margin-top: 20px; }
+			</style>
+		</head>
+		<body>
+			<div class="container">
+				<div class="header">
+					<h1>🔐 Password Reset</h1>
+				</div>
+				<div class="content">
+					<p>สวัสดีคุณ %s,</p>
+					<p>เราได้รับคำขอ reset password สำหรับบัญชีของคุณ</p>
+					<p>คลิกปุ่มด้านล่างเพื่อตั้งรหัสผ่านใหม่:</p>
+					<p style="text-align: center;">
+						<a href="%s" class="button">Reset Password</a>
+					</p>
+					<div class="warning">
+						<strong>⚠️ หมายเหตุ:</strong>
+						<ul>
+							<li>Link นี้จะหมดอายุใน 1 ชั่วโมง</li>
+							<li>หากคุณไม่ได้ขอ reset password โปรดเพิกเฉย email นี้</li>
+						</ul>
+					</div>
+				</div>
+				<div class="footer">
+					<p>Email นี้ถูกส่งโดยอัตโนมัติ กรุณาอย่าตอบกลับ</p>
+				</div>
+			</div>
+		</body>
+		</html>
+	`, username, resetLink)
+
+	return SendEmail([]string{email}, subject, body)
+}

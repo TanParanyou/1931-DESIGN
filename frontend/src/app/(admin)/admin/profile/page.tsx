@@ -5,11 +5,36 @@ import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { User, Save, Phone, MapPin, MessageCircle, Info, Key } from 'lucide-react';
+import { PinInput } from '@/components/ui/PinInput';
+import { PasswordStrength, usePasswordStrength } from '@/components/ui/PasswordStrength';
+import {
+    User,
+    Save,
+    Phone,
+    MapPin,
+    MessageCircle,
+    Info,
+    Key,
+    KeyRound,
+    Shield,
+    ShieldOff,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
+interface ApiError {
+    response?: {
+        data?: {
+            message?: string;
+            error?: {
+                message?: string;
+                messages?: string[];
+            };
+        };
+    };
+}
+
 export default function ProfilePage() {
-    const { user, login } = useAuth(); // Re-use login to update local user state
+    const { user, login } = useAuth();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
     const [formData, setFormData] = useState({
@@ -24,10 +49,21 @@ export default function ProfilePage() {
     const [passwordData, setPasswordData] = useState({
         old_password: '',
         new_password: '',
-        confirm_password: ''
+        confirm_password: '',
     });
     const [passwordLoading, setPasswordLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
+
+    // PIN State
+    const [pinEnabled, setPinEnabled] = useState(false);
+    const [showPinSetup, setShowPinSetup] = useState(false);
+    const [pinData, setPinData] = useState({
+        pin: '',
+        password: '',
+    });
+    const [pinLoading, setPinLoading] = useState(false);
+
+    const passwordStrength = usePasswordStrength(passwordData.new_password);
 
     useEffect(() => {
         if (user) {
@@ -40,8 +76,20 @@ export default function ProfilePage() {
                 info: user.info || '',
             });
         }
+        fetchPinStatus();
         setInitialLoading(false);
     }, [user]);
+
+    const fetchPinStatus = async () => {
+        try {
+            const response = await api.get('/auth/pin-status');
+            if (response.data.success) {
+                setPinEnabled(response.data.data.pin_enabled);
+            }
+        } catch {
+            // Ignore error
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
@@ -59,21 +107,27 @@ export default function ProfilePage() {
             const response = await api.put('/auth/profile', formData);
             if (response.data.success) {
                 setMessage({ type: 'success', text: 'Profile updated successfully' });
-                // Update local context
-                // We need token to re-login to update context, or just direct update if exposed
-                // Since login() takes tokens, we grab them from storage or just pretend with current ones?
-                // Actually, best way is to fetch profile again or just manually construct user object.
-                // AuthContext's login updates everything.
                 const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-                const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+                const refreshToken =
+                    localStorage.getItem('refresh_token') ||
+                    sessionStorage.getItem('refresh_token');
                 if (token && refreshToken) {
-                    login(token, refreshToken, response.data.data.user, !!localStorage.getItem('token'));
+                    login(
+                        token,
+                        refreshToken,
+                        response.data.data.user,
+                        !!localStorage.getItem('token')
+                    );
                 }
             } else {
                 setMessage({ type: 'error', text: response.data.message || 'Update failed' });
             }
-        } catch (err: any) {
-            setMessage({ type: 'error', text: err.response?.data?.message || 'An error occurred' });
+        } catch (err: unknown) {
+            const error = err as ApiError;
+            setMessage({
+                type: 'error',
+                text: error.response?.data?.message || 'An error occurred',
+            });
         } finally {
             setLoading(false);
         }
@@ -88,8 +142,8 @@ export default function ProfilePage() {
             return;
         }
 
-        if (passwordData.new_password.length < 6) {
-            setMessage({ type: 'error', text: 'New password must be at least 6 characters' });
+        if (!passwordStrength.isValid) {
+            setMessage({ type: 'error', text: 'Password does not meet strength requirements' });
             return;
         }
 
@@ -97,18 +151,89 @@ export default function ProfilePage() {
         try {
             const response = await api.put('/auth/change-password', {
                 old_password: passwordData.old_password,
-                new_password: passwordData.new_password
+                new_password: passwordData.new_password,
             });
             if (response.data.success) {
                 setMessage({ type: 'success', text: 'Password changed successfully' });
                 setPasswordData({ old_password: '', new_password: '', confirm_password: '' });
             } else {
-                setMessage({ type: 'error', text: response.data.message || 'Change password failed' });
+                setMessage({
+                    type: 'error',
+                    text: response.data.message || 'Change password failed',
+                });
             }
-        } catch (err: any) {
-            setMessage({ type: 'error', text: err.response?.data?.message || 'An error occurred' });
+        } catch (err: unknown) {
+            const error = err as ApiError;
+            const messages = error.response?.data?.error?.messages;
+            if (messages && Array.isArray(messages)) {
+                setMessage({ type: 'error', text: messages.join('\n') });
+            } else {
+                setMessage({
+                    type: 'error',
+                    text: error.response?.data?.error?.message || 'An error occurred',
+                });
+            }
         } finally {
             setPasswordLoading(false);
+        }
+    };
+
+    const handleSetPin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setMessage({ type: '', text: '' });
+
+        if (pinData.pin.length !== 6) {
+            setMessage({ type: 'error', text: 'PIN must be 6 digits' });
+            return;
+        }
+
+        setPinLoading(true);
+        try {
+            const response = await api.put('/auth/pin', {
+                pin: pinData.pin,
+                password: pinData.password,
+            });
+            if (response.data.success) {
+                setMessage({ type: 'success', text: 'PIN set successfully' });
+                setPinEnabled(true);
+                setShowPinSetup(false);
+                setPinData({ pin: '', password: '' });
+            } else {
+                setMessage({ type: 'error', text: response.data.message || 'Failed to set PIN' });
+            }
+        } catch (err: unknown) {
+            const error = err as ApiError;
+            setMessage({
+                type: 'error',
+                text: error.response?.data?.error?.message || 'An error occurred',
+            });
+        } finally {
+            setPinLoading(false);
+        }
+    };
+
+    const handleDisablePin = async () => {
+        setPinLoading(true);
+        setMessage({ type: '', text: '' });
+        try {
+            const response = await api.delete('/auth/pin');
+            if (response.data.success) {
+                setMessage({ type: 'success', text: 'PIN disabled successfully' });
+                setPinEnabled(false);
+            } else {
+                setMessage({
+                    type: 'error',
+                    text: response.data.message || 'Failed to disable PIN',
+                });
+            }
+        } catch (err: unknown) {
+            const error = err as ApiError;
+            setMessage({
+                type: 'error',
+                text: error.response?.data?.error?.message || 'An error occurred',
+            });
+        } finally {
+            setPinLoading(false);
         }
     };
 
@@ -130,7 +255,9 @@ export default function ProfilePage() {
 
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
                     {message.text && (
-                        <div className={`mb-6 p-4 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                        <div
+                            className={`mb-6 p-4 rounded-lg text-sm whitespace-pre-line ${message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}
+                        >
                             {message.text}
                         </div>
                     )}
@@ -191,7 +318,9 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm text-gray-400 ml-1">Additional Information</label>
+                            <label className="text-sm text-gray-400 ml-1">
+                                Additional Information
+                            </label>
                             <Input
                                 id="info"
                                 value={formData.info}
@@ -214,6 +343,7 @@ export default function ProfilePage() {
                     </form>
                 </div>
 
+                {/* Change Password Section */}
                 <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
                     <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                         <Key className="text-purple-400" size={24} />
@@ -226,7 +356,12 @@ export default function ProfilePage() {
                             <Input
                                 type="password"
                                 value={passwordData.old_password}
-                                onChange={(e) => setPasswordData({ ...passwordData, old_password: e.target.value })}
+                                onChange={(e) =>
+                                    setPasswordData({
+                                        ...passwordData,
+                                        old_password: e.target.value,
+                                    })
+                                }
                                 icon={Key}
                                 placeholder="Current Password"
                                 required
@@ -238,22 +373,43 @@ export default function ProfilePage() {
                                 <Input
                                     type="password"
                                     value={passwordData.new_password}
-                                    onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
+                                    onChange={(e) =>
+                                        setPasswordData({
+                                            ...passwordData,
+                                            new_password: e.target.value,
+                                        })
+                                    }
                                     icon={Key}
-                                    placeholder="New Password (min 6 chars)"
+                                    placeholder="New Password"
                                     required
                                 />
+                                {passwordData.new_password && (
+                                    <PasswordStrength password={passwordData.new_password} />
+                                )}
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm text-gray-400 ml-1">Confirm New Password</label>
+                                <label className="text-sm text-gray-400 ml-1">
+                                    Confirm New Password
+                                </label>
                                 <Input
                                     type="password"
                                     value={passwordData.confirm_password}
-                                    onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
+                                    onChange={(e) =>
+                                        setPasswordData({
+                                            ...passwordData,
+                                            confirm_password: e.target.value,
+                                        })
+                                    }
                                     icon={Key}
                                     placeholder="Confirm New Password"
                                     required
                                 />
+                                {passwordData.confirm_password &&
+                                    passwordData.new_password !== passwordData.confirm_password && (
+                                        <p className="text-red-400 text-xs mt-1">
+                                            Passwords do not match
+                                        </p>
+                                    )}
                             </div>
                         </div>
 
@@ -264,11 +420,134 @@ export default function ProfilePage() {
                                 icon={<Save size={18} />}
                                 variant="outline"
                                 className="w-full md:w-auto"
+                                disabled={
+                                    !passwordStrength.isValid ||
+                                    passwordData.new_password !== passwordData.confirm_password
+                                }
                             >
                                 Update Password
                             </Button>
                         </div>
                     </form>
+                </div>
+
+                {/* PIN Settings Section */}
+                <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
+                    <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <KeyRound className="text-blue-400" size={24} />
+                        PIN Login
+                    </h2>
+
+                    <div className="space-y-6">
+                        {/* PIN Status */}
+                        <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                            <div className="flex items-center gap-3">
+                                {pinEnabled ? (
+                                    <Shield className="text-green-400" size={24} />
+                                ) : (
+                                    <ShieldOff className="text-gray-500" size={24} />
+                                )}
+                                <div>
+                                    <p className="text-white font-medium">
+                                        PIN Login is {pinEnabled ? 'Enabled' : 'Disabled'}
+                                    </p>
+                                    <p className="text-gray-400 text-sm">
+                                        {pinEnabled
+                                            ? 'You can use your 6-digit PIN to login quickly'
+                                            : 'Set up a 6-digit PIN for quick and secure login'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                {pinEnabled ? (
+                                    <>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setShowPinSetup(true)}
+                                        >
+                                            Change PIN
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            onClick={handleDisablePin}
+                                            isLoading={pinLoading}
+                                            className="text-red-400 hover:text-red-300"
+                                        >
+                                            Disable
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <Button variant="primary" onClick={() => setShowPinSetup(true)}>
+                                        Set Up PIN
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* PIN Setup Form */}
+                        {showPinSetup && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="p-6 bg-white/5 rounded-lg border border-white/10"
+                            >
+                                <form onSubmit={handleSetPin} className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-gray-400 block text-center">
+                                            Enter your 6-digit PIN
+                                        </label>
+                                        <PinInput
+                                            value={pinData.pin}
+                                            onChange={(pin) => setPinData({ ...pinData, pin })}
+                                            autoFocus
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-gray-400 ml-1">
+                                            Confirm with your password
+                                        </label>
+                                        <Input
+                                            type="password"
+                                            value={pinData.password}
+                                            onChange={(e) =>
+                                                setPinData({ ...pinData, password: e.target.value })
+                                            }
+                                            icon={Key}
+                                            placeholder="Enter your password"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="flex gap-3 justify-end">
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            onClick={() => {
+                                                setShowPinSetup(false);
+                                                setPinData({ pin: '', password: '' });
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            isLoading={pinLoading}
+                                            disabled={pinData.pin.length !== 6 || !pinData.password}
+                                        >
+                                            Save PIN
+                                        </Button>
+                                    </div>
+                                </form>
+                            </motion.div>
+                        )}
+
+                        <p className="text-gray-500 text-xs">
+                            * PIN is a quick way to login. Your password is still required for
+                            security-sensitive actions.
+                        </p>
+                    </div>
                 </div>
             </motion.div>
         </div>
