@@ -440,7 +440,7 @@ export default function ProfilePage() {
 
                     <div className="space-y-6">
                         {/* PIN Status */}
-                        <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                        <div className="flex flex-col md:flex-row items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10 gap-4">
                             <div className="flex items-center gap-3">
                                 {pinEnabled ? (
                                     <Shield className="text-green-400" size={24} />
@@ -458,7 +458,7 @@ export default function ProfilePage() {
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col md:flex-row gap-2">
                                 {pinEnabled ? (
                                     <>
                                         <Button
@@ -520,7 +520,7 @@ export default function ProfilePage() {
                                         />
                                     </div>
 
-                                    <div className="flex gap-3 justify-end">
+                                    <div className="flex flex-col md:flex-row gap-3 justify-end">
                                         <Button
                                             type="button"
                                             variant="ghost"

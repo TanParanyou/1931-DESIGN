@@ -33,24 +33,27 @@ export function SortableImage({ image, onRemove }: SortableImageProps) {
         <div
             ref={setNodeRef}
             style={style}
-            className="relative group w-32 h-24 rounded-lg overflow-hidden bg-white/5 border border-white/10"
+            {...attributes}
+            {...listeners}
+            className="relative group w-32 h-24 rounded-lg overflow-hidden bg-white/5 border border-white/10 touch-manipulation cursor-grab active:cursor-grabbing"
         >
-            <Image src={image.url} alt="" fill className="object-cover" />
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                <button
-                    {...attributes}
-                    {...listeners}
-                    type="button"
-                    className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 cursor-grab active:cursor-grabbing"
-                >
-                    <GripVertical size={16} className="text-white" />
-                </button>
+            <Image src={image.url} alt="" fill className="object-cover pointer-events-none" />
+            {/* Mobile: แสดงปุ่มลบตลอด, Desktop: แสดงเมื่อ hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                {/* Drag indicator - มุมบนซ้าย */}
+                <div className="absolute top-1 left-1 p-1 bg-black/40 rounded text-white/70">
+                    <GripVertical size={14} />
+                </div>
+                {/* Delete button - มุมบนขวา */}
                 <button
                     type="button"
-                    onClick={() => onRemove(image.id)}
-                    className="p-1.5 bg-red-500/80 rounded-lg hover:bg-red-500"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onRemove(image.id);
+                    }}
+                    className="absolute top-1 right-1 p-1.5 bg-red-500/90 rounded-lg hover:bg-red-500 active:scale-95 transition-all"
                 >
-                    <X size={16} className="text-white" />
+                    <X size={14} className="text-white" />
                 </button>
             </div>
         </div>
