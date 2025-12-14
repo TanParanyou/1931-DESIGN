@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Upload, Loader2 } from 'lucide-react';
 import {
     DndContext,
     closestCenter,
     KeyboardSensor,
     PointerSensor,
+    TouchSensor,
     useSensor,
     useSensors,
     DragEndEvent,
@@ -15,7 +16,7 @@ import {
     arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
-    horizontalListSortingStrategy,
+    rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { SortableImage, ImageItem } from './SortableImage';
 import { projectService } from '@/services/project.service';
@@ -29,8 +30,14 @@ interface ImageUploadGridProps {
 export function ImageUploadGrid({ images, onImagesChange }: ImageUploadGridProps) {
     const [uploading, setUploading] = useState(false);
 
+    // PointerSensor สำหรับ desktop, TouchSensor สำหรับ mobile พร้อม delay เพื่อแยกจาก scroll
     const sensors = useSensors(
-        useSensor(PointerSensor),
+        useSensor(PointerSensor, {
+            activationConstraint: { distance: 8 },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: { delay: 200, tolerance: 8 },
+        }),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         })
@@ -63,8 +70,9 @@ export function ImageUploadGrid({ images, onImagesChange }: ImageUploadGridProps
                 });
             }
             onImagesChange([...images, ...uploadedImages]);
-        } catch (err: any) {
-            alert('Failed to upload image: ' + (err.message || 'Unknown error'));
+        } catch (err) {
+            const errMessage = err instanceof Error ? err.message : 'Unknown error';
+            alert('Failed to upload image: ' + errMessage);
         } finally {
             setUploading(false);
             // Reset input
@@ -97,10 +105,7 @@ export function ImageUploadGrid({ images, onImagesChange }: ImageUploadGridProps
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
             >
-                <SortableContext
-                    items={images.map((i) => i.id)}
-                    strategy={horizontalListSortingStrategy}
-                >
+                <SortableContext items={images.map((i) => i.id)} strategy={rectSortingStrategy}>
                     <div className="flex flex-wrap gap-3 mb-4">
                         {images.map((image) => (
                             <SortableImage

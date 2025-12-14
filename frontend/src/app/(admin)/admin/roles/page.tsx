@@ -127,7 +127,7 @@ export default function RolesPage() {
                                 <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400">
                                     <Shield size={24} />
                                 </div>
-                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                     <button
                                         onClick={() => handleViewUsers(role)}
                                         className="p-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-cyan-400 transition-colors"

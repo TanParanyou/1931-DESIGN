@@ -35,34 +35,36 @@ function MenuItemRow({
 
     return (
         <div
-            className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+            className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg transition-colors ${
                 isChild
-                    ? 'bg-white/3 hover:bg-white/5 ml-6 border-l-2 border-purple-500/30'
+                    ? 'bg-white/3 hover:bg-white/5 ml-4 sm:ml-6 border-l-2 border-purple-500/30'
                     : 'bg-white/5 hover:bg-white/10'
             }`}
         >
-            <div className="flex items-center gap-3">
-                <span className="text-white/30 text-sm w-6 text-center">{menu.order}</span>
-                <span className={isGroup ? 'text-yellow-400' : 'text-purple-400'}>
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+                <span className="text-white/30 text-sm w-6 text-center shrink-0">{menu.order}</span>
+                <span className={`shrink-0 ${isGroup ? 'text-yellow-400' : 'text-purple-400'}`}>
                     <IconWrapper name={menu.icon || 'Menu'} />
                 </span>
-                <div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-white font-medium">{menu.title}</span>
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-white font-medium truncate">{menu.title}</span>
                         {isGroup && (
-                            <span className="px-2 py-0.5 rounded text-xs bg-yellow-500/10 text-yellow-400">
+                            <span className="px-2 py-0.5 rounded text-xs bg-yellow-500/10 text-yellow-400 shrink-0">
                                 Group
                             </span>
                         )}
                     </div>
                     {!isGroup && (
-                        <span className="text-white/40 text-sm font-mono">{menu.path}</span>
+                        <span className="text-white/40 text-xs sm:text-sm font-mono truncate block">
+                            {menu.path}
+                        </span>
                     )}
                 </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0 ml-9 sm:ml-0">
                 {menu.permission_slug && (
-                    <span className="px-2 py-0.5 rounded-full text-xs bg-purple-500/10 text-purple-400">
+                    <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-xs bg-purple-500/10 text-purple-400 truncate max-w-[120px]">
                         {menu.permission_slug}
                     </span>
                 )}
