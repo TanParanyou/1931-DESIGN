@@ -8,22 +8,25 @@ import { Edit2, Trash2, Plus, FolderKanban, Search, Download, Eye } from 'lucide
 import { PageLoading } from '@/components/ui/Loading';
 import { DataTable, Column } from '@/components/ui/DataTable';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
+import { useConfirm } from '@/components/ui/Modal';
 import { useDataTable } from '@/hooks/useDataTable';
 import { useCsvExport } from '@/hooks/useCsvExport';
 import { useAuth } from '@/context/AuthContext';
 import { projectService } from '@/services/project.service';
-import { Project, Category } from '@/types/project';
+import { Project } from '@/types/project';
 
 export default function ProjectsPage() {
     const [error, setError] = useState('');
-    const [categories, setCategories] = useState<Category[]>([]);
+    // TODO: categories ยังไม่ได้ใช้งาน - เก็บไว้สำหรับ filter ในอนาคต
+    // const [categories, setCategories] = useState<Category[]>([]);
     const { user } = useAuth();
     const canManage = user?.permissions?.includes('projects.manage');
+    const { confirm, ConfirmDialog } = useConfirm();
 
-    // Fetch categories on load
-    useState(() => {
-        projectService.getCategories().then(setCategories).catch(console.error);
-    });
+    // Fetch categories on load - ยังไม่ได้ใช้งาน
+    // useState(() => {
+    //     projectService.getCategories().then(setCategories).catch(console.error);
+    // });
 
     const fetchProjectsData = useCallback(async (params: any) => {
         try {
@@ -54,7 +57,14 @@ export default function ProjectsPage() {
     const { downloadCsv } = useCsvExport();
 
     const handleDelete = async (id: number) => {
-        if (!window.confirm('คุณต้องการลบโปรเจกต์นี้หรือไม่?')) return;
+        const confirmed = await confirm({
+            title: 'ยืนยันการลบ',
+            message: 'คุณต้องการลบโปรเจกต์นี้หรือไม่?',
+            confirmText: 'ลบ',
+            cancelText: 'ยกเลิก',
+            variant: 'danger',
+        });
+        if (!confirmed) return;
 
         try {
             const response = await projectService.deleteProject(id);
@@ -243,6 +253,7 @@ export default function ProjectsPage() {
                 onPageChange={onPageChange}
                 onSort={onSort}
             />
+            <ConfirmDialog />
         </div>
     );
 }

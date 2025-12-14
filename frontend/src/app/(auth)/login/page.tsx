@@ -26,12 +26,13 @@ export default function LoginPage() {
     const { login } = useAuth();
     const [loading, setLoading] = useState(false);
 
-    // โหลด saved username เมื่อ mount
+    // โหลด saved username เมื่อ mount และตั้งค่า loginMode เป็น 'pin' ถ้ามี saved username
     useEffect(() => {
         const saved = localStorage.getItem(SAVED_USERNAME_KEY);
         if (saved) {
             setSavedUsername(saved);
             setUsername(saved);
+            setLoginMode('pin'); // default เป็น PIN mode เมื่อมี saved username
         }
     }, []);
 

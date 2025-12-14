@@ -82,14 +82,7 @@ export function DataTable<T extends Record<string, any>>({
     return (
         <div className={cn('w-full space-y-4', className)}>
             {/* Table Container */}
-            <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl">
-                {/* Loading Overlay */}
-                {isLoading && (
-                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-                        <Loading variant="spinner" size="md" />
-                    </div>
-                )}
-
+            <div className="relative w-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl overflow-visible">
                 <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-left text-sm text-gray-200">
                         {/* Header */}
@@ -133,48 +126,60 @@ export function DataTable<T extends Record<string, any>>({
                         {/* Body */}
                         <tbody className="divide-y divide-white/5">
                             <AnimatePresence mode="wait">
-                                {safeData.length > 0
-                                    ? safeData.map((row, rowIdx) => (
-                                          <motion.tr
-                                              key={(row as { id?: string | number }).id ?? rowIdx}
-                                              initial={{ opacity: 0, y: 10 }}
-                                              animate={{ opacity: 1, y: 0 }}
-                                              exit={{ opacity: 0, y: -10 }}
-                                              transition={{ duration: 0.2, delay: rowIdx * 0.05 }}
-                                              className="group transition-colors hover:bg-white/5"
-                                          >
-                                              {columns.map((col, colIdx) => (
-                                                  <td
-                                                      key={colIdx}
-                                                      className={cn(
-                                                          'px-6 py-4 whitespace-nowrap',
-                                                          col.className
-                                                      )}
-                                                  >
-                                                      {col.cell
-                                                          ? col.cell(
-                                                                col.accessorKey
-                                                                    ? row[col.accessorKey]
-                                                                    : undefined,
-                                                                row
-                                                            )
-                                                          : col.accessorKey
-                                                            ? String(row[col.accessorKey])
-                                                            : null}
-                                                  </td>
-                                              ))}
-                                          </motion.tr>
-                                      ))
-                                    : !isLoading && (
-                                          <tr>
-                                              <td
-                                                  colSpan={columns.length}
-                                                  className="h-32 text-center text-gray-400"
-                                              >
-                                                  No data found
-                                              </td>
-                                          </tr>
-                                      )}
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan={columns.length} className="h-48">
+                                            <div className="flex items-center justify-center h-full">
+                                                <Loading
+                                                    variant="orbit"
+                                                    size="lg"
+                                                    text="กำลังโหลดข้อมูล..."
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : safeData.length > 0 ? (
+                                    safeData.map((row, rowIdx) => (
+                                        <motion.tr
+                                            key={(row as { id?: string | number }).id ?? rowIdx}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.2, delay: rowIdx * 0.05 }}
+                                            className="group transition-colors hover:bg-white/5"
+                                        >
+                                            {columns.map((col, colIdx) => (
+                                                <td
+                                                    key={colIdx}
+                                                    className={cn(
+                                                        'px-6 py-4 whitespace-nowrap',
+                                                        col.className
+                                                    )}
+                                                >
+                                                    {col.cell
+                                                        ? col.cell(
+                                                              col.accessorKey
+                                                                  ? row[col.accessorKey]
+                                                                  : undefined,
+                                                              row
+                                                          )
+                                                        : col.accessorKey
+                                                          ? String(row[col.accessorKey])
+                                                          : null}
+                                                </td>
+                                            ))}
+                                        </motion.tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td
+                                            colSpan={columns.length}
+                                            className="h-32 text-center text-gray-400"
+                                        >
+                                            No data found
+                                        </td>
+                                    </tr>
+                                )}
                             </AnimatePresence>
                         </tbody>
                     </table>

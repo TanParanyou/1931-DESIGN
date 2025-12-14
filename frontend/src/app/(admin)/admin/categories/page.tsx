@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit2, Trash2, GripVertical, Save, X } from 'lucide-react';
 import { Loading } from '@/components/ui/Loading';
+import { useConfirm } from '@/components/ui/Modal';
 import { projectService } from '@/services/project.service';
 import { Category, CreateCategoryInput } from '@/types/project';
 import {
@@ -93,6 +94,7 @@ export default function CategoriesPage() {
         slug: '',
         is_active: true,
     });
+    const { confirm, ConfirmDialog } = useConfirm();
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -151,8 +153,9 @@ export default function CategoriesPage() {
             setEditingCategory(null);
             setFormData({ name: '', slug: '', is_active: true });
             loadCategories();
-        } catch (err: any) {
-            alert('Failed to save: ' + (err.response?.data?.message || err.message));
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { message?: string } }; message?: string };
+            alert('Failed to save: ' + (error.response?.data?.message || error.message));
         } finally {
             setSaving(false);
         }
@@ -165,12 +168,20 @@ export default function CategoriesPage() {
     };
 
     const handleDelete = async (id: number) => {
-        if (!window.confirm('Delete this category?')) return;
+        const confirmed = await confirm({
+            title: 'ยืนยันการลบ',
+            message: 'คุณต้องการลบ Category นี้หรือไม่?',
+            variant: 'danger',
+            confirmText: 'ลบ',
+            cancelText: 'ยกเลิก',
+        });
+        if (!confirmed) return;
         try {
             await projectService.deleteCategory(id);
             loadCategories();
-        } catch (err: any) {
-            alert('Failed to delete: ' + (err.response?.data?.message || err.message));
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { message?: string } }; message?: string };
+            alert('Failed to delete: ' + (error.response?.data?.message || error.message));
         }
     };
 
@@ -344,6 +355,9 @@ export default function CategoriesPage() {
                     </div>
                 )}
             </div>
+
+            {/* Confirm Dialog for Delete */}
+            <ConfirmDialog />
         </div>
     );
 }

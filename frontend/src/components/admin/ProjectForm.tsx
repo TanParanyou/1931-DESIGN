@@ -111,11 +111,13 @@ export default function ProjectForm({ initialData, isEdit = false, projectId }: 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
     ) => {
-        const { id, value, type } = e.target;
+        // ใช้ name หรือ id สำหรับ form handling
+        const { name, id, value, type } = e.target;
+        const fieldName = name || id;
         const checked = (e.target as HTMLInputElement).checked;
         setFormData((prev) => ({
             ...prev,
-            [id]: type === 'checkbox' ? checked : value,
+            [fieldName]: type === 'checkbox' ? checked : value,
         }));
     };
 

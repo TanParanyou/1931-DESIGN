@@ -38,11 +38,13 @@ type UploadResult struct {
 
 // Image size constants
 const (
-	MainMaxWidth    = 1200
-	MainMaxHeight   = 900
+	// Main image - ขนาดใหญ่ขึ้นเพื่อความชัด
+	MainMaxWidth  = 1920
+	MainMaxHeight = 1440
+	// เดิม: MainMaxWidth = 1200, MainMaxHeight = 900
 	ThumbnailWidth  = 400
 	ThumbnailHeight = 300
-	JPEGQuality     = 85
+	JPEGQuality     = 92 // เพิ่มจาก 85 เพื่อความชัด
 )
 
 // NewR2Service creates a new R2 service instance
