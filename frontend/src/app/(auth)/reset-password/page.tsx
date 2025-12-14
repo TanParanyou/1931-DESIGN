@@ -14,7 +14,7 @@ import { PasswordStrength, usePasswordStrength } from '@/components/ui/PasswordS
 function ResetPasswordContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const token = searchParams.get('token');
+    const token = searchParams?.get('token');
 
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
