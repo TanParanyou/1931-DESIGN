@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
-//const API_URL = 'http://localhost:8080';
+//const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_URL = 'http://localhost:8080';
 
 const api = axios.create({
     baseURL: API_URL + '/api',
@@ -91,6 +91,17 @@ api.interceptors.response.use(
                 sessionStorage.removeItem('user');
                 window.location.href = '/login';
             }
+        }
+
+        // Handle 403 Forbidden - dispatch event for UI to handle
+        if (error.response && error.response.status === 403) {
+            const forbiddenEvent = new CustomEvent('forbidden-access', {
+                detail: {
+                    message: error.response.data?.error?.message || 'คุณไม่มีสิทธิ์เข้าถึงส่วนนี้',
+                    url: originalRequest.url,
+                },
+            });
+            window.dispatchEvent(forbiddenEvent);
         }
 
         return Promise.reject(error);

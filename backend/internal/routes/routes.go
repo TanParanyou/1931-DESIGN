@@ -137,4 +137,49 @@ func SetupRoutes(app *fiber.App) {
 	settings := api.Group("/settings", middleware.Protected(), middleware.Admin())
 	settings.Get("/", handlers.GetSettings)
 	settings.Put("/", handlers.UpdateSettings)
+
+	// ========== Business Profile System ==========
+
+	// Public Business Profile (ไม่ต้อง login)
+	api.Get("/businesses/:slug", handlers.GetBusinessBySlug)
+
+	// Admin Business Management (ต้อง login)
+	businesses := api.Group("/admin/businesses", middleware.Protected())
+	businesses.Get("/", handlers.GetMyBusinesses)
+	businesses.Post("/", handlers.CreateBusiness)
+	businesses.Get("/:id", handlers.GetBusinessByID)
+	businesses.Put("/:id", handlers.UpdateBusiness)
+	businesses.Put("/:id/status", handlers.UpdateBusinessStatus)
+	businesses.Delete("/:id", handlers.DeleteBusiness)
+
+	// Business Contact & Hours
+	businesses.Put("/:id/contact", handlers.UpdateBusinessContact)
+	businesses.Put("/:id/hours", handlers.UpdateBusinessHours)
+
+	// Service Categories
+	businesses.Get("/:business_id/service-categories", handlers.GetServiceCategories)
+	businesses.Post("/:business_id/service-categories", handlers.CreateServiceCategory)
+	businesses.Put("/:business_id/service-categories/:id", handlers.UpdateServiceCategory)
+	businesses.Delete("/:business_id/service-categories/:id", handlers.DeleteServiceCategory)
+
+	// Services
+	businesses.Get("/:business_id/services", handlers.GetServices)
+	businesses.Post("/:business_id/services", handlers.CreateService)
+	businesses.Put("/:business_id/services/order", handlers.UpdateServicesOrder)
+	businesses.Put("/:business_id/services/:id", handlers.UpdateService)
+	businesses.Delete("/:business_id/services/:id", handlers.DeleteService)
+
+	// Gallery
+	businesses.Get("/:business_id/gallery", handlers.GetGallery)
+	businesses.Post("/:business_id/gallery", handlers.AddGalleryImage)
+	businesses.Put("/:business_id/gallery/order", handlers.UpdateGalleryOrder)
+	businesses.Put("/:business_id/gallery/:id", handlers.UpdateGalleryImage)
+	businesses.Delete("/:business_id/gallery/:id", handlers.DeleteGalleryImage)
+
+	// Page Config
+	businesses.Get("/:business_id/page-config", handlers.GetPageConfig)
+	businesses.Put("/:business_id/page-config", handlers.UpdatePageConfig)
+	businesses.Put("/:business_id/page-config/theme", handlers.UpdateTheme)
+	businesses.Put("/:business_id/page-config/sections", handlers.UpdateSections)
+	businesses.Put("/:business_id/page-config/seo", handlers.UpdateSEO)
 }
