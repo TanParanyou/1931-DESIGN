@@ -8,16 +8,17 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 // ========== Helper Functions ==========
 
-// getUserIDFromToken - ดึง user ID จาก JWT token
+// getUserIDFromToken - ดึง user ID จาก middleware
 func getUserIDFromToken(c *fiber.Ctx) uint {
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	return uint(claims["user_id"].(float64))
+	userID := c.Locals("userID")
+	if userID == nil {
+		return 0
+	}
+	return userID.(uint)
 }
 
 // generateBusinessSlug - สร้าง slug จากชื่อ หรือใช้ custom slug
