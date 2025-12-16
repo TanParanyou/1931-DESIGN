@@ -60,13 +60,24 @@ const DAYS = ['อาทิตย์', 'จันทร์', 'อังคาร
 // Fetch business data
 async function getBusiness(slug: string): Promise<Business | null> {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
-        const res = await fetch(`${baseUrl}/businesses/${slug}`, {
+        // ใช้ NEXT_PUBLIC_API_URL_LOCAL สำหรับ dev mode (ถ้ามี)
+        const baseUrl =
+            process.env.NEXT_PUBLIC_API_URL_LOCAL ||
+            process.env.NEXT_PUBLIC_API_URL ||
+            'http://localhost:8080';
+        const url = `${baseUrl}/api/businesses/${slug}`;
+        console.log('Fetching business from:', url);
+        const res = await fetch(url, {
             cache: 'no-store',
         });
-        if (!res.ok) return null;
-        return res.json();
-    } catch {
+        if (!res.ok) {
+            console.log('Response not ok:', res.status);
+            return null;
+        }
+        const data = await res.json();
+        return data;
+    } catch (err) {
+        console.error('Error fetching business:', err);
         return null;
     }
 }

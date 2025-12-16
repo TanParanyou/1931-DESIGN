@@ -122,3 +122,21 @@ export const apiHelpers = {
     delete: <T>(url: string, config?: AxiosRequestConfig) =>
         api.delete<T>(url, config).then((res) => res.data),
 };
+
+// Upload image helper
+export const uploadImage = async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+        const response = await api.post('/upload/image', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data?.data?.url || response.data?.url || null;
+    } catch (err) {
+        console.error('Upload failed:', err);
+        return null;
+    }
+};

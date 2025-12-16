@@ -148,22 +148,13 @@ export default function EditBusinessPage({ params }: PageProps) {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (!file) return;
 
-            const formData = new FormData();
-            formData.append('image', file);
-
             try {
-                const response = await fetch('/api/upload/image', {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
-                    body: formData,
-                });
-                const data = await response.json();
-                if (data.url) {
+                const { uploadImage } = await import('@/lib/api');
+                const url = await uploadImage(file);
+                if (url) {
                     setInfoForm((prev) => ({
                         ...prev,
-                        [type === 'logo' ? 'logo_url' : 'cover_url']: data.url,
+                        [type === 'logo' ? 'logo_url' : 'cover_url']: url,
                     }));
                 }
             } catch (err) {

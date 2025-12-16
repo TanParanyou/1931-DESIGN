@@ -53,21 +53,12 @@ export default function GalleryPage({ params }: PageProps) {
 
             setUploading(true);
             try {
+                const { uploadImage } = await import('@/lib/api');
                 for (const file of Array.from(files)) {
-                    const formData = new FormData();
-                    formData.append('image', file);
-
-                    const response = await fetch('/api/upload/image', {
-                        method: 'POST',
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        },
-                        body: formData,
-                    });
-                    const data = await response.json();
-                    if (data.url) {
+                    const url = await uploadImage(file);
+                    if (url) {
                         await businessService.addGalleryImage(businessId, {
-                            image_url: data.url,
+                            image_url: url,
                             sort_order: gallery.length,
                         });
                     }
