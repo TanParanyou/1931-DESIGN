@@ -12,6 +12,8 @@ export interface Business {
     desc_en: string;
     logo_url: string;
     cover_url: string;
+    cover_pos_x: number; // ตำแหน่ง X ของภาพปก (0-100%)
+    cover_pos_y: number; // ตำแหน่ง Y ของภาพปก (0-100%)
     status: 'draft' | 'published';
     is_active: boolean;
     created_at: string;

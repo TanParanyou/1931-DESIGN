@@ -13,6 +13,8 @@ type Business struct {
 	DescEN    string    `json:"desc_en" gorm:"type:text"`      // คำอธิบายภาษาอังกฤษ
 	LogoURL   string    `json:"logo_url"`                      // โลโก้
 	CoverURL  string    `json:"cover_url"`                     // ภาพปก
+	CoverPosX float64   `json:"cover_pos_x" gorm:"default:50"` // ตำแหน่ง X ของภาพปก (0-100%)
+	CoverPosY float64   `json:"cover_pos_y" gorm:"default:50"` // ตำแหน่ง Y ของภาพปก (0-100%)
 	Status    string    `json:"status" gorm:"default:'draft'"` // draft, published
 	IsActive  bool      `json:"is_active" gorm:"default:true"` // เปิด/ปิดใช้งาน
 	CreatedAt time.Time `json:"created_at"`

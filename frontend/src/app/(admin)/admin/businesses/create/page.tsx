@@ -6,6 +6,8 @@ import { ArrowLeft, Store, Upload, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { ImageCropModal, CropType } from '@/components/ui/ImageCropModal';
 import { businessService } from '@/services/business.service';
 
 export default function CreateBusinessPage() {
@@ -19,6 +21,17 @@ export default function CreateBusinessPage() {
         slug: '',
         logo_url: '',
         cover_url: '',
+    });
+
+    // สำหรับ Crop Modal
+    const [cropModal, setCropModal] = useState<{
+        isOpen: boolean;
+        imageSrc: string;
+        type: CropType;
+    }>({
+        isOpen: false,
+        imageSrc: '',
+        type: 'cover',
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -41,7 +54,8 @@ export default function CreateBusinessPage() {
         }
     };
 
-    const handleImageUpload = async (type: 'logo' | 'cover') => {
+    // อัพโหลดรูปแล้วเปิด crop modal
+    const handleImageUpload = async (type: CropType) => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -49,21 +63,47 @@ export default function CreateBusinessPage() {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (!file) return;
 
-            try {
-                const { uploadImage } = await import('@/lib/api');
-                const url = await uploadImage(file);
-                if (url) {
-                    setForm((prev) => ({
-                        ...prev,
-                        [type === 'logo' ? 'logo_url' : 'cover_url']: url,
-                    }));
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Failed to upload image');
-            }
+            // สร้าง URL สำหรับ preview ใน crop modal
+            const objectUrl = URL.createObjectURL(file);
+            setCropModal({
+                isOpen: true,
+                imageSrc: objectUrl,
+                type,
+            });
         };
         input.click();
+    };
+
+    // หลังจาก crop เสร็จ - อัพโหลดภาพที่ crop แล้ว
+    const handleCropComplete = async (croppedImage: string) => {
+        try {
+            // แปลง base64 เป็น Blob (หลีกเลี่ยง CSP error จาก fetch data URL)
+            const base64Data = croppedImage.split(',')[1];
+            const byteCharacters = atob(base64Data);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'image/jpeg' });
+            const file = new File([blob], `${cropModal.type}_image.jpg`, {
+                type: 'image/jpeg',
+            });
+
+            // อัพโหลดไปยัง server
+            const { uploadImage } = await import('@/lib/api');
+            const url = await uploadImage(file);
+
+            if (url) {
+                setForm((prev) => ({
+                    ...prev,
+                    [cropModal.type === 'logo' ? 'logo_url' : 'cover_url']: url,
+                }));
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Failed to upload image');
+        }
     };
 
     return (
@@ -87,8 +127,10 @@ export default function CreateBusinessPage() {
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-300">ภาพปก</label>
                     <div
-                        onClick={() => handleImageUpload('cover')}
-                        className="relative h-48 bg-white/5 border-2 border-dashed border-white/20 rounded-xl overflow-hidden cursor-pointer hover:border-indigo-500/50 transition-all group"
+                        onClick={() => !form.cover_url && handleImageUpload('cover')}
+                        className={`relative h-48 bg-white/5 border-2 border-dashed border-white/20 rounded-xl overflow-hidden transition-all group ${
+                            form.cover_url ? '' : 'cursor-pointer hover:border-indigo-500/50'
+                        }`}
                     >
                         {form.cover_url ? (
                             <>
@@ -98,16 +140,32 @@ export default function CreateBusinessPage() {
                                     fill
                                     className="object-cover"
                                 />
-                                <button
+                                {/* Overlay with actions */}
+                                <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleImageUpload('cover');
+                                        }}
+                                        leftIcon={<Upload size={16} />}
+                                    >
+                                        เปลี่ยนภาพ
+                                    </Button>
+                                </div>
+                                {/* ปุ่มลบ */}
+                                <Button
                                     type="button"
+                                    variant="ghost"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setForm((prev) => ({ ...prev, cover_url: '' }));
                                     }}
-                                    className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-red-500 rounded-full transition-all"
+                                    className="absolute top-2 right-2 !p-1.5 bg-black/50 hover:!bg-red-500 rounded-full z-10"
                                 >
-                                    <X size={16} />
-                                </button>
+                                    <X size={16} className="text-white" />
+                                </Button>
                             </>
                         ) : (
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500 group-hover:text-indigo-400 transition-all">
@@ -123,8 +181,10 @@ export default function CreateBusinessPage() {
                     <label className="text-sm font-medium text-gray-300">โลโก้</label>
                     <div className="flex items-center gap-4">
                         <div
-                            onClick={() => handleImageUpload('logo')}
-                            className="relative w-24 h-24 bg-white/5 border-2 border-dashed border-white/20 rounded-xl overflow-hidden cursor-pointer hover:border-indigo-500/50 transition-all group"
+                            onClick={() => !form.logo_url && handleImageUpload('logo')}
+                            className={`relative w-24 h-24 bg-white/5 border-2 border-dashed border-white/20 rounded-xl overflow-hidden transition-all group ${
+                                form.logo_url ? '' : 'cursor-pointer hover:border-indigo-500/50'
+                            }`}
                         >
                             {form.logo_url ? (
                                 <>
@@ -134,16 +194,32 @@ export default function CreateBusinessPage() {
                                         fill
                                         className="object-cover"
                                     />
-                                    <button
+                                    {/* Overlay with actions */}
+                                    <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleImageUpload('logo');
+                                            }}
+                                            className="!p-1.5"
+                                        >
+                                            <Upload size={14} />
+                                        </Button>
+                                    </div>
+                                    {/* ปุ่มลบ */}
+                                    <Button
                                         type="button"
+                                        variant="ghost"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setForm((prev) => ({ ...prev, logo_url: '' }));
                                         }}
-                                        className="absolute top-1 right-1 p-1 bg-black/50 hover:bg-red-500 rounded-full transition-all"
+                                        className="absolute top-1 right-1 !p-1 bg-black/50 hover:!bg-red-500 rounded-full"
                                     >
                                         <X size={12} />
-                                    </button>
+                                    </Button>
                                 </>
                             ) : (
                                 <div className="absolute inset-0 flex items-center justify-center text-gray-500 group-hover:text-indigo-400 transition-all">
@@ -157,45 +233,30 @@ export default function CreateBusinessPage() {
 
                 {/* Name */}
                 <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-300">ชื่อร้าน (ไทย)</label>
-                        <input
-                            type="text"
-                            value={form.name_th}
-                            onChange={(e) =>
-                                setForm((prev) => ({ ...prev, name_th: e.target.value }))
-                            }
-                            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500/50"
-                            placeholder="เช่น ร้านกาแฟสุขใจ"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-300">
-                            ชื่อร้าน (อังกฤษ)
-                        </label>
-                        <input
-                            type="text"
-                            value={form.name_en}
-                            onChange={(e) =>
-                                setForm((prev) => ({ ...prev, name_en: e.target.value }))
-                            }
-                            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500/50"
-                            placeholder="e.g. Happy Coffee Shop"
-                        />
-                    </div>
+                    <Input
+                        label="ชื่อร้าน (ไทย)"
+                        value={form.name_th}
+                        onChange={(e) => setForm((prev) => ({ ...prev, name_th: e.target.value }))}
+                        placeholder="เช่น ร้านกาแฟสุขใจ"
+                    />
+                    <Input
+                        label="ชื่อร้าน (อังกฤษ)"
+                        value={form.name_en}
+                        onChange={(e) => setForm((prev) => ({ ...prev, name_en: e.target.value }))}
+                        placeholder="e.g. Happy Coffee Shop"
+                    />
                 </div>
 
                 {/* Slug */}
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300">
+                <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-300 ml-1">
                         URL Slug (ไม่บังคับ)
                     </label>
                     <div className="flex items-center">
-                        <span className="px-4 py-2.5 bg-white/10 border border-white/10 border-r-0 rounded-l-xl text-gray-500 text-sm">
+                        <span className="px-4 py-3 bg-white/10 border border-white/10 border-r-0 rounded-l-lg text-gray-500 text-sm">
                             yourapp.com/p/
                         </span>
-                        <input
-                            type="text"
+                        <Input
                             value={form.slug}
                             onChange={(e) =>
                                 setForm((prev) => ({
@@ -203,7 +264,7 @@ export default function CreateBusinessPage() {
                                     slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
                                 }))
                             }
-                            className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-r-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500/50"
+                            className="rounded-l-none"
                             placeholder="my-shop (ถ้าไม่ใส่จะ auto generate)"
                         />
                     </div>
@@ -241,17 +302,23 @@ export default function CreateBusinessPage() {
 
                 {/* Actions */}
                 <div className="flex items-center justify-end gap-4 pt-6 border-t border-white/10">
-                    <Link
-                        href="/admin/businesses"
-                        className="px-6 py-2.5 text-gray-400 hover:text-white transition-all"
-                    >
+                    <Button variant="ghost" onClick={() => router.push('/admin/businesses')}>
                         ยกเลิก
-                    </Link>
+                    </Button>
                     <Button type="submit" isLoading={loading}>
                         สร้างร้าน
                     </Button>
                 </div>
             </form>
+
+            {/* Image Crop Modal */}
+            <ImageCropModal
+                isOpen={cropModal.isOpen}
+                onClose={() => setCropModal((prev) => ({ ...prev, isOpen: false }))}
+                imageSrc={cropModal.imageSrc}
+                cropType={cropModal.type}
+                onCropComplete={handleCropComplete}
+            />
         </div>
     );
 }

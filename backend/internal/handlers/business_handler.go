@@ -132,13 +132,15 @@ func GetBusinessByID(c *fiber.Ctx) error {
 
 // CreateBusinessRequest - request body สำหรับสร้างร้าน
 type CreateBusinessRequest struct {
-	NameTH   string `json:"name_th"`
-	NameEN   string `json:"name_en"`
-	DescTH   string `json:"desc_th"`
-	DescEN   string `json:"desc_en"`
-	LogoURL  string `json:"logo_url"`
-	CoverURL string `json:"cover_url"`
-	Slug     string `json:"slug"` // optional - ถ้าไม่ใส่จะ auto generate
+	NameTH    string   `json:"name_th"`
+	NameEN    string   `json:"name_en"`
+	DescTH    string   `json:"desc_th"`
+	DescEN    string   `json:"desc_en"`
+	LogoURL   string   `json:"logo_url"`
+	CoverURL  string   `json:"cover_url"`
+	CoverPosX *float64 `json:"cover_pos_x"` // ตำแหน่ง X ของภาพปก (0-100%)
+	CoverPosY *float64 `json:"cover_pos_y"` // ตำแหน่ง Y ของภาพปก (0-100%)
+	Slug      string   `json:"slug"`        // optional - ถ้าไม่ใส่จะ auto generate
 }
 
 // CreateBusiness - สร้างร้านใหม่
@@ -270,6 +272,14 @@ func UpdateBusiness(c *fiber.Ctx) error {
 	business.DescEN = req.DescEN
 	business.LogoURL = req.LogoURL
 	business.CoverURL = req.CoverURL
+
+	// Update cover position ถ้ามีค่าส่งมา
+	if req.CoverPosX != nil {
+		business.CoverPosX = *req.CoverPosX
+	}
+	if req.CoverPosY != nil {
+		business.CoverPosY = *req.CoverPosY
+	}
 
 	// Update slug if provided
 	if req.Slug != "" && req.Slug != business.Slug {

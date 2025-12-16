@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { PageLoading } from '@/components/ui/Loading';
 import { Button } from '@/components/ui/Button';
+import { ImageCropModal, CropType } from '@/components/ui/ImageCropModal';
 import {
     businessService,
     Business,
@@ -53,7 +54,6 @@ export default function EditBusinessPage({ params }: PageProps) {
     const [saving, setSaving] = useState(false);
     const [business, setBusiness] = useState<Business | null>(null);
 
-    // Form states
     const [infoForm, setInfoForm] = useState({
         name_th: '',
         name_en: '',
@@ -66,6 +66,17 @@ export default function EditBusinessPage({ params }: PageProps) {
 
     const [contactForm, setContactForm] = useState<Partial<BusinessContact>>({});
     const [hoursForm, setHoursForm] = useState<BusinessHour[]>([]);
+
+    // สำหรับ Crop Modal
+    const [cropModal, setCropModal] = useState<{
+        isOpen: boolean;
+        imageSrc: string;
+        type: CropType;
+    }>({
+        isOpen: false,
+        imageSrc: '',
+        type: 'cover',
+    });
 
     useEffect(() => {
         fetchBusiness();
@@ -140,7 +151,8 @@ export default function EditBusinessPage({ params }: PageProps) {
         }
     };
 
-    const handleImageUpload = async (type: 'logo' | 'cover') => {
+    // อัพโหลดรูปแล้วเปิด crop modal
+    const handleImageUpload = async (type: CropType) => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -148,21 +160,47 @@ export default function EditBusinessPage({ params }: PageProps) {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (!file) return;
 
-            try {
-                const { uploadImage } = await import('@/lib/api');
-                const url = await uploadImage(file);
-                if (url) {
-                    setInfoForm((prev) => ({
-                        ...prev,
-                        [type === 'logo' ? 'logo_url' : 'cover_url']: url,
-                    }));
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Failed to upload image');
-            }
+            // สร้าง URL สำหรับ preview ใน crop modal
+            const objectUrl = URL.createObjectURL(file);
+            setCropModal({
+                isOpen: true,
+                imageSrc: objectUrl,
+                type,
+            });
         };
         input.click();
+    };
+
+    // หลังจาก crop เสร็จ - อัพโหลดภาพที่ crop แล้ว
+    const handleCropComplete = async (croppedImage: string) => {
+        try {
+            // แปลง base64 เป็น Blob (หลีกเลี่ยง CSP error จาก fetch data URL)
+            const base64Data = croppedImage.split(',')[1];
+            const byteCharacters = atob(base64Data);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'image/jpeg' });
+            const file = new File([blob], `${cropModal.type}_image.jpg`, {
+                type: 'image/jpeg',
+            });
+
+            // อัพโหลดไปยัง server
+            const { uploadImage } = await import('@/lib/api');
+            const url = await uploadImage(file);
+
+            if (url) {
+                setInfoForm((prev) => ({
+                    ...prev,
+                    [cropModal.type === 'logo' ? 'logo_url' : 'cover_url']: url,
+                }));
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Failed to upload image');
+        }
     };
 
     if (loading) return <PageLoading text="กำลังโหลดข้อมูลร้าน..." />;
@@ -240,8 +278,12 @@ export default function EditBusinessPage({ params }: PageProps) {
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-gray-300">ภาพปก</label>
                             <div
-                                onClick={() => handleImageUpload('cover')}
-                                className="relative h-48 bg-white/5 border-2 border-dashed border-white/20 rounded-xl overflow-hidden cursor-pointer hover:border-indigo-500/50 transition-all group"
+                                onClick={() => !infoForm.cover_url && handleImageUpload('cover')}
+                                className={`relative h-48 bg-white/5 border-2 border-dashed border-white/20 rounded-xl overflow-hidden transition-all group ${
+                                    infoForm.cover_url
+                                        ? ''
+                                        : 'cursor-pointer hover:border-indigo-500/50'
+                                }`}
                             >
                                 {infoForm.cover_url ? (
                                     <>
@@ -251,16 +293,32 @@ export default function EditBusinessPage({ params }: PageProps) {
                                             fill
                                             className="object-cover"
                                         />
-                                        <button
+                                        {/* Overlay with actions */}
+                                        <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleImageUpload('cover');
+                                                }}
+                                                leftIcon={<Upload size={16} />}
+                                            >
+                                                เปลี่ยนภาพ
+                                            </Button>
+                                        </div>
+                                        {/* ปุ่มลบ */}
+                                        <Button
                                             type="button"
+                                            variant="ghost"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setInfoForm((prev) => ({ ...prev, cover_url: '' }));
                                             }}
-                                            className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-red-500 rounded-full transition-all"
+                                            className="absolute top-2 right-2 !p-1.5 bg-black/50 hover:!bg-red-500 rounded-full z-10"
                                         >
-                                            <X size={16} />
-                                        </button>
+                                            <X size={16} className="text-white" />
+                                        </Button>
                                     </>
                                 ) : (
                                     <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500 group-hover:text-indigo-400">
@@ -276,8 +334,12 @@ export default function EditBusinessPage({ params }: PageProps) {
                             <label className="text-sm font-medium text-gray-300">โลโก้</label>
                             <div className="flex items-center gap-4">
                                 <div
-                                    onClick={() => handleImageUpload('logo')}
-                                    className="relative w-24 h-24 bg-white/5 border-2 border-dashed border-white/20 rounded-xl overflow-hidden cursor-pointer hover:border-indigo-500/50 transition-all group"
+                                    onClick={() => !infoForm.logo_url && handleImageUpload('logo')}
+                                    className={`relative w-24 h-24 bg-white/5 border-2 border-dashed border-white/20 rounded-xl overflow-hidden transition-all group ${
+                                        infoForm.logo_url
+                                            ? ''
+                                            : 'cursor-pointer hover:border-indigo-500/50'
+                                    }`}
                                 >
                                     {infoForm.logo_url ? (
                                         <>
@@ -287,8 +349,24 @@ export default function EditBusinessPage({ params }: PageProps) {
                                                 fill
                                                 className="object-cover"
                                             />
-                                            <button
+                                            {/* Overlay with actions */}
+                                            <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleImageUpload('logo');
+                                                    }}
+                                                    className="!p-1.5"
+                                                >
+                                                    <Upload size={14} />
+                                                </Button>
+                                            </div>
+                                            {/* ปุ่มลบ */}
+                                            <Button
                                                 type="button"
+                                                variant="ghost"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setInfoForm((prev) => ({
@@ -296,10 +374,10 @@ export default function EditBusinessPage({ params }: PageProps) {
                                                         logo_url: '',
                                                     }));
                                                 }}
-                                                className="absolute top-1 right-1 p-1 bg-black/50 hover:bg-red-500 rounded-full"
+                                                className="absolute top-1 right-1 !p-1 bg-black/50 hover:!bg-red-500 rounded-full"
                                             >
                                                 <X size={12} />
-                                            </button>
+                                            </Button>
                                         </>
                                     ) : (
                                         <div className="absolute inset-0 flex items-center justify-center text-gray-500 group-hover:text-indigo-400">
@@ -307,6 +385,7 @@ export default function EditBusinessPage({ params }: PageProps) {
                                         </div>
                                     )}
                                 </div>
+                                <span className="text-sm text-gray-500">แนะนำขนาด 256x256 px</span>
                             </div>
                         </div>
 
@@ -701,6 +780,15 @@ export default function EditBusinessPage({ params }: PageProps) {
                     </div>
                 )}
             </div>
+
+            {/* Image Crop Modal */}
+            <ImageCropModal
+                isOpen={cropModal.isOpen}
+                onClose={() => setCropModal((prev) => ({ ...prev, isOpen: false }))}
+                imageSrc={cropModal.imageSrc}
+                cropType={cropModal.type}
+                onCropComplete={handleCropComplete}
+            />
         </div>
     );
 }
