@@ -31,11 +31,20 @@ func GetProjects(c *fiber.Ctx) error {
 	var projects []models.Project
 	var total int64
 
-	if err := database.DB.Model(&models.Project{}).Count(&total).Error; err != nil {
+	db := database.DB.Model(&models.Project{})
+	if isActive := c.Query("is_active"); isActive != "" {
+		if isActive == "true" {
+			db = db.Where("is_active = ?", true)
+		} else if isActive == "false" {
+			db = db.Where("is_active = ?", false)
+		}
+	}
+
+	if err := db.Count(&total).Error; err != nil {
 		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not count projects"))
 	}
 
-	if err := database.DB.Order("sort_order asc").Offset(offset).Limit(limit).Find(&projects).Error; err != nil {
+	if err := db.Order("sort_order asc").Offset(offset).Limit(limit).Find(&projects).Error; err != nil {
 		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not fetch projects"))
 	}
 
