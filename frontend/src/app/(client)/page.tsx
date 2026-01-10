@@ -18,7 +18,7 @@ export default function Home() {
             try {
                 setIsLoading(true);
                 // ดึง 4 projects แรก สำหรับแสดงในหน้าแรก
-                const response = await projectService.getProjects(1, 4);
+                const response = await projectService.getProjects(1, 4, undefined, true);
                 setProjects(response.data || []);
             } catch (error) {
                 console.error('Failed to fetch projects:', error);
@@ -88,8 +88,8 @@ export default function Home() {
 
                                         {/* Glass Card Overlay on Hover */}
                                         <div className="absolute inset-x-0 bottom-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                                            <div className="glass p-6 rounded-xl">
-                                                <span className="text-xs tracking-widest text-green-300">
+                                            <div className="bg-black/60 backdrop-blur-md border border-white/10 p-4 rounded-xl text-center">
+                                                <span className="text-xs tracking-widest text-white font-medium">
                                                     VIEW PROJECT
                                                 </span>
                                             </div>

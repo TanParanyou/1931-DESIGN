@@ -19,8 +19,8 @@ export const settingService = {
 
     getPublicSettingsServer: async () => {
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL_LOCAL || 'http://localhost:8080/api';
-            const response = await fetch(`${apiUrl}/api/public/settings`, {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL_LOCAL || 'http://127.0.0.1:8080/api';
+            const response = await fetch(`${apiUrl}/public/settings`, {
                 next: { revalidate: 60 },
             });
             if (!response.ok) return null;
