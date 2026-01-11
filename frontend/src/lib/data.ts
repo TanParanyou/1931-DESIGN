@@ -69,7 +69,6 @@ export const translations = {
             ERROR: 'Failed to send message. Please try again.',
             SENDING: 'Sending...',
             REQUIRED: 'Required',
-            REQUIRED: 'Required',
             MESSAGE_HINT: '(Minimum 10 characters)',
             MAP_LABEL: 'Google Map',
         },
