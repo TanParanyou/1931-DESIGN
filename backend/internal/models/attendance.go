@@ -24,6 +24,8 @@ type Attendance struct {
 	CheckOutTime *time.Time       `json:"check_out_time"`
 	LocationIn   string           `json:"location_in"`  // Lat,Long or JSON
 	LocationOut  string           `json:"location_out"` // Lat,Long or JSON
+	PhotoIn      string           `json:"photo_in" gorm:"type:text"`
+	PhotoOut     string           `json:"photo_out" gorm:"type:text"`
 	Status       AttendanceStatus `json:"status"`
 	WorkHours    float64          `json:"work_hours"` // Calculated hours
 	Notes        string           `json:"notes"`

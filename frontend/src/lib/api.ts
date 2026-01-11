@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
 //const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-const API_URL = 'http://localhost:8080';
+const API_URL = 'http://127.0.0.1:8080';
 
 const api = axios.create({
     baseURL: API_URL + '/api',
@@ -13,9 +13,11 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
+        if (typeof window !== 'undefined') {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            if (token) {
+                config.headers['Authorization'] = `Bearer ${token}`;
+            }
         }
         return config;
     },
@@ -32,7 +34,7 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         // Prevent redirect loop if the error is from the login endpoint itself
-        if (originalRequest.url?.includes('/auth/login')) {
+        if (originalRequest?.url?.includes('/auth/login')) {
             return Promise.reject(error);
         }
 

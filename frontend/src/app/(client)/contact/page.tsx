@@ -241,9 +241,13 @@ export default function ContactPage() {
                                     name="message"
                                     rows={4}
                                     required
+                                    minLength={10}
                                     defaultValue={state.inputs?.message}
                                     className="w-full bg-transparent border-b border-white/20 py-2 focus:outline-none focus:border-green-400 transition-colors resize-none text-white"
                                 ></textarea>
+                                <div className="text-right text-[10px] text-white/40 mt-1">
+                                    {t.contact.MESSAGE_HINT}
+                                </div>
                                 {state.errors?.message && (
                                     <p className="text-red-400 text-xs mt-1">
                                         {state.errors.message[0]}

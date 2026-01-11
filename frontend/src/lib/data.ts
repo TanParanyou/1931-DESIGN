@@ -33,6 +33,7 @@ export const translations = {
             ERROR: 'Failed to send message. Please try again.',
             SENDING: 'Sending...',
             REQUIRED: 'Required',
+            MESSAGE_HINT: '(Minimum 10 characters)',
         },
         footer: {
             RIGHTS: 'ALL RIGHTS RESERVED.',
@@ -70,6 +71,7 @@ export const translations = {
             ERROR: 'ส่งข้อความไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
             SENDING: 'กำลังส่ง...',
             REQUIRED: 'จำเป็น',
+            MESSAGE_HINT: '(อย่างน้อย 10 ตัวอักษร)',
         },
         footer: {
             RIGHTS: 'สงวนลิขสิทธิ์',

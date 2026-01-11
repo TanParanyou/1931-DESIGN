@@ -12,6 +12,7 @@ import (
 
 type CheckInOutRequest struct {
 	Location string `json:"location"` // "lat,long"
+	Photo    string `json:"photo"`
 }
 
 // CheckIn handles user check-in
@@ -59,6 +60,7 @@ func CheckIn(c *fiber.Ctx) error {
 		Date:        today,
 		CheckInTime: &now,
 		LocationIn:  req.Location,
+		PhotoIn:     req.Photo,
 		Status:      status,
 	}
 
@@ -104,6 +106,7 @@ func CheckOut(c *fiber.Ctx) error {
 	now := time.Now()
 	attendance.CheckOutTime = &now
 	attendance.LocationOut = req.Location
+	attendance.PhotoOut = req.Photo
 
 	// Calculate Work Hours
 	if attendance.CheckInTime != nil {
