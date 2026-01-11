@@ -5,14 +5,15 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Project } from '@/types/project';
-import { Skeleton } from '@/components/ui/Loading';
+import { Skeleton, Loading } from '@/components/ui/Loading';
 
 interface HeroSliderProps {
     projects: Project[];
     isLoading?: boolean;
+    loadingText?: string;
 }
 
-export const HeroSlider = ({ projects, isLoading = false }: HeroSliderProps) => {
+export const HeroSlider = ({ projects, isLoading = false, loadingText }: HeroSliderProps) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [touchStart, setTouchStart] = useState(0);
     const [touchEnd, setTouchEnd] = useState(0);
@@ -64,16 +65,8 @@ export const HeroSlider = ({ projects, isLoading = false }: HeroSliderProps) => 
     if (isLoading) {
         return (
             <div className="relative h-screen w-full overflow-hidden bg-black flex items-center justify-center">
-                <div className="absolute inset-0">
-                    <Skeleton className="w-full h-full" />
-                </div>
-                <div className="absolute inset-0 bg-black/50" />
-                <div className="relative z-10 text-center">
-                    <div className="animate-pulse">
-                        <Skeleton className="h-6 w-32 mx-auto mb-4" />
-                        <Skeleton className="h-16 w-64 mx-auto" />
-                    </div>
-                </div>
+                <div className="absolute inset-0 bg-black/80" />
+                <Loading variant="orbit" size="xl" text={loadingText} />
             </div>
         );
     }

@@ -9,6 +9,7 @@ import { projectService } from '@/services/project.service';
 import { Project } from '@/types/project';
 import { Lightbox } from '@/components/ui/Lightbox';
 import { Loading } from '@/components/ui/Loading';
+import { motion } from 'framer-motion';
 
 export default function ProjectDetailPage() {
     const params = useParams();
@@ -59,13 +60,13 @@ export default function ProjectDetailPage() {
     if (loading) {
         return (
             <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen flex items-center justify-center">
-                <Loading variant="orbit" size="xl" text="กำลังโหลด..." />
+                <Loading variant="orbit" size="xl" text={t.projects.LOADING} />
             </div>
         );
     }
 
     if (!project) {
-        return null;
+        return null; // Handle null case or show specific 404
     }
 
     const coverImage = project.images?.[0] || '';
@@ -74,7 +75,12 @@ export default function ProjectDetailPage() {
     return (
         <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen">
             {/* Header */}
-            <div className="mb-16">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="mb-16"
+            >
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                     <div>
                         <h1 className="text-4xl md:text-6xl font-light tracking-wide mb-2 text-white">
@@ -86,92 +92,124 @@ export default function ProjectDetailPage() {
                         {project.category}
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Main Image */}
             {coverImage && (
-                <div
-                    className="relative aspect-video w-full mb-16 rounded-2xl overflow-hidden cursor-pointer group border border-white/10 shadow-2xl"
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="relative aspect-video w-full mb-16 rounded-3xl overflow-hidden cursor-pointer group border border-white/10 shadow-2xl"
                     onClick={() => openLightbox(0)}
                 >
                     <Image
                         src={coverImage}
                         alt={project.title}
                         fill
-                        className="object-cover transition-opacity group-hover:opacity-90"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                         priority
                     />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="glass px-6 py-3 text-sm tracking-widest text-white rounded-full">
-                            VIEW GALLERY
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500" />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span className="bg-black/60 backdrop-blur-md border border-white/10 px-8 py-4 text-sm tracking-[0.2em] text-white rounded-full">
+                            {t.projects.VIEW_GALLERY}
                         </span>
                     </div>
-                </div>
+                </motion.div>
             )}
 
             {/* Description */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 mb-24">
-                <div className="lg:col-span-2 glass p-8 md:p-12 rounded-2xl border-white/10 bg-black/20">
-                    <h2 className="text-xl font-medium tracking-wide mb-6 text-green-200">
-                        PROJECT DESCRIPTION
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="lg:col-span-2 relative"
+                >
+                    {/* Decorative line */}
+                    <div className="absolute -top-8 left-0 w-24 h-1 bg-linear-to-r from-green-500 to-transparent" />
+
+                    <h2 className="text-xl font-medium tracking-[0.2em] mb-8 text-white">
+                        {t.projects.DESCRIPTION}
                     </h2>
-                    <p className="text-white/80 leading-relaxed text-lg font-light">
-                        {project.description || 'No description available.'}
+                    <p className="text-white/70 leading-relaxed text-lg font-light whitespace-pre-line">
+                        {project.description || t.projects.NO_DESCRIPTION}
                     </p>
-                </div>
-                <div className="space-y-6">
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.4 }}
+                    className="space-y-6"
+                >
                     {project.owner && (
-                        <div className="glass p-6 rounded-xl border-white/10 bg-black/20">
-                            <h3 className="text-xs font-bold tracking-widest mb-2 text-green-300">
-                                OWNER
+                        <div className="p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xs">
+                            <h3 className="text-xs font-bold tracking-[0.2em] mb-3 text-green-400">
+                                {t.projects.OWNER}
                             </h3>
-                            <p className="text-white/90">{project.owner}</p>
+                            <p className="text-white/90 font-light">{project.owner}</p>
                         </div>
                     )}
-                    <div className="glass p-6 rounded-xl border-white/10 bg-black/20">
-                        <h3 className="text-xs font-bold tracking-widest mb-2 text-green-300">
-                            LOCATION
+                    <div className="p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xs">
+                        <h3 className="text-xs font-bold tracking-[0.2em] mb-3 text-green-400">
+                            {t.projects.LOCATION}
                         </h3>
-                        <p className="text-white/90">{project.location}</p>
+                        <p className="text-white/90 font-light">{project.location}</p>
                         {project.location_map_link && (
                             <a
                                 href={project.location_map_link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm text-indigo-400 hover:underline mt-2 inline-block"
+                                className="text-xs text-white/50 hover:text-white mt-4 inline-flex items-center gap-2 transition-colors border-b border-white/20 pb-1"
                             >
-                                View on Map →
+                                {t.projects.VIEW_MAP} →
                             </a>
                         )}
                     </div>
-                    <div className="glass p-6 rounded-xl border-white/10 bg-black/20">
-                        <h3 className="text-xs font-bold tracking-widest mb-2 text-green-300">
-                            STATUS
+                    <div className="p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xs">
+                        <h3 className="text-xs font-bold tracking-[0.2em] mb-3 text-green-400">
+                            {t.projects.STATUS}
                         </h3>
-                        <p className="text-white/90">{project.status}</p>
+                        <p className="text-white/90 font-light">{project.status}</p>
                     </div>
-                </div>
+                </motion.div>
             </div>
 
             {/* Gallery Grid */}
             {gallery.length > 1 && (
                 <div className="mb-24">
-                    <h2 className="text-2xl font-light tracking-wide mb-8 text-white">GALLERY</h2>
+                    <motion.h2
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="text-2xl font-light tracking-wide mb-12 text-white"
+                    >
+                        {t.projects.GALLERY}
+                    </motion.h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {gallery.map((img, index) => (
-                            <div
+                            <motion.div
                                 key={index}
-                                className="relative aspect-square rounded-xl overflow-hidden cursor-pointer group border border-white/10"
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: index * 0.1 }}
+                                className="relative aspect-square rounded-2xl overflow-hidden cursor-pointer group border border-white/10"
                                 onClick={() => openLightbox(index)}
                             >
                                 <Image
                                     src={img}
                                     alt={`Gallery ${index + 1}`}
                                     fill
-                                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                                 />
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                            </div>
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                            </motion.div>
                         ))}
                     </div>
                 </div>
@@ -179,36 +217,57 @@ export default function ProjectDetailPage() {
 
             {/* Related Projects */}
             {relatedProjects.length > 0 && (
-                <div className="border-t border-white/10 pt-16">
-                    <h2 className="text-2xl font-light tracking-wide mb-12 text-white">
+                <div className="border-t border-white/10 pt-24">
+                    <motion.h2
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="text-2xl font-light tracking-[0.2em] mb-16 text-white text-center"
+                    >
                         {t.projects.RELATED}
-                    </h2>
+                    </motion.h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {relatedProjects.map((related) => (
-                            <Link
+                        {relatedProjects.map((related, index) => (
+                            <motion.div
                                 key={related.id}
-                                href={`/projects/${related.id}`}
-                                className="group cursor-pointer"
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: index * 0.1 }}
                             >
-                                <div className="relative aspect-4/3 overflow-hidden rounded-xl mb-4 border border-white/10">
-                                    {related.images?.[0] ? (
-                                        <Image
-                                            src={related.images[0]}
-                                            alt={related.title}
-                                            fill
-                                            className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                        />
-                                    ) : (
-                                        <div className="absolute inset-0 bg-white/5" />
-                                    )}
-                                </div>
-                                <h3 className="text-lg font-medium tracking-wide text-white group-hover:text-green-300 transition-colors">
-                                    {related.title}
-                                </h3>
-                                <p className="text-xs text-white/50 tracking-widest mt-1">
-                                    {related.location}
-                                </p>
-                            </Link>
+                                <Link
+                                    href={`/projects/${related.id}`}
+                                    className="group cursor-pointer block"
+                                >
+                                    <div className="relative aspect-4/3 overflow-hidden rounded-2xl mb-6 border border-white/10 bg-white/5">
+                                        {related.images?.[0] ? (
+                                            <Image
+                                                src={related.images[0]}
+                                                alt={related.title}
+                                                fill
+                                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                            />
+                                        ) : (
+                                            <div className="absolute inset-0 bg-white/5" />
+                                        )}
+                                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500" />
+
+                                        {/* Simple overlay for related projects */}
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <div className="bg-black/40 backdrop-blur-sm p-3 rounded-full border border-white/20">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h3 className="text-lg font-light tracking-wide text-white group-hover:text-green-400 transition-colors duration-300">
+                                        {related.title}
+                                    </h3>
+                                    <p className="text-xs text-white/50 tracking-[0.2em] mt-2 group-hover:text-white/70 transition-colors">
+                                        {related.location}
+                                    </p>
+                                </Link>
+                            </motion.div>
                         ))}
                     </div>
                 </div>

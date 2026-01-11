@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { MapPin, Phone, Mail, Copy, Check } from 'lucide-react';
 import { useActionState } from 'react';
+import { motion } from 'framer-motion';
 import { sendContactEmail, ContactFormState } from './actions';
 import { settingService } from '@/services/setting.service';
 import { siteConfig } from '@/config/site.config';
@@ -57,25 +58,35 @@ export default function ContactPage() {
 
     return (
         <div className="pt-32 pb-24 px-6 max-w-[1920px] mx-auto min-h-screen">
-            <h1 className="text-4xl md:text-6xl font-light tracking-wide mb-16 text-white">
+            <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="text-4xl md:text-6xl font-light tracking-wide mb-16 text-white"
+            >
                 {t.contact.TITLE}
-            </h1>
+            </motion.h1>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                 {/* Info */}
-                <div className="space-y-12 glass p-10 rounded-2xl border-white/10 bg-black/20 h-fit">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="space-y-12 p-8 md:p-10 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md h-fit"
+                >
                     <div>
-                        <h3 className="text-sm font-bold tracking-widest mb-6 tx-green">
+                        <h3 className="text-sm font-bold tracking-[0.2em] mb-8 text-green-400">
                             {t.contact.HEADQUARTERS}
                         </h3>
-                        <div className="flex gap-4 items-start text-white/80 mb-4 group">
-                            <MapPin size={20} className="mt-1 shrink-0 tx-green" />
+                        <div className="flex gap-4 items-start text-white/80 mb-6 group">
+                            <MapPin size={20} className="mt-1 shrink-0 text-white/60 group-hover:text-green-400 transition-colors" />
                             <p className="leading-relaxed font-light whitespace-pre-line flex-1">
                                 {address}
                             </p>
                             <button
                                 onClick={handleCopyAddress}
-                                className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white/50 hover:text-white"
+                                className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/50 hover:text-white"
                                 title="Copy Address"
                             >
                                 {addressCopied ? (
@@ -85,79 +96,78 @@ export default function ContactPage() {
                                 )}
                             </button>
                         </div>
-                        <div className="flex gap-4 items-center text-white/80 mb-4">
-                            <Phone size={20} className="shrink-0 tx-green" />
+                        <div className="flex gap-4 items-center text-white/80 mb-4 group">
+                            <Phone size={20} className="shrink-0 text-white/60 group-hover:text-green-400 transition-colors" />
                             <a
                                 href={`tel:${phone}`}
-                                className="font-light hover:text-green-300 hover:border-green-300 transition-all"
+                                className="font-light hover:text-white transition-all border-b border-transparent hover:border-white pb-0.5"
                             >
                                 {phone}
                             </a>
                         </div>
-                        <div className="flex gap-4 items-center text-white/80 mb-4">
-                            <Phone size={20} className="shrink-0 tx-green" />
+                        <div className="flex gap-4 items-center text-white/80 mb-4 group">
+                            <Phone size={20} className="shrink-0 text-white/60 group-hover:text-green-400 transition-colors" />
                             <a
                                 href={`tel:${phone2}`}
-                                className="font-light hover:text-green-300 hover:border-green-300 transition-all"
+                                className="font-light hover:text-white transition-all border-b border-transparent hover:border-white pb-0.5"
                             >
                                 {phone2}
                             </a>
                         </div>
-                        <div className="flex gap-4 items-center text-white/80">
-                            <Mail size={20} className="shrink-0 tx-green" />
+                        <div className="flex gap-4 items-center text-white/80 group">
+                            <Mail size={20} className="shrink-0 text-white/60 group-hover:text-green-400 transition-colors" />
                             <a
                                 href={`mailto:${email}`}
-                                className="font-light hover:text-green-300 hover:border-green-300 transition-all"
+                                className="font-light hover:text-white transition-all border-b border-transparent hover:border-white pb-0.5"
                             >
                                 {email}
                             </a>
                         </div>
                     </div>
 
-                    {/* <div>
-                        <h3 className="text-sm font-bold tracking-widest mb-6 tx-green">
-                            {t.contact.CAREERS}
-                        </h3>
-                        <p className="text-white/80 mb-4 font-light">
-                            We are always looking for talented individuals to join our team.
-                        </p>
-                        <a
-                            href={`mailto:${email}`}
-                            className="tx-green border-b border-white/30 pb-1 hover:text-green-300 hover:border-green-300 transition-all"
-                        >
-                            {email}
-                        </a>
-                    </div> */}
-                    <div className="text-white/80 font-light mb-2">Google Map</div>
-                    <div className="w-full h-64 rounded-lg overflow-hidden border border-white/10">
-                        {mapUrl && (
-                            <iframe
-                                id="map"
-                                width="100%"
-                                height="100%"
-                                style={{ border: 0 }}
-                                loading="lazy"
-                                allowFullScreen
-                                referrerPolicy="no-referrer-when-downgrade"
-                                src={mapUrl}
-                                title="Google Map"
-                            ></iframe>
-                        )}
+                    <div>
+                        <div className="text-xs font-bold tracking-[0.2em] mb-6 text-white/40 uppercase">
+                            {t.contact.MAP_LABEL}
+                        </div>
+                        <div className="w-full h-64 rounded-2xl overflow-hidden border border-white/10 grayscale hover:grayscale-0 transition-all duration-700">
+                            {mapUrl && (
+                                <iframe
+                                    id="map"
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0 }}
+                                    loading="lazy"
+                                    allowFullScreen
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                    src={mapUrl}
+                                    title="Google Map"
+                                ></iframe>
+                            )}
+                        </div>
                     </div>
-                </div>
+                </motion.div>
+
                 {/* Form */}
-                {/* Form */}
-                <div className="glass p-8 md:p-12 rounded-2xl border-white/10 bg-black/20">
-                    <h3 className="text-xl font-light tracking-wide mb-8 text-white">
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, delay: 0.4 }}
+                    className="p-8 md:p-12 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md"
+                >
+                    <h3 className="text-2xl font-light tracking-wide mb-10 text-white">
                         {t.contact.SEND_MESSAGE}
                     </h3>
 
                     {state.success ? (
-                        <div className="text-center py-12 space-y-6">
-                            <div className="w-16 h-16 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="text-center py-12 space-y-6"
+                        >
+                            <div className="w-20 h-20 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto border border-green-500/30">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
-                                    className="h-8 w-8"
+                                    className="h-10 w-10"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -165,24 +175,24 @@ export default function ContactPage() {
                                     <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                        strokeWidth={2}
+                                        strokeWidth={1.5}
                                         d="M5 13l4 4L19 7"
                                     />
                                 </svg>
                             </div>
-                            <h4 className="text-2xl text-white font-light">{t.contact.SUCCESS}</h4>
+                            <h4 className="text-3xl text-white font-light">{t.contact.SUCCESS}</h4>
                             <button
                                 onClick={() => window.location.reload()}
-                                className="text-sm text-white/60 hover:text-green-400 transition-colors border-b border-transparent hover:border-green-400 pb-1"
+                                className="text-sm text-white/50 hover:text-white transition-colors border-b border-transparent hover:border-white pb-1 mt-4"
                             >
                                 {t.contact.SEND}
                             </button>
-                        </div>
+                        </motion.div>
                     ) : (
-                        <form action={formAction} className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-xs font-bold tracking-widest mb-2 text-white/60">
+                        <form action={formAction} className="space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="group">
+                                    <label className="block text-xs font-bold tracking-[0.2em] mb-3 text-white/40 group-focus-within:text-green-400 transition-colors">
                                         {t.contact.NAME} <span className="text-red-400">*</span>
                                     </label>
                                     <input
@@ -190,16 +200,17 @@ export default function ContactPage() {
                                         name="name"
                                         required
                                         defaultValue={state.inputs?.name}
-                                        className="w-full bg-transparent border-b border-white/20 py-2 focus:outline-none focus:border-green-400 transition-colors text-white"
+                                        className="w-full bg-transparent border-b border-white/10 py-3 focus:outline-none focus:border-green-400 transition-colors text-white font-light text-lg"
+                                        placeholder=""
                                     />
                                     {state.errors?.name && (
-                                        <p className="text-red-400 text-xs mt-1">
+                                        <p className="text-red-400 text-xs mt-2">
                                             {state.errors.name[0]}
                                         </p>
                                     )}
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold tracking-widest mb-2 text-white/60">
+                                <div className="group">
+                                    <label className="block text-xs font-bold tracking-[0.2em] mb-3 text-white/40 group-focus-within:text-green-400 transition-colors">
                                         {t.contact.EMAIL} <span className="text-red-400">*</span>
                                     </label>
                                     <input
@@ -207,17 +218,17 @@ export default function ContactPage() {
                                         name="email"
                                         required
                                         defaultValue={state.inputs?.email}
-                                        className="w-full bg-transparent border-b border-white/20 py-2 focus:outline-none focus:border-green-400 transition-colors text-white"
+                                        className="w-full bg-transparent border-b border-white/10 py-3 focus:outline-none focus:border-green-400 transition-colors text-white font-light text-lg"
                                     />
                                     {state.errors?.email && (
-                                        <p className="text-red-400 text-xs mt-1">
+                                        <p className="text-red-400 text-xs mt-2">
                                             {state.errors.email[0]}
                                         </p>
                                     )}
                                 </div>
                             </div>
-                            <div>
-                                <label className="block text-xs font-bold tracking-widest mb-2 text-white/60">
+                            <div className="group">
+                                <label className="block text-xs font-bold tracking-[0.2em] mb-3 text-white/40 group-focus-within:text-green-400 transition-colors">
                                     {t.contact.SUBJECT} <span className="text-red-400">*</span>
                                 </label>
                                 <input
@@ -225,16 +236,16 @@ export default function ContactPage() {
                                     name="subject"
                                     required
                                     defaultValue={state.inputs?.subject}
-                                    className="w-full bg-transparent border-b border-white/20 py-2 focus:outline-none focus:border-green-400 transition-colors text-white"
+                                    className="w-full bg-transparent border-b border-white/10 py-3 focus:outline-none focus:border-green-400 transition-colors text-white font-light text-lg"
                                 />
                                 {state.errors?.subject && (
-                                    <p className="text-red-400 text-xs mt-1">
+                                    <p className="text-red-400 text-xs mt-2">
                                         {state.errors.subject[0]}
                                     </p>
                                 )}
                             </div>
-                            <div>
-                                <label className="block text-xs font-bold tracking-widest mb-2 text-white/60">
+                            <div className="group">
+                                <label className="block text-xs font-bold tracking-[0.2em] mb-3 text-white/40 group-focus-within:text-green-400 transition-colors">
                                     {t.contact.MESSAGE} <span className="text-red-400">*</span>
                                 </label>
                                 <textarea
@@ -243,20 +254,23 @@ export default function ContactPage() {
                                     required
                                     minLength={10}
                                     defaultValue={state.inputs?.message}
-                                    className="w-full bg-transparent border-b border-white/20 py-2 focus:outline-none focus:border-green-400 transition-colors resize-none text-white"
+                                    className="w-full bg-transparent border-b border-white/10 py-3 focus:outline-none focus:border-green-400 transition-colors resize-none text-white font-light text-lg leading-relaxed"
                                 ></textarea>
-                                <div className="text-right text-[10px] text-white/40 mt-1">
+                                <div className="text-right text-[10px] text-white/30 mt-2 uppercase tracking-wide">
                                     {t.contact.MESSAGE_HINT}
                                 </div>
                                 {state.errors?.message && (
-                                    <p className="text-red-400 text-xs mt-1">
+                                    <p className="text-red-400 text-xs mt-2">
                                         {state.errors.message[0]}
                                     </p>
                                 )}
                             </div>
 
                             {state.message && !state.success && (
-                                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-red-200 text-sm">
+                                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-200 text-sm flex items-center gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
                                     {state.message}
                                 </div>
                             )}
@@ -264,7 +278,7 @@ export default function ContactPage() {
                             <button
                                 type="submit"
                                 disabled={isPending}
-                                className="bg-white text-black px-8 py-3 text-sm tracking-widest hover:bg-green-300 transition-colors mt-4 rounded-full font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                className="bg-white text-black px-10 py-4 text-xs tracking-[0.2em] hover:bg-green-400 hover:text-black transition-all duration-300 mt-6 rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 w-full md:w-auto uppercase"
                             >
                                 {isPending ? (
                                     <>
@@ -277,7 +291,7 @@ export default function ContactPage() {
                             </button>
                         </form>
                     )}
-                </div>
+                </motion.div>
             </div>
         </div>
     );
