@@ -1,6 +1,7 @@
 'use server';
 
 import { ContactService } from '@/services/contact.service';
+import axios from 'axios';
 
 export type ContactFormState = {
     success: boolean;
@@ -53,6 +54,9 @@ export async function sendContactEmail(
             inputs: { name: '', email: '', subject: '', message: '' },
         };
     } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            console.error('Backend validation error:', JSON.stringify(error.response.data, null, 2));
+        }
         console.error('Failed to submit contact:', error);
         const errorMessage =
             error instanceof Error ? error.message : 'Failed to send message. Please try again.';

@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/Button';
-import { MapPin, Clock, LogIn, LogOut, Coffee } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { MapPin, Clock, LogIn, LogOut, Coffee, Camera } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import CameraCapture from './CameraCapture';
 
 export default function AttendanceCheckIn() {
     const [status, setStatus] = useState<'loading' | 'checked-in' | 'checked-out' | 'unknown'>('loading');
@@ -13,6 +14,12 @@ export default function AttendanceCheckIn() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [location, setLocation] = useState('');
+
+    // Photo Feature
+    const [showCamera, setShowCamera] = useState(false);
+    const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+    const [requirePhoto, setRequirePhoto] = useState(true); // Default to true, configurable
+    const [pendingAction, setPendingAction] = useState<'in' | 'out' | null>(null);
 
     useEffect(() => {
         // Clock timer
@@ -79,13 +86,17 @@ export default function AttendanceCheckIn() {
         });
     };
 
-    const handleCheckIn = async () => {
+    const processCheckIn = async (photoData: string | null) => {
         setLoading(true);
         setError('');
         try {
             const loc = await getLocation();
             setLocation(loc);
-            await api.post('/hr/attendance/check-in', { location: loc });
+            await api.post('/hr/attendance/check-in', {
+                location: loc,
+                photo: photoData
+            });
+            setCapturedPhoto(null);
             await fetchStatus();
         } catch (err: any) {
             setError(err.response?.data?.error || err.toString() || 'Check-in failed');
@@ -94,12 +105,25 @@ export default function AttendanceCheckIn() {
         }
     };
 
-    const handleCheckOut = async () => {
+    const handleCheckIn = async () => {
+        if (requirePhoto && !capturedPhoto) {
+            setPendingAction('in');
+            setShowCamera(true);
+            return;
+        }
+        await processCheckIn(capturedPhoto);
+    };
+
+    const processCheckOut = async (photoData: string | null) => {
         setLoading(true);
         setError('');
         try {
             const loc = await getLocation();
-            await api.post('/hr/attendance/check-out', { location: loc });
+            await api.post('/hr/attendance/check-out', {
+                location: loc,
+                photo: photoData
+            });
+            setCapturedPhoto(null);
             await fetchStatus();
         } catch (err: any) {
             setError(err.response?.data?.error || err.toString() || 'Check-out failed');
@@ -108,13 +132,51 @@ export default function AttendanceCheckIn() {
         }
     };
 
+    const handleCheckOut = async () => {
+        if (requirePhoto && !capturedPhoto) {
+            setPendingAction('out');
+            setShowCamera(true);
+            return;
+        }
+        await processCheckOut(capturedPhoto);
+    };
+
+    const handlePhotoCapture = (image: string) => {
+        setCapturedPhoto(image);
+        setShowCamera(false);
+
+        // Auto proceed if we know what the action was
+        if (pendingAction === 'in') {
+            processCheckIn(image);
+        } else if (pendingAction === 'out') {
+            processCheckOut(image);
+        }
+        setPendingAction(null);
+    };
+
     // Time formatting
     const timeStr = currentTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const dateStr = currentTime.toLocaleDateString('th-TH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     return (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-xl flex flex-col items-center justify-center text-center space-y-6 max-w-md w-full mx-auto">
-            <div className="space-y-2">
+            <div className="space-y-2 relative w-full">
+                {/* Config Toggle */}
+                <div className="absolute right-0 top-0">
+                    <button
+                        onClick={() => setRequirePhoto(!requirePhoto)}
+                        className={`p-2 rounded-full transition-colors ${requirePhoto ? 'text-emerald-400 bg-emerald-400/10' : 'text-gray-600 hover:text-gray-400'}`}
+                        title={requirePhoto ? "Photo Required" : "Photo Optional"}
+                    >
+                        <Camera size={16} />
+                        {/* Dot indicator */}
+                        <span className={`absolute top-2 right-2 flex h-2 w-2`}>
+                            <span className={`${requirePhoto ? 'animate-ping' : 'hidden'} absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75`}></span>
+                            <span className={`relative inline-flex rounded-full h-2 w-2 ${requirePhoto ? 'bg-emerald-500' : 'bg-gray-500'}`}></span>
+                        </span>
+                    </button>
+                </div>
+
                 <h2 className="text-gray-400 text-sm font-medium uppercase tracking-wider">{dateStr}</h2>
                 <div className="text-5xl md:text-6xl font-bold text-white tracking-tight font-mono">
                     {timeStr}
@@ -191,6 +253,20 @@ export default function AttendanceCheckIn() {
                     </motion.div>
                 )}
             </div>
-        </div>
+
+
+            {/* Camera Modal */}
+            <AnimatePresence>
+                {showCamera && (
+                    <CameraCapture
+                        onCapture={handlePhotoCapture}
+                        onClose={() => {
+                            setShowCamera(false);
+                            setPendingAction(null);
+                        }}
+                    />
+                )}
+            </AnimatePresence>
+        </div >
     );
 }

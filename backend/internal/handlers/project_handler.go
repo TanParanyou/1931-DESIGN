@@ -31,11 +31,20 @@ func GetProjects(c *fiber.Ctx) error {
 	var projects []models.Project
 	var total int64
 
-	if err := database.DB.Model(&models.Project{}).Count(&total).Error; err != nil {
+	db := database.DB.Model(&models.Project{})
+	if isActive := c.Query("is_active"); isActive != "" {
+		if isActive == "true" {
+			db = db.Where("is_active = ?", true)
+		} else if isActive == "false" {
+			db = db.Where("is_active = ?", false)
+		}
+	}
+
+	if err := db.Count(&total).Error; err != nil {
 		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not count projects"))
 	}
 
-	if err := database.DB.Order("sort_order asc").Offset(offset).Limit(limit).Find(&projects).Error; err != nil {
+	if err := db.Order("sort_order asc").Offset(offset).Limit(limit).Find(&projects).Error; err != nil {
 		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not fetch projects"))
 	}
 
@@ -119,15 +128,24 @@ func UpdateProject(c *fiber.Ctx) error {
 		return utils.SendError(c, fiber.StatusNotFound, errors.New("project not found"))
 	}
 
-	updateData := new(models.Project)
-	if err := c.BodyParser(updateData); err != nil {
+	var updateData map[string]interface{}
+	if err := c.BodyParser(&updateData); err != nil {
 		return utils.SendError(c, fiber.StatusBadRequest, errors.New("invalid input"))
 	}
 
-	// Manually update fields to avoid zero-value issues with structs if needed,
-	// or use Model(&project).Updates(updateData)
-	// For simplicity using Model updates
-	database.DB.Model(&project).Updates(updateData)
+	// Filter out non-updatable fields if necessary, specifically ID or protected fields
+	delete(updateData, "id")
+	delete(updateData, "created_at")
+	delete(updateData, "created_by")
+	// updated_at will be handled by GORM or DB trigger, but good to let GORM handle it
+
+	// Use Model(&project).Updates(updateData) to update fields including zero values (like is_active=false)
+	if err := database.DB.Model(&project).Updates(updateData).Error; err != nil {
+		return utils.SendError(c, fiber.StatusInternalServerError, errors.New("could not update project"))
+	}
+
+	// Refresh project data to return the latest state
+	database.DB.First(&project, id)
 
 	// Audit Log
 	services.CreateAuditLog(c, "PROJECT_UPDATE", project.ID, "project", map[string]string{"title": project.Title})

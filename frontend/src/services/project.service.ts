@@ -11,9 +11,10 @@ import {
 
 export const projectService = {
     // Projects
-    getProjects: async (page = 1, limit = 10, category?: string) => {
+    getProjects: async (page = 1, limit = 10, category?: string, isActive?: boolean) => {
         const params: Record<string, any> = { page, limit };
         if (category) params.category = category;
+        if (isActive !== undefined) params.is_active = isActive;
         const response = await api.get<any>('/projects', { params });
         return response.data;
     },

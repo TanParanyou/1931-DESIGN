@@ -48,6 +48,9 @@ func ConnectDB() {
 		&models.Category{},                       // Categories
 		&models.Department{}, &models.Position{}, // HR Master Data
 		&models.PasswordReset{}, // Password Reset Tokens
+		// Business Profile System
+		&models.Business{}, &models.BusinessContact{}, &models.BusinessHour{},
+		&models.ServiceCategory{}, &models.Service{}, &models.Gallery{}, &models.PageConfig{},
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database: ", err)
@@ -135,6 +138,8 @@ func seedRBAC() {
 		{Slug: "attendance.manage", Description: "Manage Attendance"},
 		{Slug: "leaves.view", Description: "View Leaves"},
 		{Slug: "leaves.manage", Description: "Manage Leave Requests"},
+		{Slug: "businesses.view", Description: "View Business Profiles"},
+		{Slug: "businesses.manage", Description: "Create, Edit, Delete Business Profiles"},
 	}
 
 	for _, p := range permissions {
@@ -201,6 +206,7 @@ func seedRBAC() {
 		{Path: "/admin/attendance", Title: "Attendance", Icon: "Clock", PermissionSlug: "attendance.view", Order: 10},
 		{Path: "/admin/leaves", Title: "Leaves", Icon: "Calendar", PermissionSlug: "leaves.view", Order: 11},
 		{Path: "/admin/audit-logs", Title: "Audit Logs", Icon: "FileText", PermissionSlug: "audit_logs.view", Order: 12},
+		{Path: "/admin/businesses", Title: "Business Profiles", Icon: "Store", PermissionSlug: "businesses.view", Order: 13},
 		{Path: "/admin/profile", Title: "My Profile", Icon: "User", PermissionSlug: "", Order: 99},
 	}
 

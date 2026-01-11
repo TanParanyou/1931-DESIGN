@@ -5,14 +5,15 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Project } from '@/types/project';
-import { Skeleton } from '@/components/ui/Loading';
+import { Skeleton, Loading } from '@/components/ui/Loading';
 
 interface HeroSliderProps {
     projects: Project[];
     isLoading?: boolean;
+    loadingText?: string;
 }
 
-export const HeroSlider = ({ projects, isLoading = false }: HeroSliderProps) => {
+export const HeroSlider = ({ projects, isLoading = false, loadingText }: HeroSliderProps) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [touchStart, setTouchStart] = useState(0);
     const [touchEnd, setTouchEnd] = useState(0);
@@ -64,16 +65,8 @@ export const HeroSlider = ({ projects, isLoading = false }: HeroSliderProps) => 
     if (isLoading) {
         return (
             <div className="relative h-screen w-full overflow-hidden bg-black flex items-center justify-center">
-                <div className="absolute inset-0">
-                    <Skeleton className="w-full h-full" />
-                </div>
-                <div className="absolute inset-0 bg-black/50" />
-                <div className="relative z-10 text-center">
-                    <div className="animate-pulse">
-                        <Skeleton className="h-6 w-32 mx-auto mb-4" />
-                        <Skeleton className="h-16 w-64 mx-auto" />
-                    </div>
-                </div>
+                <div className="absolute inset-0 bg-black/80" />
+                <Loading variant="orbit" size="xl" text={loadingText} />
             </div>
         );
     }
@@ -115,12 +108,14 @@ export const HeroSlider = ({ projects, isLoading = false }: HeroSliderProps) => 
                         src={currentProject.images?.[0] || '/images/placeholder.jpg'}
                         alt={currentProject.title}
                         fill
+                        sizes="100vw"
+                        quality={100}
                         className="object-cover"
                         priority
                     />
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-black/80" />
-                    <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+                    <div className="absolute inset-0 bg-black/20" />
                 </motion.div>
             </AnimatePresence>
 
@@ -179,14 +174,14 @@ export const HeroSlider = ({ projects, isLoading = false }: HeroSliderProps) => 
                 <>
                     <button
                         onClick={prevSlide}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all hidden md:block"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all hidden md:block cursor-pointer"
                         aria-label="Previous slide"
                     >
                         <ChevronLeft className="w-8 h-8" />
                     </button>
                     <button
                         onClick={nextSlide}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all hidden md:block"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all hidden md:block cursor-pointer"
                         aria-label="Next slide"
                     >
                         <ChevronRight className="w-8 h-8" />
@@ -203,11 +198,10 @@ export const HeroSlider = ({ projects, isLoading = false }: HeroSliderProps) => 
                             <button
                                 key={index}
                                 onClick={() => setCurrentSlide(index)}
-                                className={`h-1.5 rounded-full transition-all duration-500 ${
-                                    currentSlide === index
-                                        ? 'bg-white w-8'
-                                        : 'bg-white/30 w-4 hover:bg-white/60 cursor-pointer'
-                                }`}
+                                className={`h-1.5 rounded-full transition-all duration-500 ${currentSlide === index
+                                    ? 'bg-white w-8'
+                                    : 'bg-white/30 w-4 hover:bg-white/60 cursor-pointer'
+                                    }`}
                                 aria-label={`Go to slide ${index + 1}`}
                             />
                         ))}
